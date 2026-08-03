@@ -16,8 +16,8 @@
   "outputs": [
     {
       "path": "projections/example-otel-genai.json",
-      "sha256": "5de59b10becdb19bef926d482baaa4420185233a92aea498fd4b891eec10b76a",
-      "bytes": 1542,
+      "sha256": "6e67fae7b98778ba6f926aa44f09b1985ceeb5d06910b7041af077bd20881774",
+      "bytes": 1482,
       "media_type": "application/json"
     }
   ],

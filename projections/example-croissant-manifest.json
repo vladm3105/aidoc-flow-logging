@@ -16,8 +16,8 @@
   "outputs": [
     {
       "path": "projections/example-croissant.json",
-      "sha256": "955a22a0d2f9ce5fb2a91788600601bb1af5affb3ad5a47e85b3803716d1b448",
-      "bytes": 820,
+      "sha256": "6d7fba0ec0b237eb9e7616993143eeb4e2ec00c64f3f3d092a8d2e98ec69351c",
+      "bytes": 796,
       "media_type": "application/json"
     }
   ],

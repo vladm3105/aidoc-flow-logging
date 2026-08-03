@@ -16,8 +16,8 @@
   "outputs": [
     {
       "path": "projections/example-openlineage.json",
-      "sha256": "d6293361b384fab545548e9fe9b1d185db602d7cdc6e675ba33b70f5bb9ea528",
-      "bytes": 928,
+      "sha256": "10a0401c6f3405ae82048411c434b46d2e003a59a2bf74e0c4d6d1c369d7d114",
+      "bytes": 894,
       "media_type": "application/json"
     }
   ],

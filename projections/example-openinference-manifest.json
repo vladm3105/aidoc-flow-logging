@@ -16,8 +16,8 @@
   "outputs": [
     {
       "path": "projections/example-openinference.json",
-      "sha256": "1b1234d6061ddcfb675e26e8763cbbe3abcbc908d706225d241544948f3f9253",
-      "bytes": 584,
+      "sha256": "d4c448b13885f6ea18008d2f0cedb647ad8014181d1f6a4c514a8876e7db5711",
+      "bytes": 561,
       "media_type": "application/json"
     }
   ],

@@ -85,6 +85,19 @@ class ProfileGoldenVectors(unittest.TestCase):
         module.verify_index(candidate, report)
         self.assertIn("index offsets and line digests", report.failures)
 
+    def test_index_rejects_parent_traversal(self) -> None:
+        index = json.loads((BASE / "example-index.json").read_text(encoding="utf-8"))
+        index["source"]["path"] = "../example-trajectory.jsonl"
+        self.assertTrue(validate(index, "ualf-index.schema.json"))
+
+    def test_index_missing_source_is_rejected_cleanly(self) -> None:
+        module = load_module()
+        index = json.loads((BASE / "example-index.json").read_text(encoding="utf-8"))
+        index["source"]["path"] = "missing.jsonl"
+        report = module.Report()
+        module.verify_index(index, report)
+        self.assertIn("index source exists", report.failures)
+
     def test_segment_tampering_is_rejected(self) -> None:
         module = load_module()
         manifest = json.loads((BASE / "example-segment-manifest.json").read_text(encoding="utf-8"))
@@ -92,6 +105,19 @@ class ProfileGoldenVectors(unittest.TestCase):
         report = module.Report()
         module.verify_segments(manifest, report)
         self.assertIn("segment exact coverage", report.failures)
+
+    def test_segment_rejects_parent_traversal(self) -> None:
+        manifest = json.loads((BASE / "example-segment-manifest.json").read_text(encoding="utf-8"))
+        manifest["source"]["path"] = "../example-trajectory.jsonl"
+        self.assertTrue(validate(manifest, "ualf-segment-manifest.schema.json"))
+
+    def test_segment_missing_source_is_rejected_cleanly(self) -> None:
+        module = load_module()
+        manifest = json.loads((BASE / "example-segment-manifest.json").read_text(encoding="utf-8"))
+        manifest["source"]["path"] = "missing.jsonl"
+        report = module.Report()
+        module.verify_segments(manifest, report)
+        self.assertIn("segment source exists", report.failures)
 
     def test_analytics_projection_has_stable_tables(self) -> None:
         expected = {"traces", "events", "model_calls", "tool_calls", "content_refs", "evaluations", "outcomes"}
@@ -114,6 +140,18 @@ class ProfileGoldenVectors(unittest.TestCase):
             report = module.Report()
             module.verify_dsse(candidate, manifest, report)
         self.assertIn("DSSE Ed25519 signature", report.failures)
+
+    def test_otel_projection_timestamps_match_source(self) -> None:
+        module_path = BASE / "build_profiles.py"
+        spec = importlib.util.spec_from_file_location("ualf_build_profiles", module_path)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        trace = [json.loads(line) for line in (BASE / "example-trajectory.jsonl").read_text(encoding="utf-8").splitlines()]
+        otel = json.loads((BASE / "projections" / "example-otel-genai.json").read_text(encoding="utf-8"))
+        span = otel["resourceSpans"][0]["scopeSpans"][0]["spans"][0]
+        self.assertEqual(span["startTimeUnixNano"], module.unix_nano(trace[0]["started_at"]))
+        self.assertEqual(span["endTimeUnixNano"], module.unix_nano(trace[-1]["timestamp"]))
 
 
 if __name__ == "__main__":

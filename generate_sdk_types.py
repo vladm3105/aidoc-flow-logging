@@ -26,7 +26,7 @@ def main() -> int:
     outputs = {ROOT / "sdk" / "python" / "ualf_types.py": python_text, ROOT / "sdk" / "typescript" / "ualf-types.ts": ts_text, ROOT / "sdk" / "go" / "types.go": go_text}
     for path, content in outputs.items():
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
+        path.write_bytes(content.encode("utf-8"))
     print("Generated Python, TypeScript, and Go constants")
     return 0
 

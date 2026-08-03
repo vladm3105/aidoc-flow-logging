@@ -74,7 +74,12 @@ def write_jsonl(directory: Path, tables: dict[str, list[dict[str, Any]]]) -> lis
     outputs = []
     for name, rows in tables.items():
         path = directory / f"{name}.jsonl"
-        path.write_text("".join(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n" for row in rows), encoding="utf-8")
+        path.write_bytes(
+            "".join(
+                json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n"
+                for row in rows
+            ).encode("utf-8")
+        )
         outputs.append(path)
     return outputs
 

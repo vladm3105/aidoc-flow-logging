@@ -86,7 +86,7 @@
       "type": "object", "additionalProperties": false,
       "required": ["path", "sha256", "bytes", "media_type"],
       "properties": {
-        "path": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$" },
+        "path": { "type": "string", "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$" },
         "sha256": { "$ref": "#/$defs/sha256" },
         "bytes": { "type": "integer", "minimum": 0 },
         "media_type": { "type": "string", "pattern": "^[a-z0-9.+-]+/[a-zA-Z0-9.+-]+$" }

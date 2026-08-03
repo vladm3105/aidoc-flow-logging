@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import base64
 import json
+from datetime import datetime, timezone
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
@@ -23,9 +24,17 @@ def dsse_pae(payload_type: str, payload: bytes) -> bytes:
     return b"DSSEv1 " + str(len(type_bytes)).encode() + b" " + type_bytes + b" " + str(len(payload)).encode() + b" " + payload
 
 
+def unix_nano(value: str) -> str:
+    instant = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    delta = instant - datetime(1970, 1, 1, tzinfo=timezone.utc)
+    return str((delta.days * 86_400 + delta.seconds) * 1_000_000_000 + delta.microseconds * 1_000)
+
+
 def write_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_bytes(
+        (json.dumps(value, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+    )
 
 
 def digest(path: Path) -> dict[str, Any]:
@@ -165,7 +174,7 @@ def build_projections(trace_path: Path) -> None:
     projection_dir.mkdir(exist_ok=True)
     otel = {
         "resourceSpans": [{"resource": {"attributes": [{"key": "service.namespace", "value": {"stringValue": header["project"]}}, {"key": "service.version", "value": {"stringValue": header["agent"]["agent_version"]}}, {"key": "ualf.source.sha256", "value": {"stringValue": trace_digest}}]},
-        "scopeSpans": [{"scope": {"name": "ualf.exporter", "version": "1.0.0"}, "spans": [{"traceId": sha256(header["trace_id"].encode()).hexdigest()[:32], "spanId": sha256(b"span-run").hexdigest()[:16], "name": "agent run", "kind": 1, "startTimeUnixNano": "1785679200000000000", "endTimeUnixNano": "1785679210450000000", "attributes": [{"key": "ualf.run.id", "value": {"stringValue": header["run_id"]}}, {"key": "ualf.outcome", "value": {"stringValue": outcome["status"]}}]}]}]}]
+        "scopeSpans": [{"scope": {"name": "ualf.exporter", "version": "1.0.0"}, "spans": [{"traceId": sha256(header["trace_id"].encode()).hexdigest()[:32], "spanId": sha256(b"span-run").hexdigest()[:16], "name": "agent run", "kind": 1, "startTimeUnixNano": unix_nano(header["started_at"]), "endTimeUnixNano": unix_nano(outcome["timestamp"]), "attributes": [{"key": "ualf.run.id", "value": {"stringValue": header["run_id"]}}, {"key": "ualf.outcome", "value": {"stringValue": outcome["status"]}}]}]}]}]
     }
     oi = {"profile": "ualf-openinference/v1", "source_trace_sha256": trace_digest, "spans": [{"name": "agent run", "kind": "AGENT", "attributes": {"openinference.span.kind": "AGENT", "session.id": header["run_id"]}}, {"name": "model call", "kind": "LLM", "attributes": {"openinference.span.kind": "LLM", "llm.model_name": "example-agent-model", "ualf.content.mode": "references"}}]}
     lineage = {"eventType": "COMPLETE", "eventTime": NOW, "producer": "https://github.com/vladm3105/aidoc-flow-logging", "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json", "run": {"runId": "0198a8c0-0000-7000-8000-000000000001", "facets": {"ualf_source": {"_producer": "https://github.com/vladm3105/aidoc-flow-logging", "_schemaURL": "https://iplanic.ai/schemas/ualf-openlineage-facet.json?version=1.0.0", "traceSha256": trace_digest}}}, "job": {"namespace": "ualf", "name": "dataset-qualification"}, "inputs": [{"namespace": "ualf", "name": trace_path.name, "facets": {}}], "outputs": [{"namespace": "ualf", "name": "example-manifest.json", "facets": {}}]}

@@ -52,7 +52,13 @@ def verify_capture(capture: dict[str, Any], report: Report) -> None:
 
 
 def verify_index(index: dict[str, Any], report: Report) -> None:
-    source = ROOT / index["source"]["path"]
+    source = safe_path(index["source"]["path"])
+    report.check("index source path contained", source is not None)
+    if source is None:
+        return
+    report.check("index source exists", source.is_file())
+    if not source.is_file():
+        return
     data = source.read_bytes()
     report.check("index source digest", sha256(data).hexdigest() == index["source"]["sha256"])
     report.check("index source bytes", len(data) == index["source"]["bytes"])
@@ -60,12 +66,20 @@ def verify_index(index: dict[str, Any], report: Report) -> None:
     report.check("index gapless sequence", [r["seq"] for r in records] == list(range(1, len(records) + 1)))
     expected_offset = 0
     ok = True
+    metadata_ok = True
     for record in records:
         raw = data[record["offset"] : record["offset"] + record["length"]]
         ok = ok and record["offset"] == expected_offset and sha256(raw).hexdigest() == record["sha256"]
+        try:
+            source_record = json.loads(raw)
+            metadata_ok = metadata_ok and source_record.get("seq") == record["seq"] and source_record.get("kind") == record["kind"]
+            metadata_ok = metadata_ok and source_record.get("event_id") == record.get("event_id") and source_record.get("type") == record.get("event_type")
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            metadata_ok = False
         terminator = data[record["offset"] + record["length"] : record["offset"] + record["length"] + 2]
         expected_offset = record["offset"] + record["length"] + (2 if terminator.startswith(b"\r\n") else 1)
     report.check("index offsets and line digests", ok)
+    report.check("index metadata matches source", metadata_ok)
     report.check("index covers source", expected_offset == len(data))
 
 
@@ -166,6 +180,10 @@ def verify_dsse(path: Path, manifest: dict[str, Any], report: Report) -> None:
         payload = strict_b64(envelope["payload"])
         statement = json.loads(payload)
         report.check("DSSE in-toto statement type", statement.get("_type") == "https://in-toto.io/Statement/v1")
+        statement_outputs = [safe_path(item["path"]) for item in manifest["outputs"] if item["path"].endswith(".json") and not item["path"].endswith(".dsse.json")]
+        report.check("DSSE declares one statement artifact", len(statement_outputs) == 1 and statement_outputs[0] is not None)
+        if len(statement_outputs) == 1 and statement_outputs[0] is not None:
+            report.check("DSSE payload matches statement artifact", statement == load_json(statement_outputs[0]))
         subject_digest = statement["subject"][0]["digest"]["sha256"]
         report.check("DSSE subject binds projection source", subject_digest == manifest["source"]["sha256"])
         signature = envelope["signatures"][0]
@@ -200,9 +218,16 @@ def verify_segments(manifest: dict[str, Any], report: Report) -> None:
     except ImportError as exc:
         report.check("segment dependencies", False, str(exc))
         return
-    source = ROOT / manifest["source"]["path"]
+    source = safe_path(manifest["source"]["path"])
+    report.check("segment source path contained", source is not None)
+    if source is None:
+        return
+    report.check("segment source exists", source.is_file())
+    if not source.is_file():
+        return
     data = source.read_bytes()
     report.check("segment source digest", sha256(data).hexdigest() == manifest["source"]["sha256"])
+    report.check("segment source bytes", len(data) == manifest["source"]["bytes"])
     expected_offset = 0
     expected_seq = 1
     leaves: list[bytes] = []
@@ -212,6 +237,12 @@ def verify_segments(manifest: dict[str, Any], report: Report) -> None:
         leaf = sha256(raw).digest()
         leaves.append(leaf)
         coverage_ok = coverage_ok and segment["index"] == index and segment["offset"] == expected_offset and segment["seq_start"] == expected_seq and leaf.hex() == segment["sha256"]
+        try:
+            source_records = [json.loads(line) for line in raw.splitlines()]
+            coverage_ok = coverage_ok and bool(source_records) and source_records[0].get("seq") == segment["seq_start"] and source_records[-1].get("seq") == segment["seq_end"]
+            coverage_ok = coverage_ok and [record.get("seq") for record in source_records] == list(range(segment["seq_start"], segment["seq_end"] + 1))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            coverage_ok = False
         expected_offset += segment["bytes"]
         expected_seq = segment["seq_end"] + 1
     report.check("segment exact coverage", coverage_ok and expected_offset == len(data))

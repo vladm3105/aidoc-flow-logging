@@ -16,14 +16,14 @@
   "outputs": [
     {
       "path": "projections/example-in-toto.json",
-      "sha256": "e2afd7cf5bd20f61a124d4c936cd9d7c3d511203af3efd33a9af8563efce655a",
-      "bytes": 846,
+      "sha256": "8e10f1bb543ea3124c930a358c706f673c462632e5a5f9fa2814e723634a1f41",
+      "bytes": 818,
       "media_type": "application/json"
     },
     {
       "path": "projections/example-in-toto.dsse.json",
-      "sha256": "158a066bb013d9feaa599829f4036fb13705fec31b31dda9f7ceb2518b8519dc",
-      "bytes": 1312,
+      "sha256": "95633c9f708a9362a01f0a60160dbba669c22e15c02fb60d94e5b96599656b1a",
+      "bytes": 1297,
       "media_type": "application/json"
     }
   ],
