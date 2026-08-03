@@ -1,0 +1,60 @@
+{
+  "profile": "ualf-projection-manifest/v1",
+  "projection_id": "projection-ualf-openinference-demo",
+  "source_profile": "ualf-trace/v1",
+  "target": {
+    "profile": "ualf-openinference/v1",
+    "specification": "https://arize-ai.github.io/openinference/spec/",
+    "revision": "59ea35e3b69c830a26c0560825dde00bd43e292d"
+  },
+  "source": {
+    "path": "example-trajectory.jsonl",
+    "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
+    "bytes": 15743,
+    "media_type": "application/jsonl"
+  },
+  "outputs": [
+    {
+      "path": "projections/example-openinference.json",
+      "sha256": "d4c448b13885f6ea18008d2f0cedb647ad8014181d1f6a4c514a8876e7db5711",
+      "bytes": 561,
+      "media_type": "application/json"
+    }
+  ],
+  "exporter": {
+    "name": "build_profiles.py",
+    "version": "1.0.0",
+    "source_revision": "ualf-v1.2",
+    "deterministic": true
+  },
+  "record_mappings": [
+    {
+      "source": "trace",
+      "targets": [
+        "root-span"
+      ],
+      "id_derivation": "sha256-prefix"
+    }
+  ],
+  "omissions": [
+    {
+      "source_semantic": "model-visible content",
+      "reason": "privacy",
+      "effect": "content_loss",
+      "details": "Default public example carries references and hashes only."
+    }
+  ],
+  "loss_class": "semantically_lossy",
+  "privacy": {
+    "policy": "ualf-openinference-default/v1",
+    "raw_content": "excluded",
+    "transformation": "hash"
+  },
+  "validator": {
+    "name": "verify_profiles.py",
+    "version": "1.0.0",
+    "result": "passed",
+    "validated_at": "2026-08-03T12:00:00Z"
+  },
+  "generated_at": "2026-08-03T12:00:00Z"
+}

@@ -1,0 +1,60 @@
+{
+  "profile": "ualf-capture/v1",
+  "run_id": "run-2026-08-02-demo-001",
+  "trace_id": "trace-2026-08-02-demo-001",
+  "trace_sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
+  "created_at": "2026-08-03T12:00:00Z",
+  "sampling": {
+    "decision": "keep",
+    "probability": 1.0,
+    "policy": "ualf-demo-sampling/v1",
+    "reason": "manual",
+    "scope": "root_trace"
+  },
+  "content_states": {
+    "inputs": "captured",
+    "outputs": "captured",
+    "system_messages": "captured",
+    "developer_messages": "not_applicable",
+    "tool_definitions": "captured",
+    "tool_arguments": "captured",
+    "tool_results": "captured",
+    "reasoning": "captured",
+    "images": "not_applicable",
+    "audio": "not_applicable",
+    "embeddings": "not_applicable",
+    "provider_payloads": "not_available"
+  },
+  "privacy": {
+    "policy": "ualf-demo-redaction/v1",
+    "boundary": "client",
+    "pre_persistence": true,
+    "secrets_scan": "clean"
+  },
+  "delivery": {
+    "mode": "durable_spool",
+    "queue_capacity": 1024,
+    "queue_high_watermark": 8,
+    "accepted_records": 18,
+    "delivered_records": 18,
+    "dropped_records": 0,
+    "retry_count": 0,
+    "terminal_failures": 0,
+    "spool": "durable",
+    "flush_status": "completed",
+    "flush_deadline_ms": 5000
+  },
+  "clock": {
+    "wall_source": "system_utc",
+    "monotonic_source": "steady_clock",
+    "synchronization": "synthetic-fixture",
+    "synchronized": true,
+    "max_drift_ms": 1.0
+  },
+  "recovery": {
+    "status": "clean",
+    "accepted_records_lost": 0,
+    "closer": "example-agent"
+  },
+  "completeness": "complete"
+}

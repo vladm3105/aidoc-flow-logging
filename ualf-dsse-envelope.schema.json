@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf-dsse-envelope.schema.json",
+  "title": "DSSE envelope for a UALF in-toto qualification statement",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["payloadType", "payload", "signatures", "verification"],
+  "properties": {
+    "payloadType": { "const": "application/vnd.in-toto+json" },
+    "payload": { "type": "string", "minLength": 4 },
+    "signatures": {
+      "type": "array", "minItems": 1,
+      "items": { "type": "object", "additionalProperties": false, "required": ["keyid", "sig"], "properties": { "keyid": { "type": "string", "minLength": 3 }, "sig": { "type": "string", "minLength": 88, "maxLength": 88 } } }
+    },
+    "verification": {
+      "type": "object", "additionalProperties": false,
+      "required": ["algorithm", "public_key", "registry"],
+      "properties": { "algorithm": { "const": "ed25519" }, "public_key": { "type": "string", "minLength": 44, "maxLength": 44 }, "registry": { "type": "string", "format": "uri" } }
+    }
+  }
+}

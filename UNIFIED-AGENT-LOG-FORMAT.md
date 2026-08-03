@@ -2,7 +2,7 @@
 
 **Trace profile:** `ualf-trace/v1`  
 **Dataset profile:** `ualf-dataset/v1.1`  
-**Status:** Draft v1.1 — 2026-08-02
+**Status:** Draft v1.2 — 2026-08-03
 
 UALF is an operations-first event format for AI-agent debugging, testing,
 performance analysis, activity tracing, and replay. A commercial dataset is a
@@ -303,3 +303,93 @@ preserve unknown extensions but MUST NOT interpret them as base-profile fields.
 `aidoc-traj/v1` was an experimental draft and is not wire-compatible with
 `ualf-trace/v1`. Projects SHOULD migrate before production capture rather than
 carry ambiguous compatibility behavior.
+
+The machine-readable extension registry and its lifecycle rules are defined by
+`EXTENSIONS-AND-EVOLUTION.md` and `ualf-extension-registry.schema.json`.
+
+## 13. Production capture evidence
+
+A structurally valid closed trace does not prove that the live producer retained
+everything it accepted. Production implementations SHOULD emit a separate
+`ualf-capture/v1` report conforming to
+`ualf-production-capture.schema.json`. The report binds the run to:
+
+- root-trace sampling decision, probability, policy, and reason;
+- granular content states;
+- privacy-transformation boundary;
+- accepted, delivered, retried, and dropped record counts;
+- queue, spool, flush, and terminal delivery status;
+- clock sources and detected drift;
+- checkpoint and recovery status; and
+- a controlled completeness claim.
+
+Sampling is performed at root-trace scope. A sampled or lossy trace MUST NOT be
+called complete merely because the records that remain form valid JSONL. The
+normative lifecycle rules are in `PRODUCTION-CAPTURE-AND-LIFECYCLE.md`.
+
+## 14. Post-run amendments
+
+Sealed traces are never rewritten to add human review, user feedback, improved
+scoring, or corrected evaluator results. Post-run information is stored in a
+separate `ualf-amendments/v1` JSONL stream:
+
+```text
+line 1        amendment_header
+lines 2..n-1  amendments
+line n        amendment_seal
+```
+
+Every amendment identifies its target, source, evaluator and version, rubric and
+version, typed result, severity, confidence, evidence, and optional prior
+amendment that it supersedes. Supersession preserves the historical record; it
+does not delete or mutate it.
+
+Each amendment and the terminal seal contains the exact-byte SHA-256 digest of
+the previous physical line. `chain_sha256` is SHA-256 of RFC 8785 JCS bytes for
+the terminal seal with `chain_sha256` and `signature` absent. Ed25519 signs the
+32 raw digest bytes. The signing key includes an external registry URI and may
+include validity bounds. `ualf-amendment.schema.json` is normative.
+
+Execution success and evaluation success are independent. Severity records the
+consequence of an evaluation failure; an advisory failure can coexist with a
+successful run.
+
+## 15. Retention and erasure
+
+`ualf-retention/v1` binds an immutable subject digest to its retention class,
+expiry, legal-hold status, artifact dependency mode, encryption-key identity,
+erasure method, and dangling-reference behavior. Qualified packages are
+self-contained or explicitly declare externally pinned dependencies and their
+availability commitments.
+
+Deletion or cryptographic erasure is recorded with a signed external statement.
+It does not rewrite a sealed trace. Embedded public keys prove signature
+consistency but not organizational authority; production keys MUST be resolved
+through an independently governed registry with rotation and revocation.
+
+## 16. Interoperability projections
+
+`INTEROPERABILITY-PROFILES.md` defines projections for:
+
+- OpenTelemetry GenAI and OTLP;
+- OpenInference;
+- OpenLineage;
+- MLCommons Croissant;
+- in-toto Statement v1 and optional DSSE/Sigstore envelopes; and
+- analytical and buyer-specific formats.
+
+Every projection conforms to `ualf-projection-manifest/v1`, pins the target
+revision, binds source and output digests, records mappings and omissions, and
+declares its privacy transformation and loss class. No projection replaces the
+authoritative UALF source artifact.
+
+## 17. Analytics, indexing, and SDKs
+
+Parquet tables, database rows, indexes, and compact containers are derived
+artifacts. `ualf-index/v1` supplies digest-bound byte offsets for random access.
+The stable logical analytical tables and cross-language SDK requirements are
+defined in `ANALYTICS-AND-SDKS.md`.
+
+The `ualf-segments/v1` profile improves highly concurrent archival while
+preserving exact reconstruction. It uses a distinct identifier and MUST NOT
+weaken or relabel the v1 exact-byte chain.

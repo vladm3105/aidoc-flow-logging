@@ -1,0 +1,34 @@
+{
+  "eventType": "COMPLETE",
+  "eventTime": "2026-08-03T12:00:00Z",
+  "producer": "https://github.com/vladm3105/aidoc-flow-logging",
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json",
+  "run": {
+    "runId": "0198a8c0-0000-7000-8000-000000000001",
+    "facets": {
+      "ualf_source": {
+        "_producer": "https://github.com/vladm3105/aidoc-flow-logging",
+        "_schemaURL": "https://iplanic.ai/schemas/ualf-openlineage-facet.json?version=1.0.0",
+        "traceSha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0"
+      }
+    }
+  },
+  "job": {
+    "namespace": "ualf",
+    "name": "dataset-qualification"
+  },
+  "inputs": [
+    {
+      "namespace": "ualf",
+      "name": "example-trajectory.jsonl",
+      "facets": {}
+    }
+  ],
+  "outputs": [
+    {
+      "namespace": "ualf",
+      "name": "example-manifest.json",
+      "facets": {}
+    }
+  ]
+}

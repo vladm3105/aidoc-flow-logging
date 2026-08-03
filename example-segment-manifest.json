@@ -1,0 +1,67 @@
+{
+  "profile": "ualf-segments/v1",
+  "source": {
+    "path": "example-trajectory.jsonl",
+    "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
+    "bytes": 15743
+  },
+  "created_at": "2026-08-03T12:00:00Z",
+  "segment_policy": {
+    "records_per_segment": 5,
+    "preserves_exact_bytes": true
+  },
+  "segments": [
+    {
+      "index": 0,
+      "seq_start": 1,
+      "seq_end": 5,
+      "offset": 0,
+      "bytes": 4933,
+      "sha256": "ad162f771304530dce3c26739db24bb96d36779ae91a91bc7c7d49c3f984381b"
+    },
+    {
+      "index": 1,
+      "seq_start": 6,
+      "seq_end": 10,
+      "offset": 4933,
+      "bytes": 5006,
+      "sha256": "70fd340f08c7154c5591d2b44b0a81e4ee2936aa383a19628b4da6c983687e5c"
+    },
+    {
+      "index": 2,
+      "seq_start": 11,
+      "seq_end": 15,
+      "offset": 9939,
+      "bytes": 3320,
+      "sha256": "a2294bfdec7797a4b2f0d55e0049e8de1fb2bbb1275ba3477b91641afb5fabf1"
+    },
+    {
+      "index": 3,
+      "seq_start": 16,
+      "seq_end": 18,
+      "offset": 13259,
+      "bytes": 2484,
+      "sha256": "626ffc7a0c758246c650cc24baa7779fee03d240a665305fc2b2595cd4ac5eaa"
+    }
+  ],
+  "merkle": {
+    "algorithm": "sha256",
+    "leaf": "raw-segment-sha256",
+    "odd_node": "duplicate_last",
+    "root": "1fd34c2465d4fa107fc901d93d293d4908c148746a1fc6684b73cfa3ce5efd81"
+  },
+  "signing": {
+    "key_id": "ualf-segment-demo-1",
+    "algorithm": "ed25519",
+    "public_key": "pOVuCOJmbkvbWWddhLPs5IgBaJznaJW1UENE1AG+EaU=",
+    "registry": "https://example.invalid/keys"
+  },
+  "seal": {
+    "manifest_sha256": "fed9de72dce92d757428dbd006cef1869fc5b51732f25bab030639d59d03b7d6",
+    "signature": {
+      "key_id": "ualf-segment-demo-1",
+      "algorithm": "ed25519",
+      "value": "XTG0E4EOvktdAeOp8wU5TQI4/vSipqQKpfRuow04uo5F888Ks5zs67HVbX5G2TtdwUBBzJZOWu5FZCKbkhBNCA=="
+    }
+  }
+}

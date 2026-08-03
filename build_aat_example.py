@@ -65,7 +65,7 @@ def main() -> None:
             "low_entropy_hashes_are_personal_data": True,
         },
     }
-    CONTEXT.write_text(json.dumps(context, indent=2) + "\n", encoding="utf-8")
+    CONTEXT.write_bytes((json.dumps(context, indent=2) + "\n").encode("utf-8"))
 
     genesis = {
         "record_id": GENESIS_ID,
@@ -178,7 +178,7 @@ def main() -> None:
         "public_key": b64url(public_key),
         "signature": b64url(private_key.sign(bytes.fromhex(manifest_hash))),
     }
-    MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    MANIFEST.write_bytes((json.dumps(manifest, indent=2) + "\n").encode("utf-8"))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,30 @@
+{
+  "profile": "ualf-retention/v1",
+  "subject": {
+    "kind": "trace",
+    "id": "traj-2026-08-02-demo-001",
+    "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0"
+  },
+  "retention_class": "commercial-candidate",
+  "created_at": "2026-08-03T12:00:00Z",
+  "expires_at": "2033-08-03T12:00:00Z",
+  "legal_hold": {
+    "active": false
+  },
+  "artifact_policy": {
+    "dependency_mode": "self_contained",
+    "availability_commitment_until": "2033-08-03T12:00:00Z",
+    "dangling_reference_behavior": "reject_package"
+  },
+  "encryption": {
+    "at_rest": true,
+    "algorithm": "AES-256-GCM",
+    "key_id": "ualf-demo-storage-key",
+    "key_registry": "https://example.invalid/keys"
+  },
+  "erasure": {
+    "method": "cryptographic_shred",
+    "statement_required": true,
+    "statement_schema": "https://iplanic.ai/schemas/ualf-erasure-statement.schema.json?version=1.0.0"
+  }
+}

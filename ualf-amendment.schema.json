@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf-amendment.schema.json",
+  "title": "UALF append-only amendment stream line",
+  "oneOf": [
+    { "$ref": "#/$defs/header" },
+    { "$ref": "#/$defs/amendment" },
+    { "$ref": "#/$defs/seal" }
+  ],
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "header": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "seq", "profile", "stream_id", "source_trace_sha256", "created_at", "signing"],
+      "properties": {
+        "kind": { "const": "amendment_header" }, "seq": { "const": 1 }, "profile": { "const": "ualf-amendments/v1" },
+        "stream_id": { "$ref": "#/$defs/id" }, "source_trace_sha256": { "$ref": "#/$defs/sha256" }, "created_at": { "type": "string", "format": "date-time" },
+        "signing": { "$ref": "#/$defs/signing" }
+      }
+    },
+    "amendment": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "seq", "amendment_id", "timestamp", "target", "source", "evaluator", "rubric", "result", "severity", "confidence", "evidence", "prev_sha256"],
+      "properties": {
+        "kind": { "const": "amendment" }, "seq": { "type": "integer", "minimum": 2 }, "amendment_id": { "$ref": "#/$defs/id" }, "timestamp": { "type": "string", "format": "date-time" },
+        "target": { "type": "object", "additionalProperties": false, "required": ["kind", "id"], "properties": { "kind": { "enum": ["trace", "event", "span", "content", "dataset_run"] }, "id": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" } } },
+        "source": { "enum": ["human", "user", "programmatic", "llm_judge", "external_system"] },
+        "evaluator": { "type": "object", "additionalProperties": false, "required": ["id", "version"], "properties": { "id": { "type": "string", "minLength": 1 }, "version": { "type": "string", "minLength": 1 }, "model": { "type": "string" }, "organization": { "type": "string" } } },
+        "rubric": { "type": "object", "additionalProperties": false, "required": ["id", "version"], "properties": { "id": { "type": "string", "minLength": 1 }, "version": { "type": "string", "minLength": 1 }, "policy": { "type": "string" } } },
+        "result": { "oneOf": [{ "type": "number" }, { "type": "boolean" }, { "type": "string" }, { "type": "object" }] },
+        "severity": { "enum": ["info", "warn", "error", "blocking"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidence": { "type": "object", "additionalProperties": false, "required": ["quality", "ref"], "properties": { "quality": { "enum": ["self_report", "artifact", "signed_external", "reproduced"] }, "ref": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" } } },
+        "supersedes": { "$ref": "#/$defs/id" },
+        "prev_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "seal": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "seq", "closed_at", "amendment_count", "prev_sha256", "chain_sha256", "signature"],
+      "properties": {
+        "kind": { "const": "amendment_seal" }, "seq": { "type": "integer", "minimum": 3 }, "closed_at": { "type": "string", "format": "date-time" }, "amendment_count": { "type": "integer", "minimum": 1 },
+        "prev_sha256": { "$ref": "#/$defs/sha256" }, "chain_sha256": { "$ref": "#/$defs/sha256" },
+        "signature": { "type": "object", "additionalProperties": false, "required": ["key_id", "algorithm", "value"], "properties": { "key_id": { "$ref": "#/$defs/id" }, "algorithm": { "const": "ed25519" }, "value": { "type": "string", "minLength": 88, "maxLength": 88 } } }
+      }
+    },
+    "signing": { "type": "object", "additionalProperties": false, "required": ["key_id", "algorithm", "public_key", "registry"], "properties": { "key_id": { "$ref": "#/$defs/id" }, "algorithm": { "const": "ed25519" }, "public_key": { "type": "string", "minLength": 44, "maxLength": 44 }, "registry": { "type": "string", "format": "uri" }, "valid_from": { "type": "string", "format": "date-time" }, "valid_until": { "type": "string", "format": "date-time" } } }
+  }
+}

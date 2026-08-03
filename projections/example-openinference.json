@@ -1,0 +1,23 @@
+{
+  "profile": "ualf-openinference/v1",
+  "source_trace_sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
+  "spans": [
+    {
+      "name": "agent run",
+      "kind": "AGENT",
+      "attributes": {
+        "openinference.span.kind": "AGENT",
+        "session.id": "run-2026-08-02-demo-001"
+      }
+    },
+    {
+      "name": "model call",
+      "kind": "LLM",
+      "attributes": {
+        "openinference.span.kind": "LLM",
+        "llm.model_name": "example-agent-model",
+        "ualf.content.mode": "references"
+      }
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf-production-capture.schema.json",
+  "title": "UALF production capture report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "run_id", "trace_id", "created_at", "sampling", "content_states", "privacy", "delivery", "clock", "recovery", "completeness"],
+  "properties": {
+    "profile": { "const": "ualf-capture/v1" },
+    "run_id": { "$ref": "#/$defs/id" },
+    "trace_id": { "$ref": "#/$defs/id" },
+    "trace_sha256": { "$ref": "#/$defs/sha256" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "sampling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "probability", "policy", "reason", "scope"],
+      "properties": {
+        "decision": { "enum": ["keep", "drop"] },
+        "probability": { "type": "number", "minimum": 0, "maximum": 1 },
+        "policy": { "type": "string", "minLength": 1 },
+        "reason": { "enum": ["random", "priority", "error", "policy", "manual", "budget", "other"] },
+        "scope": { "const": "root_trace" }
+      }
+    },
+    "content_states": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inputs", "outputs", "system_messages", "developer_messages", "tool_definitions", "tool_arguments", "tool_results", "reasoning", "images", "audio", "embeddings", "provider_payloads"],
+      "properties": {
+        "inputs": { "$ref": "#/$defs/contentState" },
+        "outputs": { "$ref": "#/$defs/contentState" },
+        "system_messages": { "$ref": "#/$defs/contentState" },
+        "developer_messages": { "$ref": "#/$defs/contentState" },
+        "tool_definitions": { "$ref": "#/$defs/contentState" },
+        "tool_arguments": { "$ref": "#/$defs/contentState" },
+        "tool_results": { "$ref": "#/$defs/contentState" },
+        "reasoning": { "$ref": "#/$defs/contentState" },
+        "images": { "$ref": "#/$defs/contentState" },
+        "audio": { "$ref": "#/$defs/contentState" },
+        "embeddings": { "$ref": "#/$defs/contentState" },
+        "provider_payloads": { "$ref": "#/$defs/contentState" }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy", "boundary", "pre_persistence", "secrets_scan"],
+      "properties": {
+        "policy": { "type": "string", "minLength": 1 },
+        "boundary": { "enum": ["client", "trusted_sidecar", "collector", "none"] },
+        "pre_persistence": { "type": "boolean" },
+        "secrets_scan": { "enum": ["clean", "findings", "not_run"] }
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "accepted_records", "delivered_records", "dropped_records", "retry_count", "flush_status"],
+      "properties": {
+        "mode": { "enum": ["synchronous", "asynchronous", "durable_spool"] },
+        "queue_capacity": { "type": "integer", "minimum": 0 },
+        "queue_high_watermark": { "type": "integer", "minimum": 0 },
+        "accepted_records": { "type": "integer", "minimum": 0 },
+        "delivered_records": { "type": "integer", "minimum": 0 },
+        "dropped_records": { "type": "integer", "minimum": 0 },
+        "retry_count": { "type": "integer", "minimum": 0 },
+        "terminal_failures": { "type": "integer", "minimum": 0, "default": 0 },
+        "spool": { "enum": ["not_used", "durable", "recovered", "failed"] },
+        "flush_status": { "enum": ["completed", "timed_out", "failed", "not_attempted"] },
+        "flush_deadline_ms": { "type": "integer", "minimum": 0 },
+        "last_error": { "type": "string" }
+      }
+    },
+    "clock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wall_source", "monotonic_source", "synchronized", "max_drift_ms"],
+      "properties": {
+        "wall_source": { "type": "string", "minLength": 1 },
+        "monotonic_source": { "type": "string", "minLength": 1 },
+        "synchronization": { "type": "string" },
+        "synchronized": { "type": "boolean" },
+        "max_drift_ms": { "type": "number", "minimum": 0 }
+      }
+    },
+    "recovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "accepted_records_lost"],
+      "properties": {
+        "status": { "enum": ["clean", "recovered", "incomplete", "abandoned", "not_supported"] },
+        "checkpoint_seq": { "type": "integer", "minimum": 0 },
+        "accepted_records_lost": { "type": ["integer", "null"], "minimum": 0 },
+        "closer": { "type": "string" },
+        "details": { "type": "string" }
+      }
+    },
+    "completeness": { "enum": ["complete", "policy_complete", "incomplete", "sampled_out"] },
+    "extensions": { "$ref": "#/$defs/extensions" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "sampling": { "properties": { "decision": { "const": "drop" } }, "required": ["decision"] } } },
+      "then": { "properties": { "completeness": { "const": "sampled_out" } }, "not": { "required": ["trace_sha256"] } }
+    },
+    {
+      "if": { "properties": { "completeness": { "const": "complete" } }, "required": ["completeness"] },
+      "then": {
+        "properties": {
+          "sampling": { "properties": { "decision": { "const": "keep" } } },
+          "privacy": { "properties": { "pre_persistence": { "const": true } } },
+          "delivery": { "properties": { "dropped_records": { "const": 0 }, "terminal_failures": { "const": 0 }, "flush_status": { "const": "completed" } } },
+          "recovery": { "properties": { "status": { "enum": ["clean", "recovered"] }, "accepted_records_lost": { "const": 0 } } }
+        },
+        "required": ["trace_sha256"]
+      }
+    }
+  ],
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "contentState": {
+      "oneOf": [
+        { "enum": ["captured", "not_applicable", "not_available", "not_captured", "sampled_out", "capture_failed"] },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "policy"],
+          "properties": {
+            "state": { "enum": ["redacted", "truncated"] },
+            "policy": { "type": "string", "minLength": 1 },
+            "original_sha256": { "$ref": "#/$defs/sha256" },
+            "limit": { "type": "integer", "minimum": 0 }
+          }
+        }
+      ]
+    },
+    "extensions": { "type": "object", "propertyNames": { "pattern": "^[a-z0-9.-]+/.+$" } }
+  }
+}

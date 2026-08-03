@@ -1,0 +1,2 @@
+# Optional dependency for `export_analytics.py --format parquet`.
+pyarrow>=23,<24

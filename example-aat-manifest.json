@@ -10,8 +10,8 @@
   },
   "source_context": {
     "path": "example-aat-source.json",
-    "sha256": "72affaed71ccce256773357e7adb4c48f69c4fd12285c0b81c3abd5ab42ee83e",
-    "bytes": 605
+    "sha256": "0e46b861ed08a18b88536a57469794921203e2e20e2bfd72f910f5f7fd470903",
+    "bytes": 587
   },
   "export": {
     "path": "example-aat.jsonl",
@@ -133,10 +133,10 @@
     }
   },
   "seal": {
-    "manifest_sha256": "ee6ced9a0790db8e71cd03431535156689f914c9963936a08e6bdbb397374880",
+    "manifest_sha256": "8cae58dbec9e068d424f4bf4dec63e95bc63ab043a7bb9f5690d142da3291c35",
     "key_id": "ualf-aat-example-604147dd15884720",
     "algorithm": "ed25519",
     "public_key": "J6ZwAen_rhRzc3o-X1Yz_YTFr-Gxs4_bBGQr2DIf8EA",
-    "signature": "PkIIG8iiUBiM-oTSzf3R-iXKkewoSco6uIna9vGqUXDz_th7NEvuObV85LQbrxbccM6dHTchNdl7rx6c5ThmCw"
+    "signature": "2MVdnqZMZBIaycsso7Tmdp2gzs1R9lozMzT5kic1ylftOtwvJnvwdCkAsgi8R1RsiRpBaMrhCxPM77uNSNL-BQ"
   }
 }

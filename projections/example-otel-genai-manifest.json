@@ -1,0 +1,60 @@
+{
+  "profile": "ualf-projection-manifest/v1",
+  "projection_id": "projection-ualf-otel-genai-demo",
+  "source_profile": "ualf-trace/v1",
+  "target": {
+    "profile": "ualf-otel-genai/v1",
+    "specification": "https://opentelemetry.io/docs/specs/semconv/",
+    "revision": "semconv-1.43.0+genai@9af08349db7e70b2528accde90bae81d4ebcfa1e"
+  },
+  "source": {
+    "path": "example-trajectory.jsonl",
+    "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
+    "bytes": 15743,
+    "media_type": "application/jsonl"
+  },
+  "outputs": [
+    {
+      "path": "projections/example-otel-genai.json",
+      "sha256": "6e67fae7b98778ba6f926aa44f09b1985ceeb5d06910b7041af077bd20881774",
+      "bytes": 1482,
+      "media_type": "application/json"
+    }
+  ],
+  "exporter": {
+    "name": "build_profiles.py",
+    "version": "1.0.0",
+    "source_revision": "ualf-v1.2",
+    "deterministic": true
+  },
+  "record_mappings": [
+    {
+      "source": "trace",
+      "targets": [
+        "root-span"
+      ],
+      "id_derivation": "sha256-prefix"
+    }
+  ],
+  "omissions": [
+    {
+      "source_semantic": "model-visible content",
+      "reason": "privacy",
+      "effect": "content_loss",
+      "details": "Default public example carries references and hashes only."
+    }
+  ],
+  "loss_class": "semantically_lossy",
+  "privacy": {
+    "policy": "ualf-otel-default/v1",
+    "raw_content": "excluded",
+    "transformation": "hash"
+  },
+  "validator": {
+    "name": "verify_profiles.py",
+    "version": "1.0.0",
+    "result": "passed",
+    "validated_at": "2026-08-03T12:00:00Z"
+  },
+  "generated_at": "2026-08-03T12:00:00Z"
+}

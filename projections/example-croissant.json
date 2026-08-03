@@ -1,0 +1,24 @@
+{
+  "@context": {
+    "@language": "en",
+    "sc": "https://schema.org/",
+    "cr": "http://mlcommons.org/croissant/"
+  },
+  "@type": "sc:Dataset",
+  "name": "UALF synthetic conformance dataset",
+  "description": "Synthetic fixture for UALF validators; not representative training inventory.",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "version": "1.2.0",
+  "url": "https://github.com/vladm3105/aidoc-flow-logging",
+  "conformsTo": "http://mlcommons.org/croissant/1.0",
+  "distribution": [
+    {
+      "@type": "cr:FileObject",
+      "@id": "manifest",
+      "name": "example-manifest.json",
+      "contentUrl": "example-manifest.json",
+      "sha256": "1fb520a7f6871d31d04ef6f0676663018ffa38703d5f8c009ab9937dccb04af5",
+      "encodingFormat": "application/json"
+    }
+  ]
+}

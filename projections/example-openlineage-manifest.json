@@ -1,0 +1,59 @@
+{
+  "profile": "ualf-projection-manifest/v1",
+  "projection_id": "projection-ualf-openlineage-demo",
+  "source_profile": "ualf-trace/v1",
+  "target": {
+    "profile": "ualf-openlineage/v1",
+    "specification": "https://openlineage.io/spec/",
+    "revision": "1.50.0+8470ab1696ee5941d8d3a1e48c2238073eb1fe34"
+  },
+  "source": {
+    "path": "example-trajectory.jsonl",
+    "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
+    "bytes": 15743,
+    "media_type": "application/jsonl"
+  },
+  "outputs": [
+    {
+      "path": "projections/example-openlineage.json",
+      "sha256": "10a0401c6f3405ae82048411c434b46d2e003a59a2bf74e0c4d6d1c369d7d114",
+      "bytes": 894,
+      "media_type": "application/json"
+    }
+  ],
+  "exporter": {
+    "name": "build_profiles.py",
+    "version": "1.0.0",
+    "source_revision": "ualf-v1.2",
+    "deterministic": true
+  },
+  "record_mappings": [
+    {
+      "source": "example-trajectory.jsonl",
+      "targets": [
+        "example-openlineage.json"
+      ]
+    }
+  ],
+  "omissions": [
+    {
+      "source_semantic": "model-visible content",
+      "reason": "privacy",
+      "effect": "content_loss",
+      "details": "Default public example carries references and hashes only."
+    }
+  ],
+  "loss_class": "semantically_lossy",
+  "privacy": {
+    "policy": "ualf-lineage/v1",
+    "raw_content": "excluded",
+    "transformation": "hash"
+  },
+  "validator": {
+    "name": "verify_profiles.py",
+    "version": "1.0.0",
+    "result": "passed",
+    "validated_at": "2026-08-03T12:00:00Z"
+  },
+  "generated_at": "2026-08-03T12:00:00Z"
+}
