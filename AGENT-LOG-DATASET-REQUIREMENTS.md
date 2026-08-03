@@ -134,7 +134,8 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
   deterministic privacy transformation.
 - **DLOG-073.** The export pipeline MUST record source and destination digests,
   exporter and validator versions, record mappings, omitted semantics, and the
-  identity responsible for any trust-level assertion.
+  identity responsible for any trust-level assertion in a schema-valid, signed
+  transformation manifest.
 - **DLOG-074.** UALF and AAT integrity mechanisms MUST be verified independently.
   Exact-byte Ed25519 UALF seals MUST NOT be relabeled as RFC 8785 ECDSA AAT
   signatures or vice versa.
@@ -142,6 +143,11 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
   to linked AAT sessions. The export MUST retain source span and causal mappings.
 - **DLOG-076.** Compatibility with a draft revision MUST be immutable. A new AAT
   revision requires a new profile, mapping report, and conformance vectors.
+- **DLOG-077.** AAT content hashes MUST use RFC 8785 JCS bytes for JSON, exact
+  UTF-8 bytes without normalization for text, and decoded octets for binary.
+- **DLOG-078.** Sensitive or personal content MUST NOT be stored inline in an
+  immutable UALF trace unless separately managed encryption keys support
+  cryptographic erasure. Hashes MUST be treated as potentially personal data.
 
 ## 9. Adoption order
 

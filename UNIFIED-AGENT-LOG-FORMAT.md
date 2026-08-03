@@ -281,6 +281,12 @@ controlled compatibility claims, privacy transformation, integrity separation,
 and mappings for lifecycle, tool, decision, delegation, escalation, error, and
 human-intervention records.
 
+An export claim requires a source-context document conforming to
+`ualf-aat-source.schema.json`. A validation claim additionally requires AAT JSONL
+that passes `aat-draft-00.schema.json` and a signed transformation manifest that
+passes `ualf-aat-export-manifest.schema.json`. The exact claim strings include
+the complete Internet-Draft identifier.
+
 The AAT target is an individual IETF Internet-Draft and work in progress. A UALF
 implementation MUST identify the exact target version and MUST NOT describe the
 draft as an IETF standard, IETF endorsement, or proof of regulatory compliance.

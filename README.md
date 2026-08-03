@@ -16,7 +16,7 @@ qualification profile for commercial trajectory datasets.
   observations, decisions, changes, errors, feedback, evaluations, and outcomes.
 - **`ualf-dataset/v1.1`** packages selected traces with rights, hygiene, evidence,
   replay, deduplication, splits, quality dimensions, and an Ed25519 seal.
-- **`aat-aligned/draft-00`** documents a one-way, privacy-minimized audit
+- **AAT draft-00 compatibility** documents a one-way, privacy-minimized audit
   projection to `draft-sharif-agent-audit-trail-00` without replacing UALF's
   richer operational source record.
 
@@ -31,6 +31,9 @@ exports.
 | `UNIFIED-AGENT-LOG-FORMAT.md` | Normative trace and dataset specification |
 | `AGENT-LOG-DATASET-REQUIREMENTS.md` | Capture and export requirements |
 | `AAT-COMPATIBILITY.md` | Version-pinned AAT draft-00 mapping and claim rules |
+| `aat-draft-00.schema.json` | Pinned AAT record schema |
+| `ualf-aat-source.schema.json` | AAT identity and policy context |
+| `ualf-aat-export-manifest.schema.json` | Signed transformation manifest |
 | `ualf-trajectory.schema.json` | Header, event, and outcome schema |
 | `ualf-tool-definitions.schema.json` | Captured action-space schema |
 | `ualf-dataset-manifest.schema.json` | Dataset package manifest schema |
@@ -43,7 +46,10 @@ exports.
 | `dedup-report.json` | Example exact-deduplication evidence |
 | `blobs/` | Content-addressed example artifacts |
 | `verify.py` | Schema, trajectory, blob, totals, and signature verifier |
+| `verify_aat.py` | AAT projection, chain, privacy, and manifest verifier |
 | `build_example.py` | Regenerates the example with a fresh demo key |
+| `build_aat_example.py` | Regenerates the synthetic AAT example |
+| `example-aat*.json*` | Synthetic AAT projection artifacts |
 | `tests/test_verify.py` | Positive and adversarial golden-vector tests |
 
 ## Trace shape
@@ -84,6 +90,14 @@ Verify the complete dataset package, including every listed trace:
 
 ```bash
 python verify.py example-trajectory.jsonl --manifest example-manifest.json
+```
+
+Verify the pinned AAT projection and signed transformation manifest:
+
+```bash
+python verify_aat.py example-aat.jsonl \
+  --manifest example-aat-manifest.json \
+  --source-context example-aat-source.json
 ```
 
 The verifier validates strict schemas, physical JSONL structure, gapless sequence,

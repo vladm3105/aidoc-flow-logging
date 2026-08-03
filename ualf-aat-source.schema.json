@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf-aat-source.schema.json",
+  "title": "UALF AAT draft-00 source context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "agent_id", "agent_version", "trust_assertion", "outcome_policy", "error_policy", "privacy_policy"],
+  "properties": {
+    "schema": { "const": "ualf-aat-source/draft-sharif-agent-audit-trail-00" },
+    "agent_id": { "type": "string", "format": "uri" },
+    "agent_version": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$" },
+    "trust_assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "authority", "basis", "asserted_at"],
+      "properties": {
+        "level": { "enum": ["L0", "L1", "L2", "L3", "L4"] },
+        "authority": { "type": "string", "minLength": 1 },
+        "basis": { "enum": ["no_verification", "self_signed", "authority_signed", "mutual_authentication", "continuous_revocation_monitoring"] },
+        "asserted_at": { "type": "string", "format": "date-time" },
+        "evidence_ref": { "type": "string", "format": "uri-reference" }
+      }
+    },
+    "outcome_policy": { "const": "ualf-to-aat-outcomes/draft-00-v1" },
+    "error_policy": { "const": "ualf-to-aat-errors/draft-00-v1" },
+    "privacy_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sensitive_inline_content", "low_entropy_hashes_are_personal_data"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "sensitive_inline_content": { "enum": ["forbidden", "encrypted_and_crypto_shreddable"] },
+        "low_entropy_hashes_are_personal_data": { "const": true }
+      }
+    },
+    "signing_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key_id", "algorithm", "public_key", "binding"],
+      "properties": {
+        "key_id": { "type": "string", "minLength": 1 },
+        "algorithm": { "const": "ecdsa-p256-sha256-p1363" },
+        "public_key": { "type": "string", "minLength": 1 },
+        "binding": { "type": "string", "format": "uri-reference" },
+        "valid_from": { "type": "string", "format": "date-time" },
+        "valid_until": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
