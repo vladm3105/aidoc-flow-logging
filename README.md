@@ -3,6 +3,20 @@
 UALF provides one operations-first trace format for AI projects and a separate
 qualification profile for commercial trajectory datasets.
 
+## Project maturity and scope
+
+UALF is currently a design-stage logging standard and reference-artifact
+package. The schemas, examples, generators, exporters, and verifiers in this
+repository demonstrate format behavior and conformance; they are not a
+production logging platform.
+
+`INFRASTRUCTURE-AND-OPERATIONS-ROADMAP.md` records the approved direction for
+storage, ingestion, isolation, observability, replay, and operations. The
+repository does not yet provide or claim a production ingestion gateway,
+managed archive, SQL or ClickHouse deployment, monitoring stack, runtime SDK,
+dashboard package, or operational runbook. Those deliverables remain planned
+until their designs and conformance contracts are completed.
+
 ## Goals
 
 1. Debug, test, measure, and trace AI agents consistently across projects.
@@ -154,7 +168,10 @@ manifest, it additionally validates safe contained paths, every trace, the full
 blob inventory, artifact digests, splits, exact deduplication, a dataset-level
 seal, and recomputed qualification fields.
 
-## Adoption
+## Design adoption sequence
+
+This sequence describes capability adoption and requirements maturity. It is
+not a deployment guide.
 
 1. Emit the operational floor from a shared library.
 2. Store large/sensitive content in the content-addressed blob store.
@@ -184,13 +201,14 @@ seal, and recomputed qualification fields.
 | Extension governance | Registry schema, lifecycle rules, and fixture |
 | Segment/Merkle integrity | Implemented exact-reconstruction manifest, signature, fixture, and verifier |
 | Cross-language SDK foundation | Generated Python, TypeScript, and Go constants; runtime SDK libraries remain separate packages |
-| Infrastructure, archive, and management plane | Approved roadmap; normative profiles, schemas, fixtures, and reference implementation are planned |
+| Infrastructure, archive, and management plane | Approved design roadmap; normative contracts and reference artifacts are planned |
 
 <!-- markdownlint-enable MD013 -->
 
 ## Status
 
-Draft v1.2 reference implementation (2026-08-03). The trace wire profile remains
+Draft v1.2 specification and reference-artifact package (2026-08-03). The trace
+wire profile remains
 `ualf-trace/v1` and the dataset package remains `ualf-dataset/v1.1`; v1.2 adds
 orthogonal production, amendment, retention, interoperability, extension, and
 analytics profiles without invalidating existing artifacts. `aidoc-traj/v1` was

@@ -9,6 +9,12 @@ performance analysis, activity tracing, and replay. A commercial dataset is a
 qualified, immutable export of selected traces; it is not the live logging
 format and it is not created merely by stamping a grade on a run.
 
+This document specifies the format and its design requirements. It does not
+claim that the production infrastructure described in the roadmap is already
+implemented. Existing schemas and verifiers define current artifact
+conformance; planned infrastructure contracts become normative only when their
+profiles and schemas are published.
+
 ## 1. Architecture
 
 ```text
@@ -38,8 +44,9 @@ line n        outcome
 Every physical line MUST contain exactly one JSON object. Blank lines, byte-order
 marks, invalid UTF-8, partial lines, and trailing content are invalid. The header
 has `seq: 1`; all following records form a gapless sequence. A materialized trace
-MAY be hash-chained and signed. Live systems MAY first write events to a database
-and materialize the immutable file after closure.
+MAY be hash-chained and signed. Live systems MAY buffer or index events before
+closure, but the canonical immutable archive described in the roadmap remains
+the recovery and replay authority after materialization.
 
 ### 2.1 Common event envelope
 
@@ -393,3 +400,50 @@ defined in `ANALYTICS-AND-SDKS.md`.
 The `ualf-segments/v1` profile improves highly concurrent archival while
 preserving exact reconstruction. It uses a distinct identifier and MUST NOT
 weaken or relabel the v1 exact-byte chain.
+
+## 18. Infrastructure design requirements
+
+The approved infrastructure direction separates capture, authoritative storage,
+and derived query systems:
+
+- a shared SDK and local durable spool feed one authenticated ingestion path;
+- the immutable, content-addressed object archive is the canonical recovery,
+  verification, replay, and export source;
+- SQL catalogs, ClickHouse-compatible analytical stores, Parquet tables,
+  indexes, search systems, and dashboards are rebuildable derived views;
+- SDKs and agents do not dual-write independently to archive and analytical
+  stores;
+- durable acceptance has an explicit receipt boundary, and retries use stable
+  idempotency keys with conflict rejection;
+- organization, project, and environment are mandatory logical isolation
+  dimensions, with separate development, staging, and production boundaries;
+  and
+- dedicated deployments are available when residency, customer isolation,
+  regulated operation, scale, or contractual controls require them.
+
+The design does not require a general-purpose NoSQL database in the initial
+platform. Product choices are non-normative unless a future profile explicitly
+binds behavior to one. Storage manifests, ingestion receipts, deployment
+profiles, and their conformance vectors are planned artifacts; their absence
+from this draft MUST NOT be interpreted as an implementation claim.
+
+## 19. Management-plane design requirements
+
+The management plane is operationally independent from the data path it
+observes. Its design covers platform health, agent and model performance,
+quality and safety, commercial inventory, and governance and cost views.
+
+Each critical hop reports positive progress as well as negative, stalled, and
+absent states. A signed far-end canary proves end-to-end arrival, and an
+independent watchdog checks that the monitoring path itself is alive. Durable
+internal alert records preserve evidence; external paging remains a separate
+delivery path.
+
+Metric labels MUST be bounded. High-cardinality identifiers such as `run_id`,
+`trace_id`, `event_id`, prompt text, and error bodies belong in logs, traces, or
+analytical stores rather than metric dimensions. Privileged management actions
+and policy changes require attributable, tamper-evident audit records.
+
+Detailed semantic conventions, SLOs, alert rules, dashboards, and management
+audit schemas remain roadmap deliverables. This section establishes design
+requirements without presenting those future artifacts as implemented.

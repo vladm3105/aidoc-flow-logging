@@ -8,6 +8,24 @@ UALF JSONL remains the authoritative interchange and evidence representation.
 Indexes, compressed containers, database rows, and Parquet files are derived
 views and MUST identify their source trace digest and transformation version.
 
+This profile defines logical behavior and design requirements. It does not
+select or ship a production database, archive, SDK package, dashboard, or
+deployment topology.
+
+## Storage architecture boundary
+
+The approved design uses an immutable content-addressed object archive as the
+canonical recovery, verification, replay, and export source. A SQL catalog,
+ClickHouse-compatible hot analytical store, Parquet files, indexes, search
+systems, and dashboards are derived projections that MUST be rebuildable from
+canonical artifacts.
+
+Replay, qualification, and audit verification MUST NOT depend on an analytical
+database remaining available. SDKs write through one authenticated ingestion
+path; they do not independently dual-write canonical and analytical stores. A
+general-purpose NoSQL database is not required by the initial design, and no
+specific storage product is normative.
+
 ## Logical analytical tables
 
 The stable logical projection contains:
@@ -65,3 +83,24 @@ Python, TypeScript and Go SDKs SHOULD provide:
 
 SDKs MUST surface dropped records and flush failures to the caller or an
 independently monitored health signal. Silent loss is non-conforming.
+
+The generated constants in this repository are a cross-language foundation,
+not production runtime SDK packages. Runtime libraries, durable spool adapters,
+and transport clients remain planned deliverables.
+
+## Management analytics and cardinality
+
+Management projections SHOULD support distinct views for platform health,
+agent and model performance, quality and safety, commercial inventory, and
+governance and cost. These views do not replace canonical evidence.
+
+Metric labels MUST remain bounded. Environment, service, operation, model
+family, tool class, outcome class, and policy version are suitable when their
+value sets are governed. `run_id`, `trace_id`, `event_id`, prompt text, user
+content, and raw error bodies MUST NOT be metric labels; they belong in logs,
+traces, or high-cardinality analytical storage.
+
+The management plane MUST expose its own health independently of the data path.
+Detailed semantic conventions, SLO definitions, dashboards, alerts, and
+watcher-canary contracts remain roadmap deliverables rather than implemented
+parts of this profile.

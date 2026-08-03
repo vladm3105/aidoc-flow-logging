@@ -210,7 +210,70 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
   exact reconstruction or declare itself lossy and MUST NOT be relabeled as the
   v1 exact-byte chain.
 
-## 12. Adoption order
+## 12. Storage and ingestion architecture — P0/P1
+
+- **DLOG-110 (P0).** A production design MUST identify one immutable canonical
+  archive as the recovery, verification, replay, and export authority.
+- **DLOG-111 (P0).** SQL catalogs, analytical databases, Parquet tables,
+  indexes, search systems, and dashboards MUST be treated as rebuildable
+  projections and MUST identify their authoritative source digests.
+- **DLOG-112 (P0).** Durable acceptance MUST have an explicit receipt boundary.
+  An SDK queue acknowledgement alone MUST NOT be represented as archive
+  durability.
+- **DLOG-113 (P0).** Retry and recovery MUST use a stable idempotency key.
+  Byte-identical duplicates MAY be accepted; conflicting content for the same
+  identity MUST be rejected and audited.
+- **DLOG-114 (P0).** Agents and SDKs MUST NOT independently dual-write canonical
+  and analytical stores. One ingestion path MUST own fan-out and reconciliation.
+- **DLOG-115 (P0).** Organization, project, and environment MUST be controlled
+  isolation dimensions. Development, staging, and production data MUST NOT be
+  silently commingled.
+- **DLOG-116 (P1).** The architecture SHOULD support dedicated deployment when
+  residency, regulated operation, customer isolation, scale, or contract terms
+  require it, while preserving a unified logical model.
+- **DLOG-117 (P1).** Encoded objects SHOULD bind stored-byte and decoded-content
+  digests where both transport integrity and semantic identity are required.
+- **DLOG-118 (P1).** Replay and dataset qualification MUST be reconstructable
+  from canonical artifacts without depending on the continued availability of
+  an analytical database.
+- **DLOG-119 (P1).** Commercial dataset publication MUST remain a separate,
+  rights-qualified export path rather than a direct query over operational
+  storage.
+
+## 13. Management, observability, and continuity — P0/P1
+
+- **DLOG-120 (P0).** The management plane MUST be operationally independent from
+  the data path it observes and MUST expose its own health.
+- **DLOG-121 (P0).** Every critical processing hop MUST expose positive progress,
+  negative failure, stalled work, and absent-signal detection.
+- **DLOG-122 (P0).** Production designs MUST include a signed, end-to-end
+  far-edge canary on a defined cadence that proves accepted test data reaches
+  the authoritative destination.
+- **DLOG-123 (P0).** An independent watchdog MUST detect failure or silence in
+  the monitoring and alert-delivery path itself.
+- **DLOG-124 (P0).** Alerting MUST preserve a durable internal alert record and
+  use a separate external paging path for human notification.
+- **DLOG-125 (P0).** Metrics MUST use bounded-cardinality dimensions. Run, trace,
+  event, prompt, and raw error identifiers MUST remain in logs, traces, or
+  analytical stores rather than metric labels.
+- **DLOG-126 (P1).** Privileged management actions and policy changes SHOULD
+  produce attributable, tamper-evident audit records.
+- **DLOG-127 (P1).** Retention and erasure workflows SHOULD expose propagation
+  state across canonical objects, projections, caches, backups, and exports.
+- **DLOG-128 (P1).** Backup and restore design MUST include tested recovery
+  objectives and integrity verification, not backup creation alone.
+- **DLOG-129 (P1).** Management views SHOULD separately cover platform health,
+  agent and model performance, quality and safety, commercial inventory, and
+  governance and cost.
+
+These requirements define the approved design target. Planned receipt, storage,
+management-audit, semantic-convention, dashboard, and alert artifacts are not
+part of current schema conformance until published.
+
+## 14. Design adoption order
+
+This order describes design and capability maturity, not development or
+deployment instructions.
 
 1. Ship the shared event envelope, run lifecycle, model/tool calls, redaction,
    terminal outcomes, and configuration versions.
@@ -222,6 +285,10 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
    streams, and retention bindings.
 7. Add version-pinned telemetry, lineage, discovery, attestation, and analytical
    projections without weakening or replacing the operational source record.
+8. Specify the canonical archive, durable receipt, projection, namespace, and
+   deployment-profile contracts before selecting or deploying products.
+9. Specify independent management telemetry, hop and canary semantics, bounded
+   metrics, watcher health, alert evidence, and management audit contracts.
 
 The operational trace is the durable source record. Commercial inventory is a
 verified view over that record, not the default status of every run.
