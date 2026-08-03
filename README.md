@@ -43,6 +43,7 @@ exports.
 | `INTEROPERABILITY-PROFILES.md` | OTel, OpenInference, lineage, Croissant, attestation, and buyer projections |
 | `EXTENSIONS-AND-EVOLUTION.md` | Namespaced extensions, registry, promotion, and deprecation |
 | `ANALYTICS-AND-SDKS.md` | Logical tables, indexing, compact storage, and cross-language SDK behavior |
+| `INFRASTRUCTURE-AND-OPERATIONS-ROADMAP.md` | Approved storage, deployment, management-plane, and implementation roadmap |
 | `aat-draft-00.schema.json` | Pinned AAT record schema |
 | `ualf-aat-source.schema.json` | AAT identity and policy context |
 | `ualf-aat-export-manifest.schema.json` | Signed transformation manifest |
@@ -183,6 +184,7 @@ seal, and recomputed qualification fields.
 | Extension governance | Registry schema, lifecycle rules, and fixture |
 | Segment/Merkle integrity | Implemented exact-reconstruction manifest, signature, fixture, and verifier |
 | Cross-language SDK foundation | Generated Python, TypeScript, and Go constants; runtime SDK libraries remain separate packages |
+| Infrastructure, archive, and management plane | Approved roadmap; normative profiles, schemas, fixtures, and reference implementation are planned |
 
 <!-- markdownlint-enable MD013 -->
 
