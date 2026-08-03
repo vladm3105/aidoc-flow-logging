@@ -267,7 +267,34 @@ UALF validation reports three independent levels:
 Base validation is domain-neutral. Domain plugins validate CI attestations, test
 reports, P&L records, policy checks, or other oracle evidence.
 
-## 11. Extensions and compatibility
+## 11. External standards and audit projections
+
+UALF SHOULD interoperate with established identifiers, timestamps,
+canonicalization rules, distributed-tracing context, and audit transports where
+that does not weaken its operational semantics. Compatibility is expressed as a
+versioned projection from a closed UALF trace, not by relabeling UALF fields or
+discarding its source artifacts.
+
+The informative `AAT-COMPATIBILITY.md` profile targets
+`draft-sharif-agent-audit-trail-00`. It defines a one-way audit projection,
+controlled compatibility claims, privacy transformation, integrity separation,
+and mappings for lifecycle, tool, decision, delegation, escalation, error, and
+human-intervention records.
+
+An export claim requires a source-context document conforming to
+`ualf-aat-source.schema.json`. A validation claim additionally requires AAT JSONL
+that passes `aat-draft-00.schema.json` and a signed transformation manifest that
+passes `ualf-aat-export-manifest.schema.json`. The exact claim strings include
+the complete Internet-Draft identifier.
+
+The AAT target is an individual IETF Internet-Draft and work in progress. A UALF
+implementation MUST identify the exact target version and MUST NOT describe the
+draft as an IETF standard, IETF endorsement, or proof of regulatory compliance.
+The UALF trace remains authoritative for debugging, replay, evaluation, and
+dataset qualification because the AAT projection intentionally removes content
+and UALF-only semantics.
+
+## 12. Extensions and compatibility
 
 Objects are closed by default. Extensions live only under an `extensions` object
 whose keys use a namespaced form such as `example.com/feature`. A consumer may

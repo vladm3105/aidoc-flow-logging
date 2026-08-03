@@ -324,39 +324,47 @@ def verify_events(
     if isinstance(tools_ref, dict) and isinstance(tools_ref.get("$ref"), str):
         path = blobs_dir / tools_ref["$ref"][7:]
         try:
-            document = json.loads(path.read_text(encoding="utf-8"))
             from jsonschema import Draft202012Validator
             from jsonschema.exceptions import SchemaError
-
-            tool_schema = json.loads(
-                (
-                    Path(__file__).resolve().parent
-                    / "ualf-tool-definitions.schema.json"
-                ).read_text(encoding="utf-8")
+        except ImportError as exc:
+            report.check(
+                "tool definitions parse", False, f"install dependency: {exc.name}"
             )
-            tool_errors = list(Draft202012Validator(tool_schema).iter_errors(document))
-            if tool_errors:
-                raise ValueError(tool_errors[0].message)
-            for item in document["tools"]:
-                Draft202012Validator.check_schema(item["input_schema"])
-            identities = [(item["name"], item["version"]) for item in document["tools"]]
-            if len(identities) != len(set(identities)):
-                raise ValueError("duplicate tool name/version")
-            tools = {
-                item["name"]: item["version"] for item in document.get("tools", [])
-            }
-            report.check("tool definitions parse", bool(tools))
-        except (
-            OSError,
-            UnicodeDecodeError,
-            json.JSONDecodeError,
-            KeyError,
-            TypeError,
-            ValueError,
-            SchemaError,
-            ImportError,
-        ) as exc:
-            report.check("tool definitions parse", False, str(exc))
+        else:
+            try:
+                document = json.loads(path.read_text(encoding="utf-8"))
+                tool_schema = json.loads(
+                    (
+                        Path(__file__).resolve().parent
+                        / "ualf-tool-definitions.schema.json"
+                    ).read_text(encoding="utf-8")
+                )
+                tool_errors = list(
+                    Draft202012Validator(tool_schema).iter_errors(document)
+                )
+                if tool_errors:
+                    raise ValueError(tool_errors[0].message)
+                for item in document["tools"]:
+                    Draft202012Validator.check_schema(item["input_schema"])
+                identities = [
+                    (item["name"], item["version"]) for item in document["tools"]
+                ]
+                if len(identities) != len(set(identities)):
+                    raise ValueError("duplicate tool name/version")
+                tools = {
+                    item["name"]: item["version"] for item in document.get("tools", [])
+                }
+                report.check("tool definitions parse", bool(tools))
+            except (
+                OSError,
+                UnicodeDecodeError,
+                json.JSONDecodeError,
+                KeyError,
+                TypeError,
+                ValueError,
+                SchemaError,
+            ) as exc:
+                report.check("tool definitions parse", False, str(exc))
     else:
         report.check("tool definitions parse", False, "missing tools_ref")
 

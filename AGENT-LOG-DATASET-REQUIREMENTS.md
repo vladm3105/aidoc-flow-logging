@@ -122,7 +122,34 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
   trace membership, splits, artifact digests, rights metadata, and intended uses
   with an RFC 8785 canonical Ed25519 manifest seal.
 
-## 8. Adoption order
+## 8. External interoperability — P1
+
+- **DLOG-070.** External compatibility claims MUST identify the exact standard,
+  draft, profile, and version. Internet-Drafts MUST NOT be represented as IETF
+  standards, endorsements, or regulatory certifications.
+- **DLOG-071.** An AAT draft-00 export MUST be a derived audit projection from a
+  closed, verified UALF trace. It MUST NOT replace the UALF source record.
+- **DLOG-072.** AAT input, output, parameter, response, context, and reasoning
+  hashes MUST be derived from exact UALF content through a documented,
+  deterministic privacy transformation.
+- **DLOG-073.** The export pipeline MUST record source and destination digests,
+  exporter and validator versions, record mappings, omitted semantics, and the
+  identity responsible for any trust-level assertion in a schema-valid, signed
+  transformation manifest.
+- **DLOG-074.** UALF and AAT integrity mechanisms MUST be verified independently.
+  Exact-byte Ed25519 UALF seals MUST NOT be relabeled as RFC 8785 ECDSA AAT
+  signatures or vice versa.
+- **DLOG-075.** Parallel UALF spans MUST be deterministically serialized or mapped
+  to linked AAT sessions. The export MUST retain source span and causal mappings.
+- **DLOG-076.** Compatibility with a draft revision MUST be immutable. A new AAT
+  revision requires a new profile, mapping report, and conformance vectors.
+- **DLOG-077.** AAT content hashes MUST use RFC 8785 JCS bytes for JSON, exact
+  UTF-8 bytes without normalization for text, and decoded octets for binary.
+- **DLOG-078.** Sensitive or personal content MUST NOT be stored inline in an
+  immutable UALF trace unless separately managed encryption keys support
+  cryptographic erasure. Hashes MUST be treated as potentially personal data.
+
+## 9. Adoption order
 
 1. Ship the shared event envelope, run lifecycle, model/tool calls, redaction,
    terminal outcomes, and configuration versions.
@@ -130,6 +157,8 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
 3. Add stubbed replay, then state restoration and replay verification where useful.
 4. Materialize signed traces and build the rights/hygiene qualification pipeline.
 5. Publish buyer-specific exports only from qualified dataset packages.
+6. Add version-pinned audit projections and validators without weakening or
+   replacing the operational source record.
 
 The operational trace is the durable source record. Commercial inventory is a
 verified view over that record, not the default status of every run.

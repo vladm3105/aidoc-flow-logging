@@ -1,0 +1,18 @@
+{
+  "schema": "ualf-aat-source/draft-sharif-agent-audit-trail-00",
+  "agent_id": "urn:agent:iplanic.ai:ualf-example-agent",
+  "agent_version": "3.1.0",
+  "trust_assertion": {
+    "level": "L0",
+    "authority": "ualf-example-owner",
+    "basis": "no_verification",
+    "asserted_at": "2026-08-02T18:00:10.460Z"
+  },
+  "outcome_policy": "ualf-to-aat-outcomes/draft-00-v1",
+  "error_policy": "ualf-to-aat-errors/draft-00-v1",
+  "privacy_policy": {
+    "id": "ualf-aat-example-privacy/v1",
+    "sensitive_inline_content": "forbidden",
+    "low_entropy_hashes_are_personal_data": true
+  }
+}

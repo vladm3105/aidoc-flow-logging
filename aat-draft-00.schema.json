@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/aat/draft-sharif-agent-audit-trail-00.schema.json",
+  "title": "Agent Audit Trail record (draft-sharif-agent-audit-trail-00)",
+  "type": "object",
+  "required": ["record_id", "timestamp", "agent_id", "agent_version", "session_id", "action_type", "action_detail", "outcome", "trust_level", "parent_record_id", "prev_hash"],
+  "properties": {
+    "record_id": { "$ref": "#/$defs/uuid4" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "agent_id": { "type": "string", "format": "uri" },
+    "agent_version": { "$ref": "#/$defs/semver" },
+    "session_id": { "$ref": "#/$defs/uuid4" },
+    "action_type": { "enum": ["tool_call", "tool_response", "decision", "delegation", "escalation", "error", "lifecycle"] },
+    "action_detail": { "type": "object", "minProperties": 1, "propertyNames": { "not": { "pattern": "^aat_" } } },
+    "outcome": { "enum": ["success", "failure", "timeout", "denied", "escalated"] },
+    "trust_level": { "enum": ["L0", "L1", "L2", "L3", "L4"] },
+    "parent_record_id": { "oneOf": [{ "$ref": "#/$defs/uuid4" }, { "type": "null" }] },
+    "prev_hash": { "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }] },
+    "human_override": {
+      "type": "object",
+      "required": ["operator_id", "reason"],
+      "properties": {
+        "operator_id": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "original_action": { "type": "object" }
+      }
+    },
+    "risk_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "model_id": { "type": "string", "minLength": 1 },
+    "input_hash": { "$ref": "#/$defs/sha256" },
+    "output_hash": { "$ref": "#/$defs/sha256" },
+    "latency_ms": { "type": "number", "minimum": 0 },
+    "cost_estimate": {
+      "type": "object",
+      "required": ["amount", "currency"],
+      "properties": {
+        "amount": { "type": "number", "minimum": 0 },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+        "breakdown": { "type": "object" }
+      }
+    },
+    "jurisdiction": { "type": "string", "pattern": "^[A-Z]{2}$" },
+    "signature": { "type": "string", "pattern": "^[A-Za-z0-9_-]{86}$" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "action_type": { "const": "tool_call" } }, "required": ["action_type"] },
+      "then": { "properties": { "action_detail": { "$ref": "#/$defs/toolCall" } } }
+    },
+    {
+      "if": { "properties": { "action_type": { "const": "tool_response" } }, "required": ["action_type"] },
+      "then": { "properties": { "action_detail": { "$ref": "#/$defs/toolResponse" } } }
+    },
+    {
+      "if": { "properties": { "action_type": { "const": "decision" } }, "required": ["action_type"] },
+      "then": { "properties": { "action_detail": { "$ref": "#/$defs/decision" } } }
+    },
+    {
+      "if": { "properties": { "action_type": { "const": "delegation" } }, "required": ["action_type"] },
+      "then": { "properties": { "action_detail": { "$ref": "#/$defs/delegation" } } }
+    },
+    {
+      "if": { "properties": { "action_type": { "const": "escalation" } }, "required": ["action_type"] },
+      "then": { "properties": { "action_detail": { "$ref": "#/$defs/escalation" } } }
+    },
+    {
+      "if": { "properties": { "action_type": { "const": "error" } }, "required": ["action_type"] },
+      "then": { "properties": { "action_detail": { "$ref": "#/$defs/error" } } }
+    },
+    {
+      "if": { "properties": { "action_type": { "const": "lifecycle" } }, "required": ["action_type"] },
+      "then": { "properties": { "action_detail": { "$ref": "#/$defs/lifecycle" } } }
+    }
+  ],
+  "$defs": {
+    "uuid4": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "semver": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$" },
+    "toolCall": {
+      "type": "object", "required": ["tool_name", "parameters_hash"],
+      "properties": { "tool_name": { "type": "string", "minLength": 1 }, "tool_server": { "type": "string", "format": "uri" }, "parameters_hash": { "$ref": "#/$defs/sha256" }, "tool_version": { "type": "string", "minLength": 1 }, "authorization": { "type": "string", "minLength": 1 } }
+    },
+    "toolResponse": {
+      "type": "object", "required": ["tool_name", "response_hash", "parent_call_id"],
+      "properties": { "tool_name": { "type": "string", "minLength": 1 }, "response_hash": { "$ref": "#/$defs/sha256" }, "response_size": { "type": "number", "minimum": 0 }, "parent_call_id": { "$ref": "#/$defs/uuid4" } }
+    },
+    "decision": {
+      "type": "object", "required": ["decision_type"],
+      "properties": { "decision_type": { "type": "string", "minLength": 1 }, "reasoning_hash": { "$ref": "#/$defs/sha256" }, "confidence": { "type": "number", "minimum": 0, "maximum": 1 }, "alternatives_considered": { "type": "integer", "minimum": 0 }, "policy_ref": { "type": "string", "minLength": 1 } }
+    },
+    "delegation": {
+      "type": "object", "required": ["delegate_agent_id", "delegate_trust_level", "task_description_hash", "child_session_id"],
+      "properties": { "delegate_agent_id": { "type": "string", "format": "uri" }, "delegate_trust_level": { "enum": ["L0", "L1", "L2", "L3", "L4"] }, "task_description_hash": { "$ref": "#/$defs/sha256" }, "child_session_id": { "$ref": "#/$defs/uuid4" }, "constraints": { "type": "array", "items": { "type": "string" } }, "timeout_ms": { "type": "number", "minimum": 0 } }
+    },
+    "escalation": {
+      "type": "object", "required": ["escalation_reason", "escalation_target"],
+      "properties": { "escalation_reason": { "type": "string", "minLength": 1 }, "escalation_target": { "type": "string", "minLength": 1 }, "context_hash": { "$ref": "#/$defs/sha256" }, "urgency": { "enum": ["low", "medium", "high", "critical"] } }
+    },
+    "error": {
+      "type": "object", "required": ["error_code", "error_message", "error_category", "recoverable"],
+      "properties": { "error_code": { "type": "string", "minLength": 1 }, "error_message": { "type": "string", "minLength": 1 }, "error_category": { "enum": ["transport", "authentication", "authorization", "validation", "timeout", "internal", "external"] }, "recoverable": { "type": "boolean" }, "stack_hash": { "$ref": "#/$defs/sha256" } }
+    },
+    "lifecycle": {
+      "type": "object", "required": ["event"],
+      "properties": { "event": { "enum": ["session_start", "session_end", "pause", "resume", "configuration_change", "key_rotation", "trust_level_change", "record_deleted"] }, "previous_state": { "type": "string" }, "new_state": { "type": "string" }, "trigger": { "type": "string" }, "config_hash": { "$ref": "#/$defs/sha256" }, "enabled_tools": { "type": "array", "items": { "type": "string" } }, "session_hash": { "$ref": "#/$defs/sha256" }, "record_count": { "type": "integer", "minimum": 1 }, "duration_ms": { "type": "number", "minimum": 0 }, "deletion_reason": { "type": "string" }, "deleted_at": { "type": "string", "format": "date-time" }, "original_action_type": { "type": "string" }, "tombstone_hash": { "$ref": "#/$defs/sha256" } }
+    }
+  }
+}

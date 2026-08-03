@@ -18,6 +18,10 @@ VERIFY = BASE / "verify.py"
 EXAMPLE = BASE / "example-trajectory.jsonl"
 MANIFEST = BASE / "example-manifest.json"
 QUALITY = BASE / "example-quality-report.json"
+AAT_VERIFY = BASE / "verify_aat.py"
+AAT_EXAMPLE = BASE / "example-aat.jsonl"
+AAT_MANIFEST = BASE / "example-aat-manifest.json"
+AAT_CONTEXT = BASE / "example-aat-source.json"
 
 
 def load_verifier():
@@ -43,6 +47,25 @@ def run_verifier(path: Path, *extra: str) -> subprocess.CompletedProcess[str]:
             "--blobs",
             str(BASE / "blobs"),
             *extra,
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+
+def run_aat_verifier(
+    path: Path, manifest: Path = AAT_MANIFEST
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            sys.executable,
+            str(AAT_VERIFY),
+            str(path),
+            "--manifest",
+            str(manifest),
+            "--source-context",
+            str(AAT_CONTEXT),
         ],
         check=False,
         capture_output=True,
@@ -205,6 +228,75 @@ class VerifierGoldenVectors(unittest.TestCase):
         report = module.Report()
         module.verify_dataset_package(MANIFEST, manifest, None, [], report)
         self.assertIn("every manifest trace verified", report.failures)
+
+    def test_missing_dependencies_fail_without_traceback(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-S",
+                str(VERIFY),
+                str(EXAMPLE),
+                "--blobs",
+                str(BASE / "blobs"),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("install dependency", result.stdout)
+        self.assertNotIn("Traceback", result.stdout + result.stderr)
+
+    def test_aat_positive_example(self) -> None:
+        result = run_aat_verifier(AAT_EXAMPLE)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("CONFORMING", result.stdout)
+
+    def test_aat_modified_chain_is_rejected(self) -> None:
+        records = [
+            json.loads(line)
+            for line in AAT_EXAMPLE.read_text(encoding="utf-8").splitlines()
+        ]
+        records[-1]["prev_hash"] = "0" * 64
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            candidate = root / "bad-aat.jsonl"
+            candidate.write_text(
+                "\n".join(
+                    json.dumps(record, separators=(",", ":")) for record in records
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            manifest = json.loads(AAT_MANIFEST.read_text(encoding="utf-8"))
+            manifest["export"]["path"] = candidate.name
+            manifest_path = root / "manifest.json"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            for source in (EXAMPLE, AAT_CONTEXT):
+                (root / source.name).write_bytes(source.read_bytes())
+            result = run_aat_verifier(candidate, manifest_path)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("[FAIL] AAT chains and session summaries", result.stdout)
+        self.assertNotIn("Traceback", result.stdout + result.stderr)
+
+    def test_aat_raw_content_field_is_rejected(self) -> None:
+        records = [
+            json.loads(line)
+            for line in AAT_EXAMPLE.read_text(encoding="utf-8").splitlines()
+        ]
+        records[0]["action_detail"]["input"] = "secret"
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / "raw-aat.jsonl"
+            candidate.write_text(
+                "\n".join(
+                    json.dumps(record, separators=(",", ":")) for record in records
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            result = run_aat_verifier(candidate)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("[FAIL] AAT privacy-minimized fields", result.stdout)
 
 
 if __name__ == "__main__":

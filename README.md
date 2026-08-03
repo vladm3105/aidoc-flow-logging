@@ -16,6 +16,9 @@ qualification profile for commercial trajectory datasets.
   observations, decisions, changes, errors, feedback, evaluations, and outcomes.
 - **`ualf-dataset/v1.1`** packages selected traces with rights, hygiene, evidence,
   replay, deduplication, splits, quality dimensions, and an Ed25519 seal.
+- **AAT draft-00 compatibility** documents a one-way, privacy-minimized audit
+  projection to `draft-sharif-agent-audit-trail-00` without replacing UALF's
+  richer operational source record.
 
 UALF JSONL is the immutable source/interchange representation. Buyers may use
 derived Parquet, SFT conversation, preference-pair, RL episode, or benchmark-task
@@ -27,6 +30,10 @@ exports.
 | --- | --- |
 | `UNIFIED-AGENT-LOG-FORMAT.md` | Normative trace and dataset specification |
 | `AGENT-LOG-DATASET-REQUIREMENTS.md` | Capture and export requirements |
+| `AAT-COMPATIBILITY.md` | Version-pinned AAT draft-00 mapping and claim rules |
+| `aat-draft-00.schema.json` | Pinned AAT record schema |
+| `ualf-aat-source.schema.json` | AAT identity and policy context |
+| `ualf-aat-export-manifest.schema.json` | Signed transformation manifest |
 | `ualf-trajectory.schema.json` | Header, event, and outcome schema |
 | `ualf-tool-definitions.schema.json` | Captured action-space schema |
 | `ualf-dataset-manifest.schema.json` | Dataset package manifest schema |
@@ -39,7 +46,10 @@ exports.
 | `dedup-report.json` | Example exact-deduplication evidence |
 | `blobs/` | Content-addressed example artifacts |
 | `verify.py` | Schema, trajectory, blob, totals, and signature verifier |
+| `verify_aat.py` | AAT projection, chain, privacy, and manifest verifier |
 | `build_example.py` | Regenerates the example with a fresh demo key |
+| `build_aat_example.py` | Regenerates the synthetic AAT example |
+| `example-aat*.json*` | Synthetic AAT projection artifacts |
 | `tests/test_verify.py` | Positive and adversarial golden-vector tests |
 
 ## Trace shape
@@ -82,6 +92,14 @@ Verify the complete dataset package, including every listed trace:
 python verify.py example-trajectory.jsonl --manifest example-manifest.json
 ```
 
+Verify the pinned AAT projection and signed transformation manifest:
+
+```bash
+python verify_aat.py example-aat.jsonl \
+  --manifest example-aat-manifest.json \
+  --source-context example-aat-source.json
+```
+
 The verifier validates strict schemas, physical JSONL structure, gapless sequence,
 IDs and causality, call pairing, tool declarations, exact-byte chain, RFC 8785 seal,
 strict Ed25519 identity, blob hashes and byte counts, model-source provenance,
@@ -98,11 +116,16 @@ seal, and recomputed qualification fields.
 4. Add stubbed replay, then stronger replay only where it creates operational value.
 5. Materialize and sign closed traces selected for archival or export.
 6. Run dataset qualification and generate buyer-specific formats.
+7. Generate privacy-minimized audit projections only from closed, verified
+   traces, and pin every external compatibility claim to an exact specification
+   version.
 
 ## Status
 
 Draft v1.1 reference implementation (2026-08-02). `aidoc-traj/v1` was
 experimental and is superseded by the operations-first `ualf-trace/v1` design.
+The AAT compatibility document is informative and targets an individual IETF
+Internet-Draft; it is not an IETF endorsement or a regulatory certification.
 
 ## License
 
