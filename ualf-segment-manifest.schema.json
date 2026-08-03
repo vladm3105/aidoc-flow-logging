@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iplanic.ai/schemas/ualf-segment-manifest.schema.json",
+  "$id": "https://iplanic.ai/schemas/ualf/segments/v1/manifest.schema.json",
   "title": "UALF exact-reconstruction segment and Merkle manifest",
   "type": "object",
   "additionalProperties": false,

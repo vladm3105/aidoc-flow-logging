@@ -1,7 +1,7 @@
 {
   "profile": "ualf-projection-manifest/v1",
   "projection_id": "projection-ualf-croissant-demo",
-  "source_profile": "ualf-dataset/v1.1",
+  "source_profile": "ualf-dataset/v1.2",
   "target": {
     "profile": "ualf-croissant/v1",
     "specification": "https://mlcommons.org/croissant/",
@@ -9,22 +9,22 @@
   },
   "source": {
     "path": "example-manifest.json",
-    "sha256": "1fb520a7f6871d31d04ef6f0676663018ffa38703d5f8c009ab9937dccb04af5",
-    "bytes": 4379,
+    "sha256": "e7acde29211615e23761173983c18820bd2a1878c52a8bf679d4441ae8e00474",
+    "bytes": 5777,
     "media_type": "application/json"
   },
   "outputs": [
     {
       "path": "projections/example-croissant.json",
-      "sha256": "6d7fba0ec0b237eb9e7616993143eeb4e2ec00c64f3f3d092a8d2e98ec69351c",
+      "sha256": "a0be6bb6dbd15aaf349da15cede33124df45e4c67541dd5feaadf7c9dc0da6dd",
       "bytes": 796,
       "media_type": "application/json"
     }
   ],
   "exporter": {
     "name": "build_profiles.py",
-    "version": "1.0.0",
-    "source_revision": "ualf-v1.2",
+    "version": "1.1.0",
+    "source_revision": "ualf-v1.3",
     "deterministic": true
   },
   "record_mappings": [

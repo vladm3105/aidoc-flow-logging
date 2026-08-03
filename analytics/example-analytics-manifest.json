@@ -1,7 +1,7 @@
 {
   "profile": "ualf-projection-manifest/v1",
   "projection_id": "projection-ualf-analytics-demo",
-  "source_profile": "ualf-trace/v1",
+  "source_profile": "ualf-trace/v1.1",
   "target": {
     "profile": "ualf-analytics/v1",
     "specification": "https://iplanic.ai/specs/ualf-analytics/v1",
@@ -9,58 +9,58 @@
   },
   "source": {
     "path": "example-trajectory.jsonl",
-    "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
-    "bytes": 15743,
+    "sha256": "7f4a640390689408230b251ac5ca838b1b731face9f331dab140a482229dede8",
+    "bytes": 22062,
     "media_type": "application/jsonl"
   },
   "outputs": [
     {
       "path": "analytics/traces.jsonl",
-      "sha256": "abc79f7716e0fe6e11b7b894073afcf01aea899608a1fc5622a3ea6e4467eebc",
-      "bytes": 442,
+      "sha256": "e370af3de9e2b0ceae2548ad92fdd2d984a513978ce54ed4acc4feedfa6b4f61",
+      "bytes": 584,
       "media_type": "application/jsonl"
     },
     {
       "path": "analytics/events.jsonl",
-      "sha256": "334ece9fda5b1ec28572fd0a29c4756d96b5fa0accc85a1d6cbf86a4c057bbeb",
-      "bytes": 8133,
+      "sha256": "70cd8c991350f39ac0323c4f6382bc4aa0be8549a991d047be9c61cee9296f6b",
+      "bytes": 14425,
       "media_type": "application/jsonl"
     },
     {
       "path": "analytics/model_calls.jsonl",
-      "sha256": "b027e492a15c094642c853a61cacf0a5d7d2477422588c34acb8fdf00014bba6",
-      "bytes": 544,
+      "sha256": "8c241e3c3717cf3c6ec9ab10685ae3418cd89a88f21c02504e0e1ff0e50e9595",
+      "bytes": 742,
       "media_type": "application/jsonl"
     },
     {
       "path": "analytics/tool_calls.jsonl",
-      "sha256": "6c13350b4b5fe8b33e11d471193d5f1928d6ecb77713888d709ee95779c8aeaa",
-      "bytes": 1687,
+      "sha256": "1d331d7d929148fdec01340ac1824c5bd7e40e80bed0439823ba497774b754a4",
+      "bytes": 2275,
       "media_type": "application/jsonl"
     },
     {
       "path": "analytics/content_refs.jsonl",
-      "sha256": "6a345e1ba22ecfe16aa5e72bf25d5dfce0fa6a816432b9ae2d9bea4e64174a33",
-      "bytes": 7424,
+      "sha256": "7b4f2f95ed9bbe8802b6f491fc8e86b7b426b7629e3971edb541806e17b89a0e",
+      "bytes": 9188,
       "media_type": "application/jsonl"
     },
     {
       "path": "analytics/evaluations.jsonl",
-      "sha256": "d2ca4911e2f739d51690b84b0a26227215b613b7f8f50d357928265aea8cb755",
-      "bytes": 481,
+      "sha256": "89ee3a88bb22150f50dd8cefb7c959c164c8dd9e0747f92a06c3934633254cfd",
+      "bytes": 607,
       "media_type": "application/jsonl"
     },
     {
       "path": "analytics/outcomes.jsonl",
-      "sha256": "048459ee34f492082b164e90135a876afa4bab132a4a4f19a4d002073360894f",
-      "bytes": 439,
+      "sha256": "c10e5ecebc032829eec23617dffc358b840796e301dbf505a0d372cf935bc915",
+      "bytes": 565,
       "media_type": "application/jsonl"
     }
   ],
   "exporter": {
     "name": "export_analytics.py",
-    "version": "1.0.0",
-    "source_revision": "ualf-v1.2",
+    "version": "1.1.0",
+    "source_revision": "ualf-v1.3",
     "deterministic": true
   },
   "record_mappings": [

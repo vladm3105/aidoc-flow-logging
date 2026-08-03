@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iplanic.ai/schemas/ualf-retention.schema.json",
+  "$id": "https://iplanic.ai/schemas/ualf/retention/v1.1/record.schema.json",
   "title": "UALF retention and erasure policy binding",
   "type": "object",
   "additionalProperties": false,
-  "required": ["profile", "subject", "retention_class", "created_at", "legal_hold", "artifact_policy", "erasure"],
+  "required": ["profile", "organization", "project", "environment", "subject", "policy_id", "retention_class", "created_at", "legal_hold", "artifact_policy", "erasure", "seal"],
   "properties": {
-    "profile": { "const": "ualf-retention/v1" },
+    "profile": { "const": "ualf-retention/v1.1" },
+    "organization": { "type": "string", "minLength": 3 },
+    "project": { "type": "string", "minLength": 3 },
+    "environment": { "type": "string", "minLength": 1 },
     "subject": {
       "type": "object", "additionalProperties": false,
       "required": ["kind", "id", "sha256"],
@@ -16,6 +19,7 @@
         "sha256": { "$ref": "#/$defs/sha256" }
       }
     },
+    "policy_id": { "type": "string", "minLength": 3 },
     "retention_class": { "type": "string", "pattern": "^[a-z][a-z0-9._-]{1,63}$" },
     "created_at": { "type": "string", "format": "date-time" },
     "expires_at": { "type": ["string", "null"], "format": "date-time" },
@@ -47,7 +51,15 @@
         "statement_schema": { "type": "string", "format": "uri" }
       }
     },
+    "seal": { "$ref": "#/$defs/seal" },
     "extensions": { "type": "object", "propertyNames": { "pattern": "^[a-z0-9.-]+/.+$" } }
   },
-  "$defs": { "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+  "allOf": [
+    { "if": { "properties": { "legal_hold": { "properties": { "active": { "const": true } }, "required": ["active"] } } }, "then": { "properties": { "legal_hold": { "required": ["authority", "reason", "review_at"] } } } },
+    { "if": { "properties": { "artifact_policy": { "properties": { "dependency_mode": { "enum": ["external_pinned", "mixed"] } }, "required": ["dependency_mode"] } } }, "then": { "properties": { "artifact_policy": { "required": ["availability_commitment_until"] } } } }
+  ],
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "seal": { "type": "object", "additionalProperties": false, "required": ["key_id", "algorithm", "public_key", "document_sha256", "signature"], "properties": { "key_id": { "type": "string", "minLength": 3 }, "algorithm": { "const": "ed25519" }, "public_key": { "type": "string", "minLength": 44, "maxLength": 44 }, "document_sha256": { "$ref": "#/$defs/sha256" }, "signature": { "type": "string", "minLength": 88, "maxLength": 88 } } }
+  }
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iplanic.ai/schemas/ualf-aat-export-manifest.schema.json",
+  "$id": "https://iplanic.ai/schemas/ualf/aat-export/draft-00/manifest.schema.json",
   "title": "UALF to AAT draft-00 transformation manifest",
   "type": "object",
   "additionalProperties": false,

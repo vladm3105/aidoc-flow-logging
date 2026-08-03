@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iplanic.ai/schemas/ualf-aat-source.schema.json",
+  "$id": "https://iplanic.ai/schemas/ualf/aat-export/draft-00/source.schema.json",
   "title": "UALF AAT draft-00 source context",
   "type": "object",
   "additionalProperties": false,

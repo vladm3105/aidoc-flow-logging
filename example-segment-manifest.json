@@ -2,8 +2,8 @@
   "profile": "ualf-segments/v1",
   "source": {
     "path": "example-trajectory.jsonl",
-    "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
-    "bytes": 15743
+    "sha256": "7f4a640390689408230b251ac5ca838b1b731face9f331dab140a482229dede8",
+    "bytes": 22062
   },
   "created_at": "2026-08-03T12:00:00Z",
   "segment_policy": {
@@ -16,39 +16,39 @@
       "seq_start": 1,
       "seq_end": 5,
       "offset": 0,
-      "bytes": 4933,
-      "sha256": "ad162f771304530dce3c26739db24bb96d36779ae91a91bc7c7d49c3f984381b"
+      "bytes": 6141,
+      "sha256": "60c9482a294b758a59b2df363e16dbecd850632c8e99ca02ab45a2c385c5036a"
     },
     {
       "index": 1,
       "seq_start": 6,
       "seq_end": 10,
-      "offset": 4933,
-      "bytes": 5006,
-      "sha256": "70fd340f08c7154c5591d2b44b0a81e4ee2936aa383a19628b4da6c983687e5c"
+      "offset": 6141,
+      "bytes": 5991,
+      "sha256": "69ad0f4fedebcb0ab77f312611671322afcb727b36d036c945598db266bd7d46"
     },
     {
       "index": 2,
       "seq_start": 11,
       "seq_end": 15,
-      "offset": 9939,
-      "bytes": 3320,
-      "sha256": "a2294bfdec7797a4b2f0d55e0049e8de1fb2bbb1275ba3477b91641afb5fabf1"
+      "offset": 12132,
+      "bytes": 4984,
+      "sha256": "2aae1672b295e44b1f8caf25f83ee16fec85a84b2b8b51a63f99dabee3e39c42"
     },
     {
       "index": 3,
       "seq_start": 16,
-      "seq_end": 18,
-      "offset": 13259,
-      "bytes": 2484,
-      "sha256": "626ffc7a0c758246c650cc24baa7779fee03d240a665305fc2b2595cd4ac5eaa"
+      "seq_end": 20,
+      "offset": 17116,
+      "bytes": 4946,
+      "sha256": "f47376c158355a03b95fb0ee6421d89ea60f55d0f93ad77b7d0d6793840f2269"
     }
   ],
   "merkle": {
     "algorithm": "sha256",
     "leaf": "raw-segment-sha256",
     "odd_node": "duplicate_last",
-    "root": "1fd34c2465d4fa107fc901d93d293d4908c148746a1fc6684b73cfa3ce5efd81"
+    "root": "08adb48666094160a0be89abc1c9480ef7a988bcc09c9a17ae73123fe2cce239"
   },
   "signing": {
     "key_id": "ualf-segment-demo-1",
@@ -57,11 +57,11 @@
     "registry": "https://example.invalid/keys"
   },
   "seal": {
-    "manifest_sha256": "fed9de72dce92d757428dbd006cef1869fc5b51732f25bab030639d59d03b7d6",
+    "manifest_sha256": "7dd97de20645315ea9832299430df1738e5f290e06d9460ed36c5e96e1ba41df",
     "signature": {
       "key_id": "ualf-segment-demo-1",
       "algorithm": "ed25519",
-      "value": "XTG0E4EOvktdAeOp8wU5TQI4/vSipqQKpfRuow04uo5F888Ks5zs67HVbX5G2TtdwUBBzJZOWu5FZCKbkhBNCA=="
+      "value": "q/k2B0mRoCPlWlVLQkBmcHqwZlMKYa+U0/ihociY+EQCNChes+wEEnlfUDKYKWhmuWxj3fRPledaPX3QGXkZCA=="
     }
   }
 }

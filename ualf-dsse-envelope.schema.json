@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iplanic.ai/schemas/ualf-dsse-envelope.schema.json",
+  "$id": "https://iplanic.ai/schemas/ualf/dsse/v1/envelope.schema.json",
   "title": "DSSE envelope for a UALF in-toto qualification statement",
   "type": "object",
   "additionalProperties": false,

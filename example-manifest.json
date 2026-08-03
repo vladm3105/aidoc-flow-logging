@@ -1,8 +1,8 @@
 {
-  "schema": "ualf-dataset/v1.1",
+  "schema": "ualf-dataset/v1.2",
   "dataset_id": "ualf-example-dataset-001",
   "created_at": "2026-08-02T18:00:11.000Z",
-  "trace_schema": "ualf-trace/v1",
+  "trace_schema": "ualf-trace/v1.1",
   "export_profile": "full",
   "intended_uses": [
     "format evaluation",
@@ -13,8 +13,40 @@
     {
       "trajectory_id": "traj-2026-08-02-demo-001",
       "path": "example-trajectory.jsonl",
-      "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
-      "bytes": 15743
+      "sha256": "7f4a640390689408230b251ac5ca838b1b731face9f331dab140a482229dede8",
+      "bytes": 22062,
+      "capture": {
+        "mode": "synthetic",
+        "generator": "build_example.py",
+        "reason": "Deterministic conformance fixture; no live producer loss boundary exists."
+      },
+      "amendments": {
+        "state": "none",
+        "as_of": "2026-08-02T18:00:11.000Z",
+        "count": 0
+      },
+      "retention": {
+        "mode": "package",
+        "retention_class": "synthetic-fixture",
+        "expires_at": null,
+        "erasure_method": "retain"
+      },
+      "revocation": {
+        "status": "active",
+        "checked_at": "2026-08-02T18:00:11.000Z",
+        "authority": "UALF demo maintainer"
+      },
+      "hygiene_evidence": {
+        "path": "example-hygiene-report.json",
+        "sha256": "ab88be3b91bb8f458891c4cbc62f0cb67ef6577a658d12986f97b94a3c13067c",
+        "bytes": 1173
+      },
+      "replay_evidence": {
+        "path": "example-replay-verification.json",
+        "sha256": "4238d7675a756deb4a860af64ef29e069609ea04496d0687b650f67cf444c8af",
+        "bytes": 905
+      },
+      "external_dependencies": []
     }
   ],
   "blobs": [
@@ -91,42 +123,51 @@
     "reviewed_at": "2026-08-02T18:00:10.900Z",
     "evidence": {
       "path": "rights-attestation.json",
-      "sha256": "4e52922b58096dfbb9e767268263573d26a48ce05b045d0157099ed5c674328a",
-      "bytes": 284
+      "sha256": "19f169128e1fa75dc7468531c4c5cd735fdd15fbcbead10cd07193291f081ab7",
+      "bytes": 1158
     }
   },
   "deduplication": {
     "method": "exact-sha256/v1",
     "exact_duplicates_remaining": 0,
+    "near_duplicate_method": "minhash-jaccard/v1",
+    "near_duplicates_reviewed": 0,
+    "benchmark_contamination": "none_detected",
+    "split_leakage": "none_detected",
     "report": {
       "path": "dedup-report.json",
-      "sha256": "9b8a9e061bc3f10cced9512dd0259e9404bef165d3fd93ab0249a7615b0df618",
-      "bytes": 152
+      "sha256": "0b66886110768f129b0250d4e687f1f2428df2eafa878cadb3a9535141eb4616",
+      "bytes": 316
     }
   },
   "quality_report": {
     "path": "example-quality-report.json",
-    "sha256": "e6f66c96d86f8047dfd887af8e0ec85975c879d75a4f10d3dde6aab313e1079b",
-    "bytes": 848
+    "sha256": "4cd35639e1dbe694f25b65de22ad41d7fe2bb942e91cdadc730486ebc6cfeaeb",
+    "bytes": 1105
   },
   "datasheet": {
     "path": "datasheet.md",
     "sha256": "da8e21c3602a965cbaa77f9d51171556a94d4a070520935ae892f1b0520c2f8b",
     "bytes": 610
   },
+  "machine_datasheet": {
+    "path": "example-datasheet.json",
+    "sha256": "b5fe81f88e158cd2e2ccb9c2f3f25b94d798101d761723104a84a3f8b7a0d944",
+    "bytes": 953
+  },
   "provenance": {
     "signing": {
-      "key_id": "ualf-demo-d858cb99f54c90a2",
+      "key_id": "ualf-demo-16b3559f4e4733ce",
       "algorithm": "ed25519",
-      "public_key": "J0Vqqs6MWGQ45yXzdqMcD0Q5Ucdp976YCmndZaI2IDw="
+      "public_key": "TjpfA7cxiC9KrpweBmwgbOJl+/Yo4CatczPWHRG28DA="
     }
   },
   "seal": {
-    "manifest_sha256": "635933a0586469572395f8e7b7dd0cffe01fb636fffa35e2a3d9f0a758850bc9",
+    "manifest_sha256": "b92c4e46f62be15891ba56ba71729e2e65f5c2f6d39bbd6a9f860c5e03e67995",
     "signature": {
-      "key_id": "ualf-demo-d858cb99f54c90a2",
+      "key_id": "ualf-demo-16b3559f4e4733ce",
       "algorithm": "ed25519",
-      "value": "y1zlMYIQMzM1UJHvCgJ+P2oIz24cbd2ZZ71F/DGB5zBYN5BWlB/GvvRgnJthcg8vZiOFQyd4BqN/yXiYGCtNAA=="
+      "value": "2DUQ561/W7J+2WX0BYSyFudnIOlJAyzUGaN11csb5uWNI7ADnqbJriYd4V9dmugcrhJ9pGRfosUfr4eoMBQ5AQ=="
     }
   }
 }

@@ -2,7 +2,7 @@
 
 **Registry profile:** `ualf-extension-registry/v1`
 
-**Status:** Draft v1.2 — 2026-08-03
+**Status:** Draft v1.3 — 2026-08-03
 
 UALF extensions allow experimentation without placing vendor-specific or
 unstable fields in the base trace schema.
@@ -51,6 +51,12 @@ An extension may be promoted into a future base profile only after:
 Deprecation MUST name a replacement or explain why none exists. Validators MUST
 continue to recognize historical identifiers needed to reproduce old artifacts.
 Retirement does not invalidate already sealed traces.
+
+Base-profile evolution follows the same immutability rule. A structural or
+semantic change uses a new profile identifier, publishes a compatibility matrix
+and migration mapping, and preserves the prior schema and verifier for historical
+artifacts. Mutable branches and unversioned schema URLs MUST NOT be used as
+normative `$id` values.
 
 ## Generated libraries
 

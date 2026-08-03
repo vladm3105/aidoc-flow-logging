@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify a materialized UALF Trace v1 file and optional dataset metadata.
+"""Verify a materialized UALF Trace v1.1 file and optional dataset metadata.
 
 Usage:
   python verify.py TRACE.jsonl [--blobs DIR]
@@ -145,28 +145,33 @@ def verify_structure(
         "trace_id consistent",
         all(obj.get("trace_id", trace_id) == trace_id for obj in objects),
     )
-
-    offsets = [
-        obj.get("monotonic_ms")
-        for obj in objects[1:]
-        if isinstance(obj.get("monotonic_ms"), int)
-    ]
-    report.check("monotonic offsets ordered", offsets == sorted(offsets))
+    for field in ("organization", "project", "deployment_environment", "session_id"):
+        expected = header.get(field)
+        report.check(
+            f"{field} consistent",
+            all(obj.get(field, expected) == expected for obj in objects),
+        )
 
     try:
-        started = datetime.fromisoformat(header["started_at"].replace("Z", "+00:00"))
-        timestamps = [
-            datetime.fromisoformat(obj["timestamp"].replace("Z", "+00:00"))
+        observed = [
+            datetime.fromisoformat(obj["observed_at"].replace("Z", "+00:00"))
             for obj in objects[1:]
         ]
-        report.check("wall timestamps ordered", timestamps == sorted(timestamps))
-        aligned = all(
-            abs((stamp - started).total_seconds() * 1000 - offset) <= 1
-            for stamp, offset in zip(timestamps, offsets, strict=True)
+        report.check("observation timestamps ordered", observed == sorted(observed))
+        per_clock: dict[tuple[str, str, str], list[tuple[int, int]]] = {}
+        for obj in objects[1:]:
+            producer = obj["producer"]
+            key = (producer["id"], producer["process_id"], producer["clock_id"])
+            per_clock.setdefault(key, []).append(
+                (producer["local_seq"], obj["monotonic_ms"])
+            )
+        clocks_ok = all(
+            values == sorted(values) and len({seq for seq, _ in values}) == len(values)
+            for values in per_clock.values()
         )
-        report.check("wall and monotonic time aligned", aligned)
+        report.check("producer-local clocks ordered", clocks_ok)
     except (KeyError, TypeError, ValueError) as exc:
-        report.check("wall and monotonic time aligned", False, str(exc))
+        report.check("producer-local clocks ordered", False, str(exc))
 
     breaks = [
         index + 1
@@ -282,12 +287,19 @@ def verify_events(
             mismatched.append(key[1])
         if key[0] == "tool_call" and start_data.get("tool") != end_data.get("tool"):
             mismatched.append(key[1])
+        same_clock = (
+            start_event.get("producer", {}).get("clock_id")
+            == end_event.get("producer", {}).get("clock_id")
+        )
         elapsed = end_event.get("monotonic_ms", 0) - start_event.get("monotonic_ms", 0)
+        latency_ok = "latency_state" in end_data or (
+            same_clock and elapsed == end_data.get("latency_ms")
+        )
         if (
             start_event.get("seq", 0) >= end_event.get("seq", 0)
             or start_event.get("span_id") != end_event.get("span_id")
             or end_event.get("caused_by") != start_event.get("event_id")
-            or elapsed != end_data.get("latency_ms")
+            or not latency_ok
         ):
             bad_lifecycle.append(key[1])
     report.check("call identity consistent", not mismatched, f"mismatched {mismatched}")
@@ -295,6 +307,51 @@ def verify_events(
         "call lifecycle order and latency consistent",
         not bad_lifecycle,
         f"bad calls {bad_lifecycle}",
+    )
+
+    activity_starts: dict[tuple[str, str], dict[str, Any]] = {}
+    activity_completes: dict[tuple[str, str], dict[str, Any]] = {}
+    duplicate_activities: list[str] = []
+    for event in events:
+        event_type = event.get("type", "")
+        if event_type not in {
+            "agent.started",
+            "agent.completed",
+            "delegation.started",
+            "delegation.completed",
+        }:
+            continue
+        family, phase = event_type.split(".", 1)
+        key = (family, str(event.get("data", {}).get("activity_id")))
+        target = activity_starts if phase == "started" else activity_completes
+        if key in target:
+            duplicate_activities.append(f"{phase}:{key}")
+        target[key] = event
+    report.check(
+        "agent activity IDs unique per lifecycle",
+        not duplicate_activities,
+        str(duplicate_activities),
+    )
+    report.check(
+        "agent activities paired",
+        activity_starts.keys() == activity_completes.keys(),
+        f"unpaired {sorted(activity_starts.keys() ^ activity_completes.keys())}",
+    )
+    bad_activities: list[str] = []
+    for key in activity_starts.keys() & activity_completes.keys():
+        start_event = activity_starts[key]
+        end_event = activity_completes[key]
+        if (
+            start_event.get("seq", 0) >= end_event.get("seq", 0)
+            or start_event.get("span_id") != end_event.get("span_id")
+            or start_event.get("data", {}).get("agent_id")
+            != end_event.get("data", {}).get("agent_id")
+        ):
+            bad_activities.append(key[1])
+    report.check(
+        "agent activity lifecycle consistent",
+        not bad_activities,
+        f"bad activities {bad_activities}",
     )
 
     positions_bad: list[str] = []
@@ -567,16 +624,16 @@ def verify_totals(
         "errors": sum(event.get("type") == "error.recorded" for event in events),
         "retries": sum(event.get("type") == "retry.started" for event in events),
         "tokens_in": sum(
-            event.get("data", {}).get("usage", {}).get("tokens_in", 0)
+            (event.get("data", {}).get("usage") or {}).get("tokens_in", 0)
             for event in model_completions
         ),
         "tokens_out": sum(
-            event.get("data", {}).get("usage", {}).get("tokens_out", 0)
+            (event.get("data", {}).get("usage") or {}).get("tokens_out", 0)
             for event in model_completions
         ),
         "cost_usd": round(
             sum(
-                event.get("data", {}).get("cost_usd", 0) for event in model_completions
+                event.get("data", {}).get("cost_usd") or 0 for event in model_completions
             ),
             12,
         ),
@@ -778,6 +835,7 @@ def verify_trace(
     return {
         "path": trajectory_path,
         "objects": objects,
+        "header": header,
         "refs": refs,
         "trajectory_id": header.get("trajectory_id"),
         "trace_sha256": sha256(trajectory_path.read_bytes())
@@ -808,6 +866,39 @@ def verify_artifact(
     report.check(f"{label} digest", sha256(data) == artifact.get("sha256"))
     report.check(f"{label} byte count", len(data) == artifact.get("bytes"))
     return path
+
+
+def verify_signed_evidence(
+    path: Path | None, schema_path: Path, label: str, report: Report
+) -> dict[str, Any] | None:
+    document = validate_optional_document(path, schema_path, f"{label} schema", report)
+    if document is None:
+        return None
+    try:
+        import rfc8785
+        from cryptography.exceptions import InvalidSignature
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+
+        unsigned = dict(document)
+        seal = unsigned.pop("seal")
+        expected = sha256(rfc8785.dumps(unsigned))
+        digest_ok = expected == seal["document_sha256"]
+        report.check(f"{label} digest", digest_ok)
+        Ed25519PublicKey.from_public_bytes(strict_b64(seal["public_key"])).verify(
+            strict_b64(seal["signature"]), bytes.fromhex(seal["document_sha256"])
+        )
+        report.check(f"{label} signature", digest_ok)
+        return document if digest_ok else None
+    except (
+        KeyError,
+        TypeError,
+        ValueError,
+        binascii.Error,
+        InvalidSignature,
+        rfc8785.CanonicalizationError,
+    ) as exc:
+        report.check(f"{label} signature", False, str(exc))
+        return None
 
 
 def verify_manifest_seal(manifest: dict[str, Any], report: Report) -> None:
@@ -879,8 +970,21 @@ def derive_quality(trace: dict[str, Any], rights_status: str) -> dict[str, Any]:
         and replay_rank[trace["replay_quality"]] >= replay_rank["trace"]
         and rights_status == "cleared"
         and trace["hygiene_status"] == "clean"
+        and trace.get("rights_evidence_verified") is True
+        and trace.get("hygiene_evidence_verified") is True
+        and trace.get("replay_evidence_verified") is True
+        and trace.get("capture_completeness") in {"complete", "synthetic"}
+        and trace.get("revocation_status") == "active"
     )
-    if not trace["schema_valid"] or not trace["integrity_verified"]:
+    if (
+        not trace["schema_valid"]
+        or not trace["integrity_verified"]
+        or not trace.get("rights_evidence_verified")
+        or not trace.get("hygiene_evidence_verified")
+        or not trace.get("replay_evidence_verified")
+        or trace.get("capture_completeness") not in {"complete", "synthetic"}
+        or trace.get("revocation_status") != "active"
+    ):
         tier = "reject"
     elif not eligible:
         tier = "C"
@@ -907,16 +1011,32 @@ def derive_quality(trace: dict[str, Any], rights_status: str) -> dict[str, Any]:
         findings.append("Rights are not cleared.")
     if trace["hygiene_status"] != "clean":
         findings.append("Hygiene verification is not clean.")
+    if not trace.get("rights_evidence_verified"):
+        findings.append("Rights evidence is not independently verified.")
+    if not trace.get("hygiene_evidence_verified"):
+        findings.append("Hygiene evidence is not independently verified.")
+    if not trace.get("replay_evidence_verified"):
+        findings.append("Replay evidence is not independently verified.")
+    if trace.get("capture_completeness") not in {"complete", "synthetic"}:
+        findings.append("Capture is incomplete or not qualified.")
+    if trace.get("revocation_status") != "active":
+        findings.append("Trace is revoked or erased.")
     return {
         "trajectory_id": trace["trajectory_id"],
         "trace_sha256": trace["trace_sha256"],
         "schema_valid": trace["schema_valid"],
         "integrity_verified": trace["integrity_verified"],
+        "capture_completeness": trace.get("capture_completeness", "incomplete"),
         "context_completeness": trace["context_completeness"],
         "evidence_quality": trace["evidence_quality"],
         "replay_quality": trace["replay_quality"],
         "rights_status": rights_status,
         "hygiene_status": trace["hygiene_status"],
+        "rights_evidence_verified": trace.get("rights_evidence_verified", False),
+        "hygiene_evidence_verified": trace.get("hygiene_evidence_verified", False),
+        "replay_evidence_verified": trace.get("replay_evidence_verified", False),
+        "revocation_status": trace.get("revocation_status", "revoked"),
+        "amendment_cutoff": trace.get("amendment_cutoff"),
         "export_eligible": eligible,
         "commercial_tier": tier,
         "findings": findings,
@@ -962,13 +1082,164 @@ def verify_dataset_package(
             trace["path"].stat().st_size == entry.get("bytes"),
         )
 
+    artifact_paths: dict[str, Path | None] = {}
     for label, artifact in [
         ("quality report", manifest.get("quality_report", {})),
         ("datasheet", manifest.get("datasheet", {})),
+        ("machine datasheet", manifest.get("machine_datasheet", {})),
         ("rights evidence", manifest.get("rights_summary", {}).get("evidence", {})),
         ("deduplication report", manifest.get("deduplication", {}).get("report", {})),
     ]:
-        verify_artifact(root, artifact, label, report)
+        artifact_paths[label] = verify_artifact(root, artifact, label, report)
+
+    machine_datasheet = validate_optional_document(
+        artifact_paths.get("machine datasheet"),
+        root / "ualf-datasheet.schema.json",
+        "machine datasheet schema",
+        report,
+    )
+    report.check(
+        "machine datasheet dataset ID",
+        machine_datasheet is not None
+        and machine_datasheet.get("dataset_id") == manifest.get("dataset_id"),
+    )
+    rights_document = verify_signed_evidence(
+        artifact_paths.get("rights evidence"),
+        root / "ualf-rights-attestation.schema.json",
+        "rights evidence",
+        report,
+    )
+    rights_status = (
+        rights_document.get("status", "unresolved")
+        if rights_document is not None
+        and rights_document.get("dataset_id") == manifest.get("dataset_id")
+        else "unresolved"
+    )
+    report.check(
+        "rights status matches verified evidence",
+        manifest.get("rights_summary", {}).get("status") == rights_status,
+    )
+    report.check(
+        "rights uses match manifest",
+        rights_document is not None
+        and rights_document.get("intended_uses") == manifest.get("intended_uses")
+        and rights_document.get("prohibited_uses") == manifest.get("prohibited_uses"),
+    )
+
+    entries_by_id = {item.get("trajectory_id"): item for item in trace_entries}
+    for trace in traces:
+        entry = entries_by_id.get(trace.get("trajectory_id"), {})
+        capture = entry.get("capture", {})
+        if capture.get("mode") == "synthetic":
+            header = trace.get("header", {})
+            synthetic_ok = header.get("deployment_environment") in {"test", "development"}
+            report.check("synthetic capture limited to non-production", synthetic_ok)
+            trace["capture_completeness"] = "synthetic" if synthetic_ok else "incomplete"
+        else:
+            capture_path = verify_artifact(root, capture, "capture evidence", report)
+            capture_doc = validate_optional_document(
+                capture_path,
+                root / "ualf-production-capture.schema.json",
+                "capture evidence schema",
+                report,
+            )
+            trace["capture_completeness"] = (
+                capture_doc.get("completeness", "incomplete")
+                if capture_doc is not None
+                and capture_doc.get("trace_sha256") == trace.get("trace_sha256")
+                and capture_doc.get("organization")
+                == trace.get("header", {}).get("organization")
+                and capture_doc.get("project") == trace.get("header", {}).get("project")
+                and capture_doc.get("environment")
+                == trace.get("header", {}).get("deployment_environment")
+                else "incomplete"
+            )
+        amendments = entry.get("amendments", {})
+        report.check(
+            "amendment state coherent",
+            (amendments.get("state") == "none" and amendments.get("count") == 0)
+            or (
+                amendments.get("state") == "present"
+                and amendments.get("count", 0) > 0
+                and "stream" in amendments
+                and "terminal_sha256" in amendments
+            ),
+        )
+        retention = entry.get("retention", {})
+        if retention.get("mode") != "package":
+            retention_path = verify_artifact(
+                root, retention, "retention evidence", report
+            )
+            retention_doc = verify_signed_evidence(
+                retention_path,
+                root / "ualf-retention.schema.json",
+                "retention evidence",
+                report,
+            )
+            report.check(
+                "retention subject matches trace",
+                retention_doc is not None
+                and retention_doc.get("subject", {}).get("sha256")
+                == trace.get("trace_sha256"),
+            )
+        for dependency in entry.get("external_dependencies", []):
+            verify_artifact(
+                root, dependency.get("artifact", {}), "external dependency", report
+            )
+        hygiene_path = verify_artifact(
+            root, entry.get("hygiene_evidence", {}), "hygiene evidence", report
+        )
+        hygiene = verify_signed_evidence(
+            hygiene_path,
+            root / "ualf-hygiene-report.schema.json",
+            "hygiene evidence",
+            report,
+        )
+        replay_path = verify_artifact(
+            root, entry.get("replay_evidence", {}), "replay evidence", report
+        )
+        replay = verify_signed_evidence(
+            replay_path,
+            root / "ualf-replay-verification.schema.json",
+            "replay evidence",
+            report,
+        )
+        rights_scope = rights_document.get("scope", {}) if rights_document else {}
+        header_scope = trace.get("header", {})
+        trace["rights_evidence_verified"] = (
+            rights_document is not None
+            and rights_scope.get("organization") == header_scope.get("organization")
+            and rights_scope.get("project") == header_scope.get("project")
+            and rights_scope.get("environment")
+            == header_scope.get("deployment_environment")
+        )
+        trace["hygiene_evidence_verified"] = (
+            hygiene is not None
+            and hygiene.get("subject", {}).get("sha256") == trace.get("trace_sha256")
+            and {item.get("category") for item in hygiene.get("scanners", [])}
+            >= {"pii", "secrets", "license", "malware"}
+            and all(
+                item.get("status") in {"clean", "findings_resolved"}
+                for item in hygiene.get("scanners", [])
+            )
+        )
+        trace["replay_evidence_verified"] = (
+            replay is not None
+            and replay.get("subject", {}).get("sha256") == trace.get("trace_sha256")
+            and replay.get("result_match") is True
+            and replay.get("declared_level") == trace.get("replay_quality")
+            and replay.get("calls", {}).get("matched")
+            == replay.get("calls", {}).get("model", 0)
+            + replay.get("calls", {}).get("tool", 0)
+        )
+        if hygiene is not None:
+            trace["hygiene_status"] = hygiene.get("overall", "not_run")
+        if replay is not None and trace["replay_evidence_verified"]:
+            trace["replay_quality"] = replay.get("verified_level", "none")
+        trace["revocation_status"] = entry.get("revocation", {}).get(
+            "status", "revoked"
+        )
+        trace["amendment_cutoff"] = entry.get("amendments", {}).get("as_of")
 
     manifest_blobs = manifest.get("blobs", [])
     blob_ids = [entry.get("sha256") for entry in manifest_blobs]
@@ -1013,7 +1284,6 @@ def verify_dataset_package(
     )
     report.check("quality report covers traces", set(quality_ids) == set(trace_ids))
     quality_by_id = {item.get("trajectory_id"): item for item in quality_entries}
-    rights_status = manifest.get("rights_summary", {}).get("status", "unresolved")
     for trace in traces:
         expected = derive_quality(trace, rights_status)
         actual = quality_by_id.get(trace.get("trajectory_id"))

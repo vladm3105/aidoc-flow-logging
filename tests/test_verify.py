@@ -79,6 +79,87 @@ class VerifierGoldenVectors(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("CONFORMING", result.stdout)
 
+    def test_failed_model_call_has_explicit_terminal_state(self) -> None:
+        schema = json.loads(
+            (BASE / "ualf-trajectory.schema.json").read_text(encoding="utf-8")
+        )
+        event = deepcopy(
+            next(
+                record
+                for record in example_records()
+                if record.get("type") == "model_call.completed"
+            )
+        )
+        data = event["data"]
+        data.update(
+            {
+                "status": "interrupted",
+                "usage_state": "not_available",
+                "cost_state": "not_available",
+                "latency_state": "not_available",
+                "no_output": True,
+                "error": {
+                    "class": "process_terminated",
+                    "message": "Producer exited before a response was observed.",
+                    "retryable": True,
+                },
+            }
+        )
+        for field in ("usage", "cost_usd", "latency_ms", "finish_reason", "output_ref"):
+            data.pop(field, None)
+        self.assertFalse(list(Draft202012Validator(schema).iter_errors(event)))
+
+    def test_file_create_and_delete_are_representable(self) -> None:
+        schema = json.loads(
+            (BASE / "ualf-trajectory.schema.json").read_text(encoding="utf-8")
+        )
+        event = deepcopy(
+            next(
+                record
+                for record in example_records()
+                if record.get("type") == "file_change.recorded"
+            )
+        )
+        event["data"].update(
+            {"operation": "create", "pre_sha256": None, "post_sha256": "0" * 64}
+        )
+        self.assertFalse(list(Draft202012Validator(schema).iter_errors(event)))
+        event["data"].update(
+            {"operation": "delete", "pre_sha256": "0" * 64, "post_sha256": None}
+        )
+        self.assertFalse(list(Draft202012Validator(schema).iter_errors(event)))
+
+    def test_unpaired_agent_activity_is_detected(self) -> None:
+        records = example_records()
+        records = [
+            record
+            for record in records
+            if record.get("type") != "agent.completed"
+        ]
+        verifier = load_verifier()
+        report = verifier.Report()
+        verifier.verify_events(records, BASE / "blobs", report)
+        self.assertIn("agent activities paired", report.failures)
+
+    def test_rights_evidence_tampering_is_rejected(self) -> None:
+        document = json.loads(
+            (BASE / "rights-attestation.json").read_text(encoding="utf-8")
+        )
+        document["status"] = "restricted"
+        verifier = load_verifier()
+        with tempfile.TemporaryDirectory() as directory:
+            candidate = Path(directory) / "rights.json"
+            candidate.write_text(json.dumps(document), encoding="utf-8")
+            report = verifier.Report()
+            result = verifier.verify_signed_evidence(
+                candidate,
+                BASE / "ualf-rights-attestation.schema.json",
+                "rights evidence",
+                report,
+            )
+        self.assertIsNone(result)
+        self.assertIn("rights evidence digest", report.failures)
+
     def test_positive_complete_dataset(self) -> None:
         result = run_verifier(
             EXAMPLE,
@@ -215,7 +296,7 @@ class VerifierGoldenVectors(unittest.TestCase):
         }
         derived = module.derive_quality(trace, "cleared")
         self.assertFalse(derived["export_eligible"])
-        self.assertEqual(derived["commercial_tier"], "C")
+        self.assertEqual(derived["commercial_tier"], "reject")
 
     def test_dataset_requires_every_manifest_trace_to_be_verified(self) -> None:
         module = load_verifier()

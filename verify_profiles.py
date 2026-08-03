@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Validate the executable UALF v1.2 profile examples."""
+"""Validate the executable UALF v1.3 profile examples."""
 
 from __future__ import annotations
 
+import argparse
 import base64
 import binascii
 import json
@@ -12,7 +13,8 @@ from pathlib import Path
 from typing import Any
 
 
-ROOT = Path(__file__).resolve().parent
+SCHEMA_ROOT = Path(__file__).resolve().parent
+ROOT = SCHEMA_ROOT
 
 
 class Report:
@@ -39,6 +41,24 @@ def validate(path: Path, schema_path: Path, report: Report) -> Any:
     except (ImportError, OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         report.check(f"schema {path.name}", False, str(exc))
         return None
+
+
+def verify_document_seal(value: dict[str, Any], label: str, report: Report) -> None:
+    try:
+        import rfc8785
+        from cryptography.exceptions import InvalidSignature
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+
+        unsigned = dict(value)
+        seal = unsigned.pop("seal")
+        expected = sha256(rfc8785.dumps(unsigned)).hexdigest()
+        report.check(f"{label} digest", expected == seal["document_sha256"])
+        Ed25519PublicKey.from_public_bytes(strict_b64(seal["public_key"])).verify(
+            strict_b64(seal["signature"]), bytes.fromhex(seal["document_sha256"])
+        )
+        report.check(f"{label} signature", True)
+    except (KeyError, TypeError, ValueError, binascii.Error, InvalidSignature) as exc:
+        report.check(f"{label} signature", False, str(exc))
 
 
 def verify_capture(capture: dict[str, Any], report: Report) -> None:
@@ -261,15 +281,61 @@ def verify_segments(manifest: dict[str, Any], report: Report) -> None:
 
 
 def main() -> int:
+    global ROOT
+    parser = argparse.ArgumentParser(
+        description="Validate UALF lifecycle, indexing, and projection profiles."
+    )
+    parser.add_argument("--capture", type=Path)
+    parser.add_argument("--retention", type=Path)
+    parser.add_argument("--amendments", type=Path)
+    parser.add_argument("--registry", type=Path)
+    parser.add_argument("--index", type=Path)
+    parser.add_argument("--segments", type=Path)
+    parser.add_argument("--projection", type=Path, action="append", default=[])
+    parser.add_argument(
+        "--artifact-root",
+        type=Path,
+        default=SCHEMA_ROOT,
+        help="Root used to resolve contained paths inside supplied artifacts.",
+    )
+    args = parser.parse_args()
+    ROOT = args.artifact_root.resolve()
+    explicit = any(
+        [
+            args.capture,
+            args.retention,
+            args.amendments,
+            args.registry,
+            args.index,
+            args.segments,
+            args.projection,
+        ]
+    )
+    capture_path = args.capture or (None if explicit else ROOT / "example-production-capture.json")
+    retention_path = args.retention or (None if explicit else ROOT / "example-retention.json")
+    registry_path = args.registry or (None if explicit else ROOT / "extension-registry.json")
+    index_path = args.index or (None if explicit else ROOT / "example-index.json")
+    segment_path = args.segments or (None if explicit else ROOT / "example-segment-manifest.json")
+    amendment_path = args.amendments or (None if explicit else ROOT / "example-amendments.jsonl")
+    projection_paths = args.projection or (
+        []
+        if explicit
+        else [
+            *(ROOT / "projections").glob("*-manifest.json"),
+            ROOT / "analytics" / "example-analytics-manifest.json",
+        ]
+    )
     report = Report()
-    capture = validate(ROOT / "example-production-capture.json", ROOT / "ualf-production-capture.schema.json", report)
-    retention = validate(ROOT / "example-retention.json", ROOT / "ualf-retention.schema.json", report)
-    registry = validate(ROOT / "extension-registry.json", ROOT / "ualf-extension-registry.schema.json", report)
-    index = validate(ROOT / "example-index.json", ROOT / "ualf-index.schema.json", report)
-    segments = validate(ROOT / "example-segment-manifest.json", ROOT / "ualf-segment-manifest.schema.json", report)
+    capture = validate(capture_path, SCHEMA_ROOT / "ualf-production-capture.schema.json", report) if capture_path else None
+    retention = validate(retention_path, SCHEMA_ROOT / "ualf-retention.schema.json", report) if retention_path else None
+    registry = validate(registry_path, SCHEMA_ROOT / "ualf-extension-registry.schema.json", report) if registry_path else None
+    index = validate(index_path, SCHEMA_ROOT / "ualf-index.schema.json", report) if index_path else None
+    segments = validate(segment_path, SCHEMA_ROOT / "ualf-segment-manifest.schema.json", report) if segment_path else None
     if capture:
+        verify_document_seal(capture, "capture report", report)
         verify_capture(capture, report)
     if retention:
+        verify_document_seal(retention, "retention record", report)
         report.check("retention legal hold coherent", not retention["legal_hold"]["active"] or "authority" in retention["legal_hold"])
         if retention.get("expires_at"):
             report.check("retention expiry follows creation", retention["expires_at"] > retention["created_at"])
@@ -279,10 +345,10 @@ def main() -> int:
         verify_index(index, report)
     if segments:
         verify_segments(segments, report)
-    verify_amendments(ROOT / "example-amendments.jsonl", report)
-    projection_manifests = [*(ROOT / "projections").glob("*-manifest.json"), ROOT / "analytics" / "example-analytics-manifest.json"]
-    for path in sorted(projection_manifests):
-        manifest = validate(path, ROOT / "ualf-projection-manifest.schema.json", report)
+    if amendment_path:
+        verify_amendments(amendment_path, report)
+    for path in sorted(projection_paths):
+        manifest = validate(path, SCHEMA_ROOT / "ualf-projection-manifest.schema.json", report)
         if manifest:
             verify_projection(manifest, report)
     if report.failures:

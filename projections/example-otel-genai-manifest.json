@@ -1,30 +1,30 @@
 {
   "profile": "ualf-projection-manifest/v1",
   "projection_id": "projection-ualf-otel-genai-demo",
-  "source_profile": "ualf-trace/v1",
+  "source_profile": "ualf-trace/v1.1",
   "target": {
     "profile": "ualf-otel-genai/v1",
-    "specification": "https://opentelemetry.io/docs/specs/semconv/",
-    "revision": "semconv-1.43.0+genai@9af08349db7e70b2528accde90bae81d4ebcfa1e"
+    "specification": "https://github.com/open-telemetry/semantic-conventions-genai/commit/9af08349db7e70b2528accde90bae81d4ebcfa1e",
+    "revision": "core-semconv-1.43.0+genai@9af08349db7e70b2528accde90bae81d4ebcfa1e"
   },
   "source": {
     "path": "example-trajectory.jsonl",
-    "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
-    "bytes": 15743,
+    "sha256": "7f4a640390689408230b251ac5ca838b1b731face9f331dab140a482229dede8",
+    "bytes": 22062,
     "media_type": "application/jsonl"
   },
   "outputs": [
     {
       "path": "projections/example-otel-genai.json",
-      "sha256": "6e67fae7b98778ba6f926aa44f09b1985ceeb5d06910b7041af077bd20881774",
+      "sha256": "a08c91d572b6dcb94f5c093a54b40905db6d5aae563739f9233e4a6601ecb87a",
       "bytes": 1482,
       "media_type": "application/json"
     }
   ],
   "exporter": {
     "name": "build_profiles.py",
-    "version": "1.0.0",
-    "source_revision": "ualf-v1.2",
+    "version": "1.1.0",
+    "source_revision": "ualf-v1.3",
     "deterministic": true
   },
   "record_mappings": [

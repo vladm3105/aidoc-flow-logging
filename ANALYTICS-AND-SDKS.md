@@ -2,7 +2,7 @@
 
 **Profile:** `ualf-analytics/v1`
 
-**Status:** Draft v1.2 — 2026-08-03
+**Status:** Draft v1.3 — 2026-08-03
 
 UALF JSONL remains the authoritative interchange and evidence representation.
 Indexes, compressed containers, database rows, and Parquet files are derived
@@ -40,9 +40,12 @@ The stable logical projection contains:
 | `evaluations` | One original evaluation or amendment |
 | `outcomes` | One terminal outcome |
 
-Every row carries `source_trace_sha256`, `run_id`, `trace_id`, and the producing
+Every row carries organization, project, deployment environment,
+`source_trace_sha256`, `run_id`, `trace_id`, `session_id`, and the producing
 projection version. Event-derived rows additionally carry `event_id`, `seq`,
-`span_id`, `parent_span_id`, and `caused_by` where applicable.
+producer/process/clock identity, producer-local sequence, event time,
+observation time, `span_id`, `parent_span_id`, and `caused_by` where applicable.
+Analytical queries MUST NOT compare monotonic offsets across clock domains.
 
 Parquet exporters SHOULD use nested columns for structured values and MUST NOT
 flatten arrays into delimiter-separated strings. Timestamps use UTC microseconds.

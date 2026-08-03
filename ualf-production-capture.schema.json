@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iplanic.ai/schemas/ualf-production-capture.schema.json",
+  "$id": "https://iplanic.ai/schemas/ualf/capture/v1.1/report.schema.json",
   "title": "UALF production capture report",
   "type": "object",
   "additionalProperties": false,
-  "required": ["profile", "run_id", "trace_id", "created_at", "sampling", "content_states", "privacy", "delivery", "clock", "recovery", "completeness"],
+  "required": ["profile", "organization", "project", "environment", "run_id", "trace_id", "created_at", "sampling", "content_states", "privacy", "delivery", "clock", "recovery", "completeness", "seal"],
   "properties": {
-    "profile": { "const": "ualf-capture/v1" },
+    "profile": { "const": "ualf-capture/v1.1" },
+    "organization": { "$ref": "#/$defs/id" },
+    "project": { "$ref": "#/$defs/id" },
+    "environment": { "type": "string", "minLength": 1 },
     "run_id": { "$ref": "#/$defs/id" },
     "trace_id": { "$ref": "#/$defs/id" },
     "trace_sha256": { "$ref": "#/$defs/sha256" },
@@ -97,6 +100,7 @@
       }
     },
     "completeness": { "enum": ["complete", "policy_complete", "incomplete", "sampled_out"] },
+    "seal": { "$ref": "#/$defs/seal" },
     "extensions": { "$ref": "#/$defs/extensions" }
   },
   "allOf": [
@@ -136,6 +140,7 @@
         }
       ]
     },
-    "extensions": { "type": "object", "propertyNames": { "pattern": "^[a-z0-9.-]+/.+$" } }
+    "extensions": { "type": "object", "propertyNames": { "pattern": "^[a-z0-9.-]+/.+$" } },
+    "seal": { "type": "object", "additionalProperties": false, "required": ["key_id", "algorithm", "public_key", "document_sha256", "signature"], "properties": { "key_id": { "$ref": "#/$defs/id" }, "algorithm": { "const": "ed25519" }, "public_key": { "type": "string", "minLength": 44, "maxLength": 44 }, "document_sha256": { "$ref": "#/$defs/sha256" }, "signature": { "type": "string", "minLength": 88, "maxLength": 88 } } }
   }
 }

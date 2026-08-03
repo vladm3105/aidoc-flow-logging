@@ -26,14 +26,16 @@ until their designs and conformance contracts are completed.
 
 ## Profiles
 
-- **`ualf-trace/v1`** records operational activity: model calls, tool calls,
+- **`ualf-trace/v1.1`** records scoped, distributed operational activity: agent
+  lifecycle and delegation, model calls, tool calls,
   observations, decisions, changes, errors, feedback, evaluations, and outcomes.
-- **`ualf-dataset/v1.1`** packages selected traces with rights, hygiene, evidence,
+- **`ualf-dataset/v1.2`** packages selected traces with signed rights, hygiene,
+  replay, capture, amendment-cutoff, retention, revocation, evidence,
   replay, deduplication, splits, quality dimensions, and an Ed25519 seal.
 - **AAT draft-00 compatibility** documents a one-way, privacy-minimized audit
   projection to `draft-sharif-agent-audit-trail-00` without replacing UALF's
   richer operational source record.
-- **`ualf-capture/v1`** records production sampling, content states, privacy
+- **`ualf-capture/v1.1`** records production sampling, content states, privacy
   boundary, delivery loss, clocks, recovery, and closure evidence.
 - **`ualf-amendments/v1`** preserves signed post-run evaluation and annotation
   history without rewriting sealed traces.
@@ -58,6 +60,8 @@ exports.
 | `EXTENSIONS-AND-EVOLUTION.md` | Namespaced extensions, registry, promotion, and deprecation |
 | `ANALYTICS-AND-SDKS.md` | Logical tables, indexing, compact storage, and cross-language SDK behavior |
 | `INFRASTRUCTURE-AND-OPERATIONS-ROADMAP.md` | Approved storage, deployment, management-plane, and implementation roadmap |
+| `CONFORMANCE.md` | Conformance classes, evidence rules, and claim language |
+| `SPECIFICATION-GOVERNANCE.md` | Versioning, precedence, errata, and change process |
 | `aat-draft-00.schema.json` | Pinned AAT record schema |
 | `ualf-aat-source.schema.json` | AAT identity and policy context |
 | `ualf-aat-export-manifest.schema.json` | Signed transformation manifest |
@@ -73,6 +77,12 @@ exports.
 | `ualf-tool-definitions.schema.json` | Captured action-space schema |
 | `ualf-dataset-manifest.schema.json` | Dataset package manifest schema |
 | `ualf-quality-report.schema.json` | Derived qualification report schema |
+| `ualf-rights-attestation.schema.json` | Signed rights-review evidence |
+| `ualf-hygiene-report.schema.json` | Signed PII, secrets, license, and malware scan evidence |
+| `ualf-replay-verification.schema.json` | Signed replay execution and comparison evidence |
+| `ualf-datasheet.schema.json` | Machine-readable dataset disclosure schema |
+| `ualf-erasure-statement.schema.json` | Signed revocation and erasure propagation evidence |
+| `schema-catalog.json` | Profile, immutable schema identifier, and draft file resolution map |
 | `example-trajectory.jsonl` | Complete signed example trace |
 | `example-manifest.json` | Example dataset manifest |
 | `example-quality-report.json` | Example derived quality report |
@@ -84,7 +94,7 @@ exports.
 | `verify_aat.py` | AAT projection, chain, privacy, and manifest verifier |
 | `build_example.py` | Regenerates the example with a fresh demo key |
 | `build_aat_example.py` | Regenerates the synthetic AAT example |
-| `build_profiles.py` | Deterministically regenerates the v1.2 profile examples |
+| `build_profiles.py` | Deterministically regenerates the v1.3 profile examples |
 | `verify_profiles.py` | Validates capture, amendments, retention, indexes, and projections |
 | `export_analytics.py` | Exports stable JSONL tables and optional Parquet tables |
 | `generate_sdk_types.py` | Generates shared Python, TypeScript, and Go constants |
@@ -99,7 +109,7 @@ exports.
 | `analytics/` | Seven stable analytical JSONL tables plus projection manifest |
 | `sdk/` | Generated Python, TypeScript, and Go profile/event constants |
 | `tests/test_verify.py` | Positive and adversarial golden-vector tests |
-| `tests/test_profiles.py` | v1.2 profile and tamper-resistance tests |
+| `tests/test_profiles.py` | v1.3 profile and tamper-resistance tests |
 | `requirements-analytics.txt` | Optional Parquet exporter dependency |
 
 <!-- markdownlint-enable MD013 -->
@@ -152,7 +162,7 @@ python verify_aat.py example-aat.jsonl \
   --source-context example-aat-source.json
 ```
 
-Regenerate and verify all v1.2 profiles:
+Regenerate and verify all v1.3 profiles:
 
 ```bash
 python build_profiles.py
@@ -160,13 +170,26 @@ python verify_profiles.py
 python -m unittest discover -s tests -v
 ```
 
+Validate supplied lifecycle or projection artifacts instead of the bundled
+fixtures:
+
+```bash
+python verify_profiles.py \
+  --artifact-root /path/to/bundle \
+  --capture /path/to/bundle/capture-report.json \
+  --retention /path/to/bundle/retention.json \
+  --projection /path/to/bundle/projection-manifest.json
+```
+
 The verifier validates strict schemas, physical JSONL structure, gapless sequence,
-IDs and causality, call pairing, tool declarations, exact-byte chain, RFC 8785 seal,
+  IDs, tenant scope, producer clocks, causality, terminal call pairing, tool
+  declarations, exact-byte chain, RFC 8785 seal,
 strict Ed25519 identity, blob hashes and byte counts, model-source provenance,
 event-derived totals, context completeness markers, and replay artifacts. With a
 manifest, it additionally validates safe contained paths, every trace, the full
 blob inventory, artifact digests, splits, exact deduplication, a dataset-level
-seal, and recomputed qualification fields.
+  seal, signed rights/hygiene/replay evidence, lifecycle bindings,
+  machine-readable datasheets, and recomputed qualification fields.
 
 ## Design adoption sequence
 
@@ -207,12 +230,13 @@ not a deployment guide.
 
 ## Status
 
-Draft v1.2 specification and reference-artifact package (2026-08-03). The trace
-wire profile remains
-`ualf-trace/v1` and the dataset package remains `ualf-dataset/v1.1`; v1.2 adds
-orthogonal production, amendment, retention, interoperability, extension, and
-analytics profiles without invalidating existing artifacts. `aidoc-traj/v1` was
-experimental and is superseded by the operations-first `ualf-trace/v1` design.
+Draft v1.3 specification and reference-artifact package (2026-08-03). The
+current profiles are `ualf-trace/v1.1` and `ualf-dataset/v1.2`; historical
+`ualf-trace/v1` and `ualf-dataset/v1.1` identifiers remain immutable. v1.3 adds
+scoped distributed clocks, terminal call states, multi-agent events, signed
+qualification evidence, lifecycle-bound packages, and machine-readable dataset
+disclosures. `aidoc-traj/v1` was
+experimental and is superseded by the operations-first `ualf-trace/v1.1` design.
 The AAT compatibility document is informative and targets an individual IETF
 Internet-Draft; it is not an IETF endorsement or a regulatory certification.
 

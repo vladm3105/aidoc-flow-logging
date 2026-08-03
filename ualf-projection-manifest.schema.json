@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iplanic.ai/schemas/ualf-projection-manifest.schema.json",
+  "$id": "https://iplanic.ai/schemas/ualf/projection-manifest/v1/schema.json",
   "title": "UALF derived projection manifest",
   "type": "object",
   "additionalProperties": false,

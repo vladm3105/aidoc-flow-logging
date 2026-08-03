@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iplanic.ai/schemas/ualf-index.schema.json",
+  "$id": "https://iplanic.ai/schemas/ualf/index/v1/schema.json",
   "title": "UALF byte-offset index",
   "type": "object",
   "additionalProperties": false,

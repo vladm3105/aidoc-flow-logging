@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iplanic.ai/schemas/ualf-amendment.schema.json",
+  "$id": "https://iplanic.ai/schemas/ualf/amendments/v1/record.schema.json",
   "title": "UALF append-only amendment stream line",
   "oneOf": [
     { "$ref": "#/$defs/header" },

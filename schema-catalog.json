@@ -1,0 +1,22 @@
+{
+  "catalog": "ualf-schema-catalog/v1",
+  "release": "draft-v1.3",
+  "resolution": "Repository-relative files are authoritative for this draft. Canonical HTTPS identifiers must serve identical bytes before a final release.",
+  "schemas": [
+    {"profile": "ualf-trace/v1.1", "id": "https://iplanic.ai/schemas/ualf/trace/v1.1/record.schema.json", "path": "ualf-trajectory.schema.json"},
+    {"profile": "ualf-dataset/v1.2", "id": "https://iplanic.ai/schemas/ualf/dataset/v1.2/manifest.schema.json", "path": "ualf-dataset-manifest.schema.json"},
+    {"profile": "ualf-quality/v1.2", "id": "https://iplanic.ai/schemas/ualf/quality/v1.2/report.schema.json", "path": "ualf-quality-report.schema.json"},
+    {"profile": "ualf-capture/v1.1", "id": "https://iplanic.ai/schemas/ualf/capture/v1.1/report.schema.json", "path": "ualf-production-capture.schema.json"},
+    {"profile": "ualf-retention/v1.1", "id": "https://iplanic.ai/schemas/ualf/retention/v1.1/record.schema.json", "path": "ualf-retention.schema.json"},
+    {"profile": "ualf-rights-attestation/v1", "id": "https://iplanic.ai/schemas/ualf/rights-attestation/v1/schema.json", "path": "ualf-rights-attestation.schema.json"},
+    {"profile": "ualf-hygiene/v1", "id": "https://iplanic.ai/schemas/ualf/hygiene/v1/report.schema.json", "path": "ualf-hygiene-report.schema.json"},
+    {"profile": "ualf-replay-verification/v1", "id": "https://iplanic.ai/schemas/ualf/replay-verification/v1/report.schema.json", "path": "ualf-replay-verification.schema.json"},
+    {"profile": "ualf-datasheet/v1", "id": "https://iplanic.ai/schemas/ualf/datasheet/v1/schema.json", "path": "ualf-datasheet.schema.json"},
+    {"profile": "ualf-erasure-statement/v1", "id": "https://iplanic.ai/schemas/ualf/erasure-statement/v1/schema.json", "path": "ualf-erasure-statement.schema.json"},
+    {"profile": "ualf-amendments/v1", "id": "https://iplanic.ai/schemas/ualf/amendments/v1/record.schema.json", "path": "ualf-amendment.schema.json"},
+    {"profile": "ualf-projection-manifest/v1", "id": "https://iplanic.ai/schemas/ualf/projection-manifest/v1/schema.json", "path": "ualf-projection-manifest.schema.json"},
+    {"profile": "ualf-index/v1", "id": "https://iplanic.ai/schemas/ualf/index/v1/schema.json", "path": "ualf-index.schema.json"},
+    {"profile": "ualf-segments/v1", "id": "https://iplanic.ai/schemas/ualf/segments/v1/manifest.schema.json", "path": "ualf-segment-manifest.schema.json"},
+    {"profile": "ualf-tools/v1", "id": "https://iplanic.ai/schemas/ualf/tools/v1/schema.json", "path": "ualf-tool-definitions.schema.json"}
+  ]
+}

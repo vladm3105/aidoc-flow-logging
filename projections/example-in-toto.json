@@ -4,15 +4,15 @@
     {
       "name": "example-manifest.json",
       "digest": {
-        "sha256": "1fb520a7f6871d31d04ef6f0676663018ffa38703d5f8c009ab9937dccb04af5"
+        "sha256": "e7acde29211615e23761173983c18820bd2a1878c52a8bf679d4441ae8e00474"
       }
     }
   ],
   "predicateType": "https://iplanic.ai/attestations/ualf-qualification/v1",
   "predicate": {
     "datasetId": "dataset-ualf-demo-001",
-    "profile": "ualf-dataset/v1.1",
-    "qualityReportSha256": "e6f66c96d86f8047dfd887af8e0ec85975c879d75a4f10d3dde6aab313e1079b",
+    "profile": "ualf-dataset/v1.2",
+    "qualityReportSha256": "4cd35639e1dbe694f25b65de22ad41d7fe2bb942e91cdadc730486ebc6cfeaeb",
     "rightsStatus": "cleared",
     "intendedUses": [
       "format validation",
@@ -21,7 +21,7 @@
     "prohibitedUses": [
       "representation as production training inventory"
     ],
-    "validator": "verify.py/1.1",
+    "validator": "verify.py/1.2",
     "validatedAt": "2026-08-03T12:00:00Z",
     "signerRole": "dataset-producer"
   }

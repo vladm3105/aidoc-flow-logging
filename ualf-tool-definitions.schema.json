@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iplanic.ai/schemas/ualf-tool-definitions.schema.json",
+  "$id": "https://iplanic.ai/schemas/ualf/tools/v1/schema.json",
   "title": "UALF Tool Definition Snapshot",
   "type": "object",
   "additionalProperties": false,
