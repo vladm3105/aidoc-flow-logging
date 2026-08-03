@@ -1,0 +1,28 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "example-manifest.json",
+      "digest": {
+        "sha256": "1fb520a7f6871d31d04ef6f0676663018ffa38703d5f8c009ab9937dccb04af5"
+      }
+    }
+  ],
+  "predicateType": "https://iplanic.ai/attestations/ualf-qualification/v1",
+  "predicate": {
+    "datasetId": "dataset-ualf-demo-001",
+    "profile": "ualf-dataset/v1.1",
+    "qualityReportSha256": "e6f66c96d86f8047dfd887af8e0ec85975c879d75a4f10d3dde6aab313e1079b",
+    "rightsStatus": "cleared",
+    "intendedUses": [
+      "format validation",
+      "integration testing"
+    ],
+    "prohibitedUses": [
+      "representation as production training inventory"
+    ],
+    "validator": "verify.py/1.1",
+    "validatedAt": "2026-08-03T12:00:00Z",
+    "signerRole": "dataset-producer"
+  }
+}

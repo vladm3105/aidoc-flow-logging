@@ -1,0 +1,111 @@
+{
+  "profile": "ualf-projection-manifest/v1",
+  "projection_id": "projection-ualf-analytics-demo",
+  "source_profile": "ualf-trace/v1",
+  "target": {
+    "profile": "ualf-analytics/v1",
+    "specification": "https://iplanic.ai/specs/ualf-analytics/v1",
+    "revision": "1.0.0"
+  },
+  "source": {
+    "path": "example-trajectory.jsonl",
+    "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
+    "bytes": 15743,
+    "media_type": "application/jsonl"
+  },
+  "outputs": [
+    {
+      "path": "analytics/traces.jsonl",
+      "sha256": "26018c63fb9d442f782c9323dee91b3a69ab2580e4c19738a2428e2e55d6fbe4",
+      "bytes": 443,
+      "media_type": "application/jsonl"
+    },
+    {
+      "path": "analytics/events.jsonl",
+      "sha256": "1b2a94d4b841379a61222ad131194c7e202041909da8c0550415fea49465aa61",
+      "bytes": 8149,
+      "media_type": "application/jsonl"
+    },
+    {
+      "path": "analytics/model_calls.jsonl",
+      "sha256": "8fa0953ef6f2211b72dad057b8e531bf41aa57336ca62a68efed6018f8ad79ee",
+      "bytes": 545,
+      "media_type": "application/jsonl"
+    },
+    {
+      "path": "analytics/tool_calls.jsonl",
+      "sha256": "2d0d53be5f60d841b3f2f2aaee1b18d7bc60dd54be8004d1fd684ca7f891e26e",
+      "bytes": 1691,
+      "media_type": "application/jsonl"
+    },
+    {
+      "path": "analytics/content_refs.jsonl",
+      "sha256": "e658801b7703c8762fb1edbf2978fe13ade062971b108437012f7e61c985ff3b",
+      "bytes": 7438,
+      "media_type": "application/jsonl"
+    },
+    {
+      "path": "analytics/evaluations.jsonl",
+      "sha256": "16d2ebf52d5eece60113db6235711b3569e2761ad42e3134c44619b0282835d2",
+      "bytes": 482,
+      "media_type": "application/jsonl"
+    },
+    {
+      "path": "analytics/outcomes.jsonl",
+      "sha256": "cd87a17f64e2ca64c3bee55207889011c5a63d088eae3392e7423f15f509f075",
+      "bytes": 440,
+      "media_type": "application/jsonl"
+    }
+  ],
+  "exporter": {
+    "name": "export_analytics.py",
+    "version": "1.0.0",
+    "source_revision": "ualf-v1.2",
+    "deterministic": true
+  },
+  "record_mappings": [
+    {
+      "source": "header",
+      "targets": [
+        "traces"
+      ]
+    },
+    {
+      "source": "events",
+      "targets": [
+        "events",
+        "model_calls",
+        "tool_calls",
+        "evaluations",
+        "content_refs"
+      ]
+    },
+    {
+      "source": "outcome",
+      "targets": [
+        "outcomes"
+      ]
+    }
+  ],
+  "omissions": [
+    {
+      "source_semantic": "raw referenced content",
+      "reason": "privacy",
+      "effect": "content_loss",
+      "details": "Analytical rows retain content digests and provenance only."
+    }
+  ],
+  "loss_class": "semantically_lossy",
+  "privacy": {
+    "policy": "ualf-analytics-default/v1",
+    "raw_content": "excluded",
+    "transformation": "hash"
+  },
+  "validator": {
+    "name": "verify_profiles.py",
+    "version": "1.0.0",
+    "result": "passed",
+    "validated_at": "2026-08-03T12:00:00Z"
+  },
+  "generated_at": "2026-08-03T12:00:00Z"
+}

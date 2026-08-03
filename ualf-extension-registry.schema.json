@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf-extension-registry.schema.json",
+  "title": "UALF extension registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "updated_at", "extensions"],
+  "properties": {
+    "profile": { "const": "ualf-extension-registry/v1" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "extensions": {
+      "type": "array", "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "schema_url", "owner", "contact", "status", "requirement_level", "applies_to", "privacy_risk", "unknown_consumer_behavior", "first_supported_profile"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9.-]+/.+$" },
+          "schema_url": { "type": "string", "format": "uri", "pattern": "(/tags/|/releases/|/[a-f0-9]{7,64}/|[?&]version=)" },
+          "owner": { "type": "string", "minLength": 1 },
+          "contact": { "type": "string", "format": "uri" },
+          "status": { "enum": ["experimental", "stable", "deprecated", "retired"] },
+          "requirement_level": { "enum": ["required", "recommended", "opt_in"] },
+          "applies_to": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["header", "event", "outcome", "dataset", "capture", "amendment", "projection"] } },
+          "privacy_risk": { "enum": ["none", "low", "sensitive", "high"] },
+          "unknown_consumer_behavior": { "enum": ["preserve", "ignore", "reject"] },
+          "first_supported_profile": { "type": "string", "minLength": 1 },
+          "last_supported_profile": { "type": ["string", "null"] },
+          "replacement": { "type": "string", "pattern": "^[a-z0-9.-]+/.+$" },
+          "description": { "type": "string", "minLength": 1 }
+        },
+        "allOf": [
+          { "if": { "properties": { "privacy_risk": { "enum": ["sensitive", "high"] } }, "required": ["privacy_risk"] }, "then": { "properties": { "requirement_level": { "const": "opt_in" } } } },
+          { "if": { "properties": { "status": { "enum": ["deprecated", "retired"] } }, "required": ["status"] }, "then": { "anyOf": [{ "required": ["replacement"] }, { "required": ["description"] }] } }
+        ]
+      }
+    }
+  }
+}

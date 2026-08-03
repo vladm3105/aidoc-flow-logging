@@ -1,0 +1,65 @@
+{
+  "profile": "ualf-projection-manifest/v1",
+  "projection_id": "projection-ualf-in-toto-qualification-demo",
+  "source_profile": "ualf-dataset/v1.1",
+  "target": {
+    "profile": "ualf-in-toto-qualification/v1",
+    "specification": "https://in-toto.io/Statement/v1",
+    "revision": "v1+6fad7157dfb216034e28223c6b5c6b0f9c41bf28"
+  },
+  "source": {
+    "path": "example-manifest.json",
+    "sha256": "1fb520a7f6871d31d04ef6f0676663018ffa38703d5f8c009ab9937dccb04af5",
+    "bytes": 4379,
+    "media_type": "application/json"
+  },
+  "outputs": [
+    {
+      "path": "projections/example-in-toto.json",
+      "sha256": "e2afd7cf5bd20f61a124d4c936cd9d7c3d511203af3efd33a9af8563efce655a",
+      "bytes": 846,
+      "media_type": "application/json"
+    },
+    {
+      "path": "projections/example-in-toto.dsse.json",
+      "sha256": "158a066bb013d9feaa599829f4036fb13705fec31b31dda9f7ceb2518b8519dc",
+      "bytes": 1312,
+      "media_type": "application/json"
+    }
+  ],
+  "exporter": {
+    "name": "build_profiles.py",
+    "version": "1.0.0",
+    "source_revision": "ualf-v1.2",
+    "deterministic": true
+  },
+  "record_mappings": [
+    {
+      "source": "example-manifest.json",
+      "targets": [
+        "example-in-toto.json"
+      ]
+    }
+  ],
+  "omissions": [
+    {
+      "source_semantic": "model-visible content",
+      "reason": "privacy",
+      "effect": "content_loss",
+      "details": "Default public example carries references and hashes only."
+    }
+  ],
+  "loss_class": "aggregate_only",
+  "privacy": {
+    "policy": "ualf-attestation/v1",
+    "raw_content": "excluded",
+    "transformation": "hash"
+  },
+  "validator": {
+    "name": "verify_profiles.py",
+    "version": "1.0.0",
+    "result": "passed",
+    "validated_at": "2026-08-03T12:00:00Z"
+  },
+  "generated_at": "2026-08-03T12:00:00Z"
+}

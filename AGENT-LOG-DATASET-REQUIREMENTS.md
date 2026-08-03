@@ -1,7 +1,8 @@
 # UALF Capture and Dataset Requirements
 
 **Scope:** All AI-agent projects using the shared logging layer.  
-**Status:** Draft v1.1 — 2026-08-02  
+**Status:** Draft v1.2 — 2026-08-03
+
 **Normative format:** `UNIFIED-AGENT-LOG-FORMAT.md`
 
 Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
@@ -149,7 +150,67 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
   immutable UALF trace unless separately managed encryption keys support
   cryptographic erasure. Hashes MUST be treated as potentially personal data.
 
-## 9. Adoption order
+## 9. Production capture and lifecycle — P0
+
+- **DLOG-080.** Sampling MUST be decided at root-trace scope and MUST record the
+  effective probability, policy, and reason. Partial child-span sampling MUST
+  NOT be represented as a complete trace.
+- **DLOG-081.** Every content category MUST use a controlled state that
+  distinguishes captured, unavailable, intentionally omitted, redacted,
+  truncated, capture-failed, sampled-out, and not-applicable content.
+- **DLOG-082.** Privacy transformations MUST occur before the first unauthorized
+  persistence or network boundary. The boundary and policy MUST be recorded.
+- **DLOG-083.** Asynchronous capture MUST expose accepted, delivered, retried,
+  dropped, and terminal-failure counts plus queue, spool, and flush status.
+- **DLOG-084.** Collector retries MUST be idempotent. Conflicting content for an
+  existing `(run_id, event_id)` MUST be rejected.
+- **DLOG-085.** Capture MUST identify wall and monotonic clock sources,
+  synchronization status, and detected drift. Materialization MUST tolerate
+  late delivery without inferring causality from delivery order.
+- **DLOG-086.** Recovery MUST record the last durable checkpoint and known or
+  suspected record loss. A janitor closure MUST NOT invent missing results.
+
+## 10. Amendments, retention, and trust — P0/P1
+
+- **DLOG-090 (P0).** A sealed trace MUST NOT be rewritten for later evaluation,
+  annotation, feedback, correction, retention, or deletion activity.
+- **DLOG-091 (P0).** Post-run evaluations MUST use an append-only amendment
+  stream with target, source, evaluator and rubric versions, typed result,
+  severity, confidence, evidence, timestamp, and supersession history.
+- **DLOG-092 (P1).** Amendment streams selected for export MUST be hash-chained
+  and signed, and signing identities MUST resolve through an external registry.
+- **DLOG-093 (P0).** Retention policy MUST bind an immutable subject digest to
+  expiry, legal hold, dependency mode, erasure method, and dangling-reference
+  behavior.
+- **DLOG-094 (P0).** Qualified packages MUST be self-contained or explicitly
+  declare each external dependency and availability commitment.
+- **DLOG-095 (P1).** Signing-key registries SHOULD publish validity, rotation,
+  revocation, organization, and signer-role metadata. Embedded public keys alone
+  MUST NOT be treated as proof of organizational identity.
+
+## 11. Ecosystem projections and analytics — P1/P2
+
+- **DLOG-100 (P1).** UALF SHOULD provide version-pinned OpenTelemetry GenAI and
+  OpenInference projections with deterministic identifier mappings and
+  privacy-safe defaults.
+- **DLOG-101 (P1).** Dataset production SHOULD emit OpenLineage provenance and
+  Croissant discovery metadata without treating either as the authoritative
+  membership or rights record.
+- **DLOG-102 (P1).** Qualification MAY be wrapped in an in-toto Statement v1 and
+  DSSE signature. Consumers MUST verify the subject digest and predicate policy
+  and MUST fail closed when a required attestation is absent.
+- **DLOG-103 (P1).** Every derived artifact MUST use a projection manifest that
+  binds source/output digests, exporter and validator versions, mappings,
+  omissions, privacy transformation, and loss class.
+- **DLOG-104 (P1).** Analytical tables and indexes MUST identify their source
+  trace digest and projection version and MUST remain non-authoritative.
+- **DLOG-105 (P2).** Python, TypeScript, and Go SDKs SHOULD generate types and
+  constants from the normative schemas and share the same conformance vectors.
+- **DLOG-106 (P2).** A compact or segment/Merkle integrity profile MUST preserve
+  exact reconstruction or declare itself lossy and MUST NOT be relabeled as the
+  v1 exact-byte chain.
+
+## 12. Adoption order
 
 1. Ship the shared event envelope, run lifecycle, model/tool calls, redaction,
    terminal outcomes, and configuration versions.
@@ -157,8 +218,10 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
 3. Add stubbed replay, then state restoration and replay verification where useful.
 4. Materialize signed traces and build the rights/hygiene qualification pipeline.
 5. Publish buyer-specific exports only from qualified dataset packages.
-6. Add version-pinned audit projections and validators without weakening or
-   replacing the operational source record.
+6. Add production capture reports, durable spool/flush behavior, amendment
+   streams, and retention bindings.
+7. Add version-pinned telemetry, lineage, discovery, attestation, and analytical
+   projections without weakening or replacing the operational source record.
 
 The operational trace is the durable source record. Commercial inventory is a
 verified view over that record, not the default status of every run.

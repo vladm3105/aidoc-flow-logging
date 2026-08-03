@@ -1,0 +1,60 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.namespace",
+            "value": {
+              "stringValue": "proj-03"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "agent-3.1.0"
+            }
+          },
+          {
+            "key": "ualf.source.sha256",
+            "value": {
+              "stringValue": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "ualf.exporter",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "b33fe24db2c5264052f1a995389f0520",
+              "spanId": "f6221f0c729070ab",
+              "name": "agent run",
+              "kind": 1,
+              "startTimeUnixNano": "1785679200000000000",
+              "endTimeUnixNano": "1785679210450000000",
+              "attributes": [
+                {
+                  "key": "ualf.run.id",
+                  "value": {
+                    "stringValue": "run-2026-08-02-demo-001"
+                  }
+                },
+                {
+                  "key": "ualf.outcome",
+                  "value": {
+                    "stringValue": "success"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

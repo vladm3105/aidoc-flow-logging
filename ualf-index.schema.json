@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf-index.schema.json",
+  "title": "UALF byte-offset index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "source", "created_at", "generator", "records"],
+  "properties": {
+    "profile": { "const": "ualf-index/v1" },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "bytes"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "bytes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "generator": { "type": "object", "additionalProperties": false, "required": ["name", "version"], "properties": { "name": { "type": "string", "minLength": 1 }, "version": { "type": "string", "minLength": 1 } } },
+    "records": {
+      "type": "array", "minItems": 2,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["seq", "kind", "offset", "length", "sha256"],
+        "properties": {
+          "seq": { "type": "integer", "minimum": 1 },
+          "kind": { "enum": ["header", "event", "outcome"] },
+          "event_id": { "type": "string" },
+          "event_type": { "type": "string" },
+          "offset": { "type": "integer", "minimum": 0 },
+          "length": { "type": "integer", "minimum": 1 },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+        }
+      }
+    }
+  }
+}

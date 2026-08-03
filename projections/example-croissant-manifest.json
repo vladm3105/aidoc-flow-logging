@@ -1,0 +1,59 @@
+{
+  "profile": "ualf-projection-manifest/v1",
+  "projection_id": "projection-ualf-croissant-demo",
+  "source_profile": "ualf-dataset/v1.1",
+  "target": {
+    "profile": "ualf-croissant/v1",
+    "specification": "https://mlcommons.org/croissant/",
+    "revision": "1.0+401f6fff81db26a49c0d1704f02bffc4e4fa8fe2"
+  },
+  "source": {
+    "path": "example-manifest.json",
+    "sha256": "1fb520a7f6871d31d04ef6f0676663018ffa38703d5f8c009ab9937dccb04af5",
+    "bytes": 4379,
+    "media_type": "application/json"
+  },
+  "outputs": [
+    {
+      "path": "projections/example-croissant.json",
+      "sha256": "955a22a0d2f9ce5fb2a91788600601bb1af5affb3ad5a47e85b3803716d1b448",
+      "bytes": 820,
+      "media_type": "application/json"
+    }
+  ],
+  "exporter": {
+    "name": "build_profiles.py",
+    "version": "1.0.0",
+    "source_revision": "ualf-v1.2",
+    "deterministic": true
+  },
+  "record_mappings": [
+    {
+      "source": "example-manifest.json",
+      "targets": [
+        "example-croissant.json"
+      ]
+    }
+  ],
+  "omissions": [
+    {
+      "source_semantic": "model-visible content",
+      "reason": "privacy",
+      "effect": "content_loss",
+      "details": "Default public example carries references and hashes only."
+    }
+  ],
+  "loss_class": "aggregate_only",
+  "privacy": {
+    "policy": "ualf-dataset-discovery/v1",
+    "raw_content": "excluded",
+    "transformation": "aggregate"
+  },
+  "validator": {
+    "name": "verify_profiles.py",
+    "version": "1.0.0",
+    "result": "passed",
+    "validated_at": "2026-08-03T12:00:00Z"
+  },
+  "generated_at": "2026-08-03T12:00:00Z"
+}

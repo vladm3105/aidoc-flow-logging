@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf-retention.schema.json",
+  "title": "UALF retention and erasure policy binding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "subject", "retention_class", "created_at", "legal_hold", "artifact_policy", "erasure"],
+  "properties": {
+    "profile": { "const": "ualf-retention/v1" },
+    "subject": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "id", "sha256"],
+      "properties": {
+        "kind": { "enum": ["trace", "dataset", "blob", "projection"] },
+        "id": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "retention_class": { "type": "string", "pattern": "^[a-z][a-z0-9._-]{1,63}$" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": ["string", "null"], "format": "date-time" },
+    "legal_hold": {
+      "type": "object", "additionalProperties": false,
+      "required": ["active"],
+      "properties": { "active": { "type": "boolean" }, "authority": { "type": "string" }, "reason": { "type": "string" }, "review_at": { "type": "string", "format": "date-time" } }
+    },
+    "artifact_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["dependency_mode", "dangling_reference_behavior"],
+      "properties": {
+        "dependency_mode": { "enum": ["self_contained", "external_pinned", "mixed"] },
+        "availability_commitment_until": { "type": "string", "format": "date-time" },
+        "dangling_reference_behavior": { "enum": ["reject_package", "mark_unavailable", "retain_tombstone"] }
+      }
+    },
+    "encryption": {
+      "type": "object", "additionalProperties": false,
+      "required": ["at_rest", "key_id"],
+      "properties": { "at_rest": { "type": "boolean" }, "algorithm": { "type": "string" }, "key_id": { "type": "string", "minLength": 1 }, "key_registry": { "type": "string", "format": "uri" } }
+    },
+    "erasure": {
+      "type": "object", "additionalProperties": false,
+      "required": ["method", "statement_required"],
+      "properties": {
+        "method": { "enum": ["delete", "cryptographic_shred", "anonymize", "retain"] },
+        "statement_required": { "type": "boolean" },
+        "statement_schema": { "type": "string", "format": "uri" }
+      }
+    },
+    "extensions": { "type": "object", "propertyNames": { "pattern": "^[a-z0-9.-]+/.+$" } }
+  },
+  "$defs": { "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+}

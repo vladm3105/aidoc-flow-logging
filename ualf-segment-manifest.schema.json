@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf-segment-manifest.schema.json",
+  "title": "UALF exact-reconstruction segment and Merkle manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "source", "created_at", "segment_policy", "segments", "merkle", "signing", "seal"],
+  "properties": {
+    "profile": { "const": "ualf-segments/v1" },
+    "source": { "$ref": "#/$defs/artifact" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "segment_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["records_per_segment", "preserves_exact_bytes"],
+      "properties": { "records_per_segment": { "type": "integer", "minimum": 1 }, "preserves_exact_bytes": { "const": true } }
+    },
+    "segments": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["index", "seq_start", "seq_end", "offset", "bytes", "sha256"],
+        "properties": {
+          "index": { "type": "integer", "minimum": 0 },
+          "seq_start": { "type": "integer", "minimum": 1 },
+          "seq_end": { "type": "integer", "minimum": 1 },
+          "offset": { "type": "integer", "minimum": 0 },
+          "bytes": { "type": "integer", "minimum": 1 },
+          "sha256": { "$ref": "#/$defs/sha256" }
+        }
+      }
+    },
+    "merkle": {
+      "type": "object", "additionalProperties": false,
+      "required": ["algorithm", "leaf", "odd_node", "root"],
+      "properties": {
+        "algorithm": { "const": "sha256" },
+        "leaf": { "const": "raw-segment-sha256" },
+        "odd_node": { "const": "duplicate_last" },
+        "root": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "signing": {
+      "type": "object", "additionalProperties": false,
+      "required": ["key_id", "algorithm", "public_key", "registry"],
+      "properties": { "key_id": { "type": "string", "minLength": 3 }, "algorithm": { "const": "ed25519" }, "public_key": { "type": "string", "minLength": 44, "maxLength": 44 }, "registry": { "type": "string", "format": "uri" } }
+    },
+    "seal": {
+      "type": "object", "additionalProperties": false,
+      "required": ["manifest_sha256", "signature"],
+      "properties": {
+        "manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "signature": { "type": "object", "additionalProperties": false, "required": ["key_id", "algorithm", "value"], "properties": { "key_id": { "type": "string", "minLength": 3 }, "algorithm": { "const": "ed25519" }, "value": { "type": "string", "minLength": 88, "maxLength": 88 } } }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "artifact": { "type": "object", "additionalProperties": false, "required": ["path", "sha256", "bytes"], "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" }, "bytes": { "type": "integer", "minimum": 1 } } }
+  }
+}
