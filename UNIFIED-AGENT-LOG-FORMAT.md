@@ -407,8 +407,9 @@ The approved infrastructure direction separates capture, authoritative storage,
 and derived query systems:
 
 - a shared SDK and local durable spool feed one authenticated ingestion path;
-- the immutable, content-addressed object archive is the canonical recovery,
-  verification, replay, and export source;
+- one logical authoritative artifact set per security and lifecycle boundary is
+  the canonical recovery, verification, replay, and export source; it may use
+  replicated or physically separate object archives;
 - SQL catalogs, ClickHouse-compatible analytical stores, Parquet tables,
   indexes, search systems, and dashboards are rebuildable derived views;
 - SDKs and agents do not dual-write independently to archive and analytical
@@ -417,7 +418,8 @@ and derived query systems:
   idempotency keys with conflict rejection;
 - organization, project, and environment are mandatory logical isolation
   dimensions, with separate development, staging, and production boundaries;
-  and
+- deduplication is restricted to declared privacy and lifecycle boundaries, and
+  knowledge of a content digest never implies authorization; and
 - dedicated deployments are available when residency, customer isolation,
   regulated operation, scale, or contractual controls require them.
 
@@ -430,20 +432,24 @@ from this draft MUST NOT be interpreted as an implementation claim.
 ## 19. Management-plane design requirements
 
 The management plane is operationally independent from the data path it
-observes. Its design covers platform health, agent and model performance,
-quality and safety, commercial inventory, and governance and cost views.
+observes. Its design covers five distinct views: platform operations; project
+and agent performance; capture quality and data integrity; privacy, retention,
+access, and security; and dataset readiness and commercial inventory.
 
 Each critical hop reports positive progress as well as negative, stalled, and
-absent states. A signed far-end canary proves end-to-end arrival, and an
-independent watchdog checks that the monitoring path itself is alive. Durable
-internal alert records preserve evidence; external paging remains a separate
-delivery path.
+absent states. A harmless signed far-end canary traverses the real path through
+archive, catalog, analytics, and replay and validates an expected replay result.
+An independent watchdog checks that the monitoring path itself is alive.
+Durable internal alert records preserve evidence; external paging remains a
+separate delivery path.
 
 Metric labels MUST be bounded. High-cardinality identifiers such as `run_id`,
 `trace_id`, `event_id`, prompt text, and error bodies belong in logs, traces, or
 analytical stores rather than metric dimensions. Privileged management actions
 and policy changes require attributable, tamper-evident audit records.
 
-Detailed semantic conventions, SLOs, alert rules, dashboards, and management
-audit schemas remain roadmap deliverables. This section establishes design
-requirements without presenting those future artifacts as implemented.
+UALF standardizes SLO measurement semantics while deployment profiles select
+targets. Detailed semantic conventions, SLO definitions, alert rules,
+dashboards, and management audit schemas remain roadmap deliverables. This
+section establishes design requirements without presenting those future
+artifacts as implemented.

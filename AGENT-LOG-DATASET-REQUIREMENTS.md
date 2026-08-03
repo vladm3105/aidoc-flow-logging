@@ -212,8 +212,10 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
 
 ## 12. Storage and ingestion architecture — P0/P1
 
-- **DLOG-110 (P0).** A production design MUST identify one immutable canonical
-  archive as the recovery, verification, replay, and export authority.
+- **DLOG-110 (P0).** A production design MUST identify one logical authoritative
+  artifact set per security and lifecycle boundary as the recovery,
+  verification, replay, and export authority. The set MAY use replicated or
+  physically separate archives without creating competing sources of truth.
 - **DLOG-111 (P0).** SQL catalogs, analytical databases, Parquet tables,
   indexes, search systems, and dashboards MUST be treated as rebuildable
   projections and MUST identify their authoritative source digests.
@@ -222,49 +224,60 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
   durability.
 - **DLOG-113 (P0).** Retry and recovery MUST use a stable idempotency key.
   Byte-identical duplicates MAY be accepted; conflicting content for the same
-  identity MUST be rejected and audited.
+  identity MUST be rejected, quarantined, and surfaced as an integrity incident.
 - **DLOG-114 (P0).** Agents and SDKs MUST NOT independently dual-write canonical
   and analytical stores. One ingestion path MUST own fan-out and reconciliation.
-- **DLOG-115 (P0).** Organization, project, and environment MUST be controlled
-  isolation dimensions. Development, staging, and production data MUST NOT be
-  silently commingled.
-- **DLOG-116 (P1).** The architecture SHOULD support dedicated deployment when
+- **DLOG-115 (P0).** Every ingest request, catalog or analytical row, object key,
+  policy decision, and management action MUST be scoped to an organization or
+  storage namespace, project, and environment. Development, staging, and
+  production MUST use separate storage boundaries and credentials.
+- **DLOG-116 (P0).** Content deduplication MUST remain within a declared privacy,
+  encryption, rights, retention, and residency boundary. Knowledge of a content
+  digest MUST NOT grant or imply access to the content.
+- **DLOG-117 (P1).** The architecture SHOULD support dedicated deployment when
   residency, regulated operation, customer isolation, scale, or contract terms
   require it, while preserving a unified logical model.
-- **DLOG-117 (P1).** Encoded objects SHOULD bind stored-byte and decoded-content
+- **DLOG-118 (P1).** Encoded objects SHOULD bind stored-byte and decoded-content
   digests where both transport integrity and semantic identity are required.
-- **DLOG-118 (P1).** Replay and dataset qualification MUST be reconstructable
+- **DLOG-119 (P1).** Replay and dataset qualification MUST be reconstructable
   from canonical artifacts without depending on the continued availability of
   an analytical database.
-- **DLOG-119 (P1).** Commercial dataset publication MUST remain a separate,
+- **DLOG-120 (P1).** Commercial dataset publication MUST remain a separate,
   rights-qualified export path rather than a direct query over operational
   storage.
 
 ## 13. Management, observability, and continuity — P0/P1
 
-- **DLOG-120 (P0).** The management plane MUST be operationally independent from
+- **DLOG-130 (P0).** The management plane MUST be operationally independent from
   the data path it observes and MUST expose its own health.
-- **DLOG-121 (P0).** Every critical processing hop MUST expose positive progress,
+- **DLOG-131 (P0).** Every critical processing hop MUST expose positive progress,
   negative failure, stalled work, and absent-signal detection.
-- **DLOG-122 (P0).** Production designs MUST include a signed, end-to-end
-  far-edge canary on a defined cadence that proves accepted test data reaches
-  the authoritative destination.
-- **DLOG-123 (P0).** An independent watchdog MUST detect failure or silence in
+- **DLOG-132 (P0).** Production designs MUST include a harmless signed canary on
+  a defined cadence that traverses the real producer, spool, gateway, archive,
+  catalog, analytics, and replay path. It MUST use deterministic content, a
+  short retention class, an exact producer identity, and an expected replay
+  result that unrelated traces cannot satisfy.
+- **DLOG-133 (P0).** An independent watchdog MUST detect failure or silence in
   the monitoring and alert-delivery path itself.
-- **DLOG-124 (P0).** Alerting MUST preserve a durable internal alert record and
+- **DLOG-134 (P0).** Alerting MUST preserve a durable internal alert record and
   use a separate external paging path for human notification.
-- **DLOG-125 (P0).** Metrics MUST use bounded-cardinality dimensions. Run, trace,
+- **DLOG-135 (P0).** Metrics MUST use bounded-cardinality dimensions. Run, trace,
   event, prompt, and raw error identifiers MUST remain in logs, traces, or
   analytical stores rather than metric labels.
-- **DLOG-126 (P1).** Privileged management actions and policy changes SHOULD
+- **DLOG-136 (P1).** Privileged management actions and policy changes SHOULD
   produce attributable, tamper-evident audit records.
-- **DLOG-127 (P1).** Retention and erasure workflows SHOULD expose propagation
+- **DLOG-137 (P1).** Retention and erasure workflows SHOULD expose propagation
   state across canonical objects, projections, caches, backups, and exports.
-- **DLOG-128 (P1).** Backup and restore design MUST include tested recovery
+- **DLOG-138 (P1).** Backup and restore design MUST include tested recovery
   objectives and integrity verification, not backup creation alone.
-- **DLOG-129 (P1).** Management views SHOULD separately cover platform health,
-  agent and model performance, quality and safety, commercial inventory, and
-  governance and cost.
+- **DLOG-139 (P1).** Management views SHOULD separately cover platform
+  operations; project and agent performance; capture quality and data integrity;
+  privacy, retention, access, and security; and dataset readiness and commercial
+  inventory.
+- **DLOG-140 (P1).** UALF SHOULD standardize SLO measurement semantics while
+  allowing deployment profiles to select targets. Alert requirements SHOULD use
+  ratio-based conditions, minimum-traffic guards, explicit absent-signal arms,
+  and multi-window error-budget evaluation where applicable.
 
 These requirements define the approved design target. Planned receipt, storage,
 management-audit, semantic-convention, dashboard, and alert artifacts are not

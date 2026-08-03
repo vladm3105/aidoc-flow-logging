@@ -123,10 +123,13 @@ statements; immutable historical artifacts are not rewritten in place.
 ## 7. Operational visibility
 
 A production design MUST monitor every critical hop from SDK acceptance through
-canonical archival. It reports positive progress, explicit failure, stalled
-work, and missing signals. A signed far-end canary SHOULD prove end-to-end
-arrival on a defined cadence, while an independent watchdog detects failure of
-monitoring or paging.
+canonical archival, cataloging, analytical projection, and replay verification.
+It reports positive progress, explicit failure, stalled work, and missing
+signals. A harmless signed far-end canary SHOULD traverse that real path on a
+defined cadence using deterministic content, an exact producer identity, a
+short retention class, and an expected replay result that unrelated traces
+cannot satisfy. An independent watchdog detects failure of monitoring or
+paging.
 
 The internal alert record is durable operational evidence. External pager or
 incident delivery is a distinct path and MUST NOT be the sole alert record.
@@ -136,6 +139,10 @@ SHOULD produce signed or otherwise tamper-evident management audit records.
 
 The detailed hop semantics, canary contract, SLOs, management audit schema, and
 alert rules remain planned roadmap artifacts.
+
+UALF standardizes SLO measurement semantics, including explicit absence and
+ratio behavior, while deployment profiles select targets appropriate to their
+availability, latency, retention, and recovery needs.
 
 ## 8. Conformance
 

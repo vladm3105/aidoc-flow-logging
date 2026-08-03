@@ -90,9 +90,10 @@ and transport clients remain planned deliverables.
 
 ## Management analytics and cardinality
 
-Management projections SHOULD support distinct views for platform health,
-agent and model performance, quality and safety, commercial inventory, and
-governance and cost. These views do not replace canonical evidence.
+Management projections SHOULD support distinct views for platform operations;
+project and agent performance; capture quality and data integrity; privacy,
+retention, access, and security; and dataset readiness and commercial inventory.
+These views do not replace canonical evidence.
 
 Metric labels MUST remain bounded. Environment, service, operation, model
 family, tool class, outcome class, and policy version are suitable when their
@@ -101,6 +102,7 @@ content, and raw error bodies MUST NOT be metric labels; they belong in logs,
 traces, or high-cardinality analytical storage.
 
 The management plane MUST expose its own health independently of the data path.
-Detailed semantic conventions, SLO definitions, dashboards, alerts, and
-watcher-canary contracts remain roadmap deliverables rather than implemented
-parts of this profile.
+UALF standardizes SLO measurement semantics while deployment profiles select
+their targets. Detailed semantic conventions, SLO definitions, dashboards,
+alerts, and watcher-canary contracts remain roadmap deliverables rather than
+implemented parts of this profile.
