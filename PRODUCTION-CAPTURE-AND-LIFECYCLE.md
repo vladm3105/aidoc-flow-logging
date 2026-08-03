@@ -11,6 +11,10 @@ determine whether a materialized UALF trace is complete. It does not replace the
 trace. A capture report is operational evidence about sampling, buffering,
 delivery, clock quality, privacy transformations, recovery, and closure.
 
+This is an evidence and lifecycle design profile, not a deployment manual. It
+does not imply that an ingestion service, archive, monitoring stack, or runtime
+SDK is included in this repository.
+
 ## 1. Capture boundary
 
 Redaction, omission, and truncation MUST occur before content crosses the first
@@ -67,6 +71,13 @@ Collector retries MUST be idempotent. The tuple `(run_id, event_id)` is the
 default idempotency key. Collectors MUST reject conflicting content for the same
 key and MAY accept byte-identical duplicates.
 
+Implementations MUST distinguish local acceptance, durable spool commit,
+ingestion acceptance, and canonical archive durability. A receipt MUST identify
+the durability level it proves; an earlier acknowledgement MUST NOT be promoted
+to a later durability guarantee. Agents and SDKs MUST use one ingestion path
+rather than independently dual-writing the canonical archive and derived query
+stores.
+
 ## 4. Ordering and clocks
 
 Producers record both UTC wall time and a monotonic offset. The report identifies
@@ -109,8 +120,36 @@ An expired source object MUST NOT silently leave a dangling qualified-dataset
 reference. Deletion and cryptographic erasure are recorded through signed
 statements; immutable historical artifacts are not rewritten in place.
 
-## 7. Conformance
+## 7. Operational visibility
+
+A production design MUST monitor every critical hop from SDK acceptance through
+canonical archival, cataloging, analytical projection, and replay verification.
+It reports positive progress, explicit failure, stalled work, and missing
+signals. A harmless signed far-end canary SHOULD traverse that real path on a
+defined cadence using deterministic content, an exact producer identity, a
+short retention class, and an expected replay result that unrelated traces
+cannot satisfy. An independent watchdog detects failure of monitoring or
+paging.
+
+The internal alert record is durable operational evidence. External pager or
+incident delivery is a distinct path and MUST NOT be the sole alert record.
+Metrics use bounded labels; high-cardinality record identifiers stay in logs,
+traces, and analytical views. Privileged recovery, retention, and policy actions
+SHOULD produce signed or otherwise tamper-evident management audit records.
+
+The detailed hop semantics, canary contract, SLOs, management audit schema, and
+alert rules remain planned roadmap artifacts.
+
+UALF standardizes SLO measurement semantics, including explicit absence and
+ratio behavior, while deployment profiles select targets appropriate to their
+availability, latency, retention, and recovery needs.
+
+## 8. Conformance
 
 `ualf-production-capture.schema.json` is the normative capture-report schema.
 `ualf-retention.schema.json` is the normative retention-record schema. A conforming
 implementation validates both syntax and the cross-document requirements above.
+Current conformance covers the published capture and retention artifacts. The
+roadmap's future receipt, storage, monitoring, and management-audit contracts do
+not become schema-conformance claims until their profiles, schemas, and vectors
+are published.
