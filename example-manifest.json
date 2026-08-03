@@ -1,0 +1,132 @@
+{
+  "schema": "ualf-dataset/v1.1",
+  "dataset_id": "ualf-example-dataset-001",
+  "created_at": "2026-08-02T18:00:11.000Z",
+  "trace_schema": "ualf-trace/v1",
+  "export_profile": "full",
+  "intended_uses": [
+    "format evaluation",
+    "tool-use pipeline integration testing"
+  ],
+  "prohibited_uses": [],
+  "traces": [
+    {
+      "trajectory_id": "traj-2026-08-02-demo-001",
+      "path": "example-trajectory.jsonl",
+      "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
+      "bytes": 15743
+    }
+  ],
+  "blobs": [
+    {
+      "path": "blobs/1c41c788f8f18ff81e26841cbaf16e54cfc13bc7143209d60c0e08e716f6c399",
+      "sha256": "1c41c788f8f18ff81e26841cbaf16e54cfc13bc7143209d60c0e08e716f6c399",
+      "bytes": 128
+    },
+    {
+      "path": "blobs/62df8d8ad0d4ce50242e7ed8f1d47c62aacdf2f650d97efc0fb1a726a565d706",
+      "sha256": "62df8d8ad0d4ce50242e7ed8f1d47c62aacdf2f650d97efc0fb1a726a565d706",
+      "bytes": 98
+    },
+    {
+      "path": "blobs/6ccccc9e22531fcc92d0ef7c9d718c1c813507ac17c6b3a7e7a64bd419237f05",
+      "sha256": "6ccccc9e22531fcc92d0ef7c9d718c1c813507ac17c6b3a7e7a64bd419237f05",
+      "bytes": 216
+    },
+    {
+      "path": "blobs/86b3f938d19238ca4ffc5f91df686576eb43da1393005f631dd2f3d1f6fe5b55",
+      "sha256": "86b3f938d19238ca4ffc5f91df686576eb43da1393005f631dd2f3d1f6fe5b55",
+      "bytes": 136
+    },
+    {
+      "path": "blobs/95b8c5f698e1c411ad0e375e14c7ddb82a8667b04922733a1712f7356a1010d0",
+      "sha256": "95b8c5f698e1c411ad0e375e14c7ddb82a8667b04922733a1712f7356a1010d0",
+      "bytes": 577
+    },
+    {
+      "path": "blobs/9e16d97528962968c764559ce2067087b00bca362a0fcfa0914d31b78cabf3ab",
+      "sha256": "9e16d97528962968c764559ce2067087b00bca362a0fcfa0914d31b78cabf3ab",
+      "bytes": 10240
+    },
+    {
+      "path": "blobs/a22c9f985a55a17c5d80bcced0e8b971b2b6428bdb688d7734b5b92c30498054",
+      "sha256": "a22c9f985a55a17c5d80bcced0e8b971b2b6428bdb688d7734b5b92c30498054",
+      "bytes": 140
+    },
+    {
+      "path": "blobs/a3d2651957f21810eb833386c095e6151e65939b00ef9a7bc1f5809d0c055514",
+      "sha256": "a3d2651957f21810eb833386c095e6151e65939b00ef9a7bc1f5809d0c055514",
+      "bytes": 241
+    },
+    {
+      "path": "blobs/cf33f6d39a2660e26d41d748b3a6d5fa385ebffdc6c28d7faf43acd646c491d5",
+      "sha256": "cf33f6d39a2660e26d41d748b3a6d5fa385ebffdc6c28d7faf43acd646c491d5",
+      "bytes": 200
+    },
+    {
+      "path": "blobs/d5f358af91c3a60daa9edb7e4af8a15e4fbba3cc041a01195d803d8af110bf8c",
+      "sha256": "d5f358af91c3a60daa9edb7e4af8a15e4fbba3cc041a01195d803d8af110bf8c",
+      "bytes": 136
+    },
+    {
+      "path": "blobs/e10dce9a9d3fd43d8a90cb01237247350d4d23a951005ce81b96cdfbf6e78bc4",
+      "sha256": "e10dce9a9d3fd43d8a90cb01237247350d4d23a951005ce81b96cdfbf6e78bc4",
+      "bytes": 170
+    }
+  ],
+  "splits": {
+    "train": [
+      "traj-2026-08-02-demo-001"
+    ],
+    "validation": [],
+    "test": []
+  },
+  "rights_summary": {
+    "status": "cleared",
+    "owners": [
+      "UALF example author"
+    ],
+    "license": "Apache-2.0",
+    "reviewed_by": "example-human-reviewer",
+    "reviewed_at": "2026-08-02T18:00:10.900Z",
+    "evidence": {
+      "path": "rights-attestation.json",
+      "sha256": "4e52922b58096dfbb9e767268263573d26a48ce05b045d0157099ed5c674328a",
+      "bytes": 284
+    }
+  },
+  "deduplication": {
+    "method": "exact-sha256/v1",
+    "exact_duplicates_remaining": 0,
+    "report": {
+      "path": "dedup-report.json",
+      "sha256": "9b8a9e061bc3f10cced9512dd0259e9404bef165d3fd93ab0249a7615b0df618",
+      "bytes": 152
+    }
+  },
+  "quality_report": {
+    "path": "example-quality-report.json",
+    "sha256": "e6f66c96d86f8047dfd887af8e0ec85975c879d75a4f10d3dde6aab313e1079b",
+    "bytes": 848
+  },
+  "datasheet": {
+    "path": "datasheet.md",
+    "sha256": "da8e21c3602a965cbaa77f9d51171556a94d4a070520935ae892f1b0520c2f8b",
+    "bytes": 610
+  },
+  "provenance": {
+    "signing": {
+      "key_id": "ualf-demo-d858cb99f54c90a2",
+      "algorithm": "ed25519",
+      "public_key": "J0Vqqs6MWGQ45yXzdqMcD0Q5Ucdp976YCmndZaI2IDw="
+    }
+  },
+  "seal": {
+    "manifest_sha256": "635933a0586469572395f8e7b7dd0cffe01fb636fffa35e2a3d9f0a758850bc9",
+    "signature": {
+      "key_id": "ualf-demo-d858cb99f54c90a2",
+      "algorithm": "ed25519",
+      "value": "y1zlMYIQMzM1UJHvCgJ+P2oIz24cbd2ZZ71F/DGB5zBYN5BWlB/GvvRgnJthcg8vZiOFQyd4BqN/yXiYGCtNAA=="
+    }
+  }
+}

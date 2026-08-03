@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf-quality-report.schema.json",
+  "title": "UALF Dataset Quality Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "dataset_id", "generated_at", "generator", "qualification_policy", "traces"],
+  "properties": {
+    "schema": { "const": "ualf-quality/v1.1" },
+    "dataset_id": { "type": "string", "minLength": 3 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "generator": { "type": "string", "minLength": 1 },
+    "qualification_policy": { "const": "ualf-default-qualification/v1" },
+    "traces": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["trajectory_id", "trace_sha256", "schema_valid", "integrity_verified", "context_completeness", "evidence_quality", "replay_quality", "rights_status", "hygiene_status", "export_eligible", "commercial_tier", "findings"],
+        "properties": {
+          "trajectory_id": { "type": "string", "minLength": 3 },
+          "trace_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "schema_valid": { "type": "boolean" },
+          "integrity_verified": { "type": "boolean" },
+          "context_completeness": { "enum": ["complete", "partial", "missing"] },
+          "evidence_quality": { "enum": ["none", "self_report", "artifact", "signed_external", "reproduced"] },
+          "replay_quality": { "enum": ["none", "trace", "stubbed", "tool_reexecution", "full_reexecution", "outcome_reproduced"] },
+          "rights_status": { "enum": ["cleared", "restricted", "unresolved"] },
+          "hygiene_status": { "enum": ["clean", "findings", "not_run"] },
+          "export_eligible": { "type": "boolean" },
+          "commercial_tier": { "enum": ["A", "B", "C", "reject"] },
+          "findings": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+        }
+      }
+    }
+  }
+}

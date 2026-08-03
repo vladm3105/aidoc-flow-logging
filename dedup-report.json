@@ -1,0 +1,7 @@
+{
+  "schema": "ualf-dedup-report/v1",
+  "method": "exact-sha256/v1",
+  "trace_count": 1,
+  "unique_trace_count": 1,
+  "exact_duplicates_remaining": 0
+}

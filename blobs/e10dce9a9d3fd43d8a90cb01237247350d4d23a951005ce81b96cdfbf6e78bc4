@@ -1,0 +1,1 @@
+Reading the narrow implementation is cheaper and more diagnostic than a repository-wide search because the observed delta already identifies the likely arithmetic anchor.

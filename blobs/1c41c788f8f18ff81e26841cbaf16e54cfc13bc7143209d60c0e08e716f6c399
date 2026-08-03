@@ -1,0 +1,1 @@
+Fix test_lease_renewal_extends_expiry without changing the test. Acceptance: the target test passes and no other test regresses.

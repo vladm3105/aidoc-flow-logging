@@ -1,0 +1,1 @@
+FAILED tests/test_ledger.py::test_lease_renewal_extends_expiry - AssertionError: expected 2026-07-30T15:02:00Z, got 2026-07-30T14:32:00Z

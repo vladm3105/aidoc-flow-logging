@@ -1,0 +1,26 @@
+{
+  "schema": "ualf-quality/v1.1",
+  "dataset_id": "ualf-example-dataset-001",
+  "generated_at": "2026-08-02T18:00:11.000Z",
+  "generator": "ualf-example-builder/v1",
+  "qualification_policy": "ualf-default-qualification/v1",
+  "traces": [
+    {
+      "trajectory_id": "traj-2026-08-02-demo-001",
+      "trace_sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
+      "schema_valid": true,
+      "integrity_verified": true,
+      "context_completeness": "complete",
+      "evidence_quality": "artifact",
+      "replay_quality": "stubbed",
+      "rights_status": "cleared",
+      "hygiene_status": "clean",
+      "export_eligible": true,
+      "commercial_tier": "B",
+      "findings": [
+        "Evidence is not independently signed or reproduced.",
+        "Replay is below verified tool reexecution."
+      ]
+    }
+  ]
+}

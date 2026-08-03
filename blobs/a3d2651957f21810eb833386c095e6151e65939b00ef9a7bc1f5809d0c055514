@@ -1,0 +1,1 @@
+{"kind":"test-report","runner":"pytest","runner_version":"8.2.0","command":"pytest tests/","exit_code":0,"summary":{"passed":128,"failed":0,"skipped":0},"run_id":"run-2026-08-02-demo-001","source_revision":"example-pre-fix+ualf-demo-change"}

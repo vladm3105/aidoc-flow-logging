@@ -1,0 +1,1 @@
+The 30-minute delta matches RENEWAL_WINDOW. Inspect renew() to confirm whether expiry is anchored to granted_at instead of the renewal time.

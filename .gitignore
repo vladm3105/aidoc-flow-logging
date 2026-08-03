@@ -20,17 +20,19 @@ scratch/
 
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
 .venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.uv-cache/
 dist/
 build/
 *.egg-info/
 
 # Node
 node_modules/
+.npm-cache/
 
 # OS / editors
 .DS_Store

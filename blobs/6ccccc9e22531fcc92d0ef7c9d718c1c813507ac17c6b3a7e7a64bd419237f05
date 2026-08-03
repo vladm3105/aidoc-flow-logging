@@ -1,0 +1,6 @@
+--- a/src/ledger/lease.py
++++ b/src/ledger/lease.py
+@@ -8,4 +8,4 @@ class Lease:
+     def renew(self, now):
+-        self.expires_at = self.granted_at + RENEWAL_WINDOW
++        self.expires_at = now + RENEWAL_WINDOW
