@@ -1,0 +1,39 @@
+# Workspace .gitignore baseline per docs/REPO_STANDARDS.md §10.1.
+#
+# Repo-specific ignores EXTEND this baseline (do not replace it).
+# When applying via apply-standards.sh, the target's existing
+# .gitignore is preserved and this baseline is merged in
+# (deduplicated, sorted per section).
+
+# AI-workspace scratch
+.claude/
+.review/
+
+# Transient
+tmp/
+scratch/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# Node
+node_modules/
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/
+Thumbs.db
