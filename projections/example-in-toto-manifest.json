@@ -1,7 +1,7 @@
 {
   "profile": "ualf-projection-manifest/v1",
   "projection_id": "projection-ualf-in-toto-qualification-demo",
-  "source_profile": "ualf-dataset/v1.1",
+  "source_profile": "ualf-dataset/v1.2",
   "target": {
     "profile": "ualf-in-toto-qualification/v1",
     "specification": "https://in-toto.io/Statement/v1",
@@ -9,28 +9,28 @@
   },
   "source": {
     "path": "example-manifest.json",
-    "sha256": "1fb520a7f6871d31d04ef6f0676663018ffa38703d5f8c009ab9937dccb04af5",
-    "bytes": 4379,
+    "sha256": "e7acde29211615e23761173983c18820bd2a1878c52a8bf679d4441ae8e00474",
+    "bytes": 5777,
     "media_type": "application/json"
   },
   "outputs": [
     {
       "path": "projections/example-in-toto.json",
-      "sha256": "8e10f1bb543ea3124c930a358c706f673c462632e5a5f9fa2814e723634a1f41",
+      "sha256": "f5883da4c6ce8575a5b5bbfa1dd1d4430832ab43942fcff70d816b3e32ec5f1f",
       "bytes": 818,
       "media_type": "application/json"
     },
     {
       "path": "projections/example-in-toto.dsse.json",
-      "sha256": "95633c9f708a9362a01f0a60160dbba669c22e15c02fb60d94e5b96599656b1a",
+      "sha256": "ec53b92b002bf697b6180f8d0279f13b9921e5eb11bf1ebd5c08e8e2d0071129",
       "bytes": 1297,
       "media_type": "application/json"
     }
   ],
   "exporter": {
     "name": "build_profiles.py",
-    "version": "1.0.0",
-    "source_revision": "ualf-v1.2",
+    "version": "1.1.0",
+    "source_revision": "ualf-v1.3",
     "deterministic": true
   },
   "record_mappings": [

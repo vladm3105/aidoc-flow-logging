@@ -17,7 +17,7 @@
       "@id": "manifest",
       "name": "example-manifest.json",
       "contentUrl": "example-manifest.json",
-      "sha256": "1fb520a7f6871d31d04ef6f0676663018ffa38703d5f8c009ab9937dccb04af5",
+      "sha256": "e7acde29211615e23761173983c18820bd2a1878c52a8bf679d4441ae8e00474",
       "encodingFormat": "application/json"
     }
   ]

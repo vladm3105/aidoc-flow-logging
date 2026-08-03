@@ -3,5 +3,9 @@
   "method": "exact-sha256/v1",
   "trace_count": 1,
   "unique_trace_count": 1,
-  "exact_duplicates_remaining": 0
+  "exact_duplicates_remaining": 0,
+  "near_duplicate_method": "minhash-jaccard/v1",
+  "near_duplicates_reviewed": 0,
+  "benchmark_contamination": "none_detected",
+  "split_leakage": "none_detected"
 }

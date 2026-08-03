@@ -3,8 +3,8 @@
   "updated_at": "2026-08-03T12:00:00Z",
   "extensions": [
     {
-      "id": "iplanic.ai/capture/v1",
-      "schema_url": "https://iplanic.ai/schemas/ualf-production-capture.schema.json?version=1.0.0",
+      "id": "iplanic.ai/capture/v1.1",
+      "schema_url": "https://iplanic.ai/schemas/ualf/capture/v1.1/report.schema.json",
       "owner": "UALF maintainers",
       "contact": "https://github.com/vladm3105/aidoc-flow-logging/issues",
       "status": "experimental",
@@ -15,12 +15,12 @@
       ],
       "privacy_risk": "low",
       "unknown_consumer_behavior": "preserve",
-      "first_supported_profile": "ualf-trace/v1",
+      "first_supported_profile": "ualf-trace/v1.1",
       "description": "Binds production sampling, delivery, privacy and recovery evidence."
     },
     {
       "id": "iplanic.ai/otel/semconv-genai/2026-08-03",
-      "schema_url": "https://iplanic.ai/schemas/ualf-projection-manifest.schema.json?version=1.0.0",
+      "schema_url": "https://iplanic.ai/schemas/ualf/projection-manifest/v1/schema.json",
       "owner": "UALF maintainers",
       "contact": "https://github.com/vladm3105/aidoc-flow-logging/issues",
       "status": "experimental",
@@ -30,7 +30,7 @@
       ],
       "privacy_risk": "sensitive",
       "unknown_consumer_behavior": "preserve",
-      "first_supported_profile": "ualf-trace/v1",
+      "first_supported_profile": "ualf-trace/v1.1",
       "description": "Version-pinned OpenTelemetry GenAI projection metadata."
     }
   ]

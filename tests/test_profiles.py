@@ -35,6 +35,23 @@ class ProfileGoldenVectors(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("CONFORMING", result.stdout)
 
+    def test_profile_cli_validates_supplied_capture(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(VERIFY),
+                "--artifact-root",
+                str(BASE),
+                "--capture",
+                str(BASE / "example-production-capture.json"),
+            ],
+            cwd=BASE,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_builder_is_deterministic(self) -> None:
         targets = [BASE / "example-amendments.jsonl", BASE / "example-index.json", BASE / "example-production-capture.json", BASE / "example-segment-manifest.json", BASE / "sdk" / "typescript" / "ualf-types.ts"]
         before = [path.read_bytes() for path in targets]
@@ -42,10 +59,33 @@ class ProfileGoldenVectors(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(before, [path.read_bytes() for path in targets])
 
+    def test_schema_catalog_matches_schema_ids(self) -> None:
+        catalog = json.loads((BASE / "schema-catalog.json").read_text(encoding="utf-8"))
+        for entry in catalog["schemas"]:
+            schema = json.loads((BASE / entry["path"]).read_text(encoding="utf-8"))
+            self.assertEqual(entry["id"], schema["$id"], entry["path"])
+
     def test_complete_capture_rejects_dropped_records(self) -> None:
         capture = json.loads((BASE / "example-production-capture.json").read_text(encoding="utf-8"))
         capture["delivery"]["dropped_records"] = 1
         self.assertTrue(validate(capture, "ualf-production-capture.schema.json"))
+
+    def test_capture_signature_rejects_tampering(self) -> None:
+        module = load_module()
+        capture = json.loads(
+            (BASE / "example-production-capture.json").read_text(encoding="utf-8")
+        )
+        capture["delivery"]["accepted_records"] += 1
+        report = module.Report()
+        module.verify_document_seal(capture, "capture report", report)
+        self.assertIn("capture report digest", report.failures)
+
+    def test_active_legal_hold_requires_authority(self) -> None:
+        retention = json.loads(
+            (BASE / "example-retention.json").read_text(encoding="utf-8")
+        )
+        retention["legal_hold"] = {"active": True}
+        self.assertTrue(validate(retention, "ualf-retention.schema.json"))
 
     def test_sampled_out_capture_rejects_trace_digest(self) -> None:
         capture = json.loads((BASE / "example-production-capture.json").read_text(encoding="utf-8"))

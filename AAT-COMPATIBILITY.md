@@ -3,7 +3,7 @@
 **Status:** Informative compatibility profile  
 **Target:** `draft-sharif-agent-audit-trail-00`  
 **Target date:** 2026-03-29  
-**UALF source profile:** `ualf-trace/v1`
+**UALF source profile:** `ualf-trace/v1.1`
 
 ## 1. Status and scope
 
@@ -111,7 +111,8 @@ mapping from every AAT `record_id` to its source UALF record or records.
   intervention. Use `escalation` only when the UALF event documents an
   escalation; otherwise preserve the feedback only in UALF. Escalation records
   use outcome `escalated`.
-- Child-agent handoff extension -> `delegation`: require the delegate URI, trust
+- `delegation.started` / `delegation.completed` -> `delegation`: require the
+  delegate URI, trust
   assertion, task-description hash, and `child_session_id`. A completed handoff
   uses `success`; a refused handoff uses `denied`; failures use `failure`.
 - Outcome -> `lifecycle/session_end`: map final status and derive AAT session
@@ -119,8 +120,9 @@ mapping from every AAT `record_id` to its source UALF record or records.
   to `denied`; time limits to `timeout`; and every other unsuccessful terminal
   state to `failure`.
 
-UALF observations, file changes, state changes, retries, evaluations, replay
-evidence, and dataset qualification have no lossless draft-00 equivalent. The
+UALF observations, agent messages, guardrail evaluations, retrieval and memory
+events, file changes, state changes, retries, evaluations, replay evidence, and
+dataset qualification have no lossless draft-00 equivalent. The
 exporter MUST retain their UALF source and MUST document whether they were
 summarized, hashed into another record, or omitted.
 

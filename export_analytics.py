@@ -30,8 +30,12 @@ def common(source_digest: str, header: dict[str, Any]) -> dict[str, Any]:
     return {
         "source_trace_sha256": source_digest,
         "projection_version": PROJECTION_VERSION,
+        "organization": header["organization"],
+        "project": header["project"],
+        "deployment_environment": header["deployment_environment"],
         "run_id": header["run_id"],
         "trace_id": header["trace_id"],
+        "session_id": header["session_id"],
         "trajectory_id": header["trajectory_id"],
     }
 
@@ -44,23 +48,24 @@ def project(trace_path: Path) -> dict[str, list[dict[str, Any]]]:
     base = common(source_digest, header)
     events = objects[1:-1]
     tables: dict[str, list[dict[str, Any]]] = {
-        "traces": [{**base, "project": header["project"], "domain": header["domain"], "agent_framework": header["agent"]["framework"], "agent_version": header["agent"]["agent_version"], "prompt_version": header["agent"]["prompt_version"], "started_at": header["started_at"], "status": outcome["status"]}],
+        "traces": [{**base, "domain": header["domain"], "agent_id": header["agent"]["id"], "agent_framework": header["agent"]["framework"], "agent_version": header["agent"]["agent_version"], "prompt_version": header["agent"]["prompt_version"], "started_at": header["started_at"], "status": outcome["status"]}],
         "events": [], "model_calls": [], "tool_calls": [], "content_refs": [], "evaluations": [],
         "outcomes": [{**base, "status": outcome["status"], "timestamp": outcome["timestamp"], **outcome["totals"]}],
     }
     started: dict[tuple[str, str], dict[str, Any]] = {}
     for event in events:
-        event_base = {**base, "seq": event["seq"], "event_id": event["event_id"], "event_type": event["type"], "span_id": event["span_id"], "parent_span_id": event.get("parent_span_id"), "caused_by": event.get("caused_by"), "timestamp": event["timestamp"], "monotonic_ms": event["monotonic_ms"], "actor_type": event["actor"]["type"], "actor_id": event["actor"]["id"]}
+        event_base = {**base, "seq": event["seq"], "event_id": event["event_id"], "event_type": event["type"], "span_id": event["span_id"], "parent_span_id": event.get("parent_span_id"), "caused_by": event.get("caused_by"), "timestamp": event["timestamp"], "observed_at": event["observed_at"], "monotonic_ms": event["monotonic_ms"], "producer_id": event["producer"]["id"], "producer_process_id": event["producer"]["process_id"], "producer_clock_id": event["producer"]["clock_id"], "producer_local_seq": event["producer"]["local_seq"], "actor_type": event["actor"]["type"], "actor_id": event["actor"]["id"]}
         tables["events"].append(event_base)
         call_id = event.get("data", {}).get("call_id")
         if call_id and event["type"].endswith(".started"):
             started[(event["type"].split("_")[0], call_id)] = event
         elif call_id and event["type"] == "model_call.completed":
             begin = started.get(("model", call_id), {})
-            tables["model_calls"].append({**base, "call_id": call_id, "span_id": event["span_id"], "provider": event["data"]["provider"], "model": event["data"]["model"], "started_event_id": begin.get("event_id"), "completed_event_id": event["event_id"], "context_complete": begin.get("data", {}).get("context_complete"), "tokens_in": event["data"]["usage"]["tokens_in"], "tokens_out": event["data"]["usage"]["tokens_out"], "cost_usd": str(event["data"]["cost_usd"]), "latency_ms": event["data"]["latency_ms"], "finish_reason": event["data"]["finish_reason"]})
+            usage = event["data"].get("usage") or {}
+            tables["model_calls"].append({**base, "call_id": call_id, "span_id": event["span_id"], "provider": event["data"]["provider"], "model": event["data"]["model"], "status": event["data"]["status"], "started_event_id": begin.get("event_id"), "completed_event_id": event["event_id"], "context_complete": begin.get("data", {}).get("context_complete"), "tokens_in": usage.get("tokens_in"), "tokens_out": usage.get("tokens_out"), "usage_state": event["data"].get("usage_state"), "cost_usd": str(event["data"]["cost_usd"]) if "cost_usd" in event["data"] else None, "cost_state": event["data"].get("cost_state"), "latency_ms": event["data"].get("latency_ms"), "latency_state": event["data"].get("latency_state"), "finish_reason": event["data"].get("finish_reason")})
         elif call_id and event["type"] == "tool_call.completed":
             begin = started.get(("tool", call_id), {})
-            tables["tool_calls"].append({**base, "call_id": call_id, "span_id": event["span_id"], "tool": event["data"]["tool"], "started_event_id": begin.get("event_id"), "completed_event_id": event["event_id"], "status": event["data"]["status"], "latency_ms": event["data"]["latency_ms"]})
+            tables["tool_calls"].append({**base, "call_id": call_id, "span_id": event["span_id"], "tool": event["data"]["tool"], "started_event_id": begin.get("event_id"), "completed_event_id": event["event_id"], "status": event["data"]["status"], "latency_ms": event["data"].get("latency_ms"), "latency_state": event["data"].get("latency_state")})
         if event["type"] == "evaluation.completed":
             value = event["data"]
             tables["evaluations"].append({**base, "source": "runtime", "target_kind": "trace", "target_id": header["trajectory_id"], "evaluator": value["evaluator"], "evaluator_version": value["evaluator_version"], "method": value["method"], "status": value["status"], "score": value.get("score"), "severity": "blocking", "event_id": event["event_id"]})

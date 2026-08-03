@@ -2,8 +2,8 @@
   "profile": "ualf-index/v1",
   "source": {
     "path": "example-trajectory.jsonl",
-    "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
-    "bytes": 15743
+    "sha256": "7f4a640390689408230b251ac5ca838b1b731face9f331dab140a482229dede8",
+    "bytes": 22062
   },
   "created_at": "2026-08-03T12:00:00Z",
   "generator": {
@@ -15,159 +15,177 @@
       "seq": 1,
       "kind": "header",
       "offset": 0,
-      "length": 2474,
-      "sha256": "a9d5132068f1bf63252090b1bc6fe9799e642df2515a067bf83df9fdfd087152"
+      "length": 2612,
+      "sha256": "9b243587db51305f5be9a1c975e8257b5f41681eab0b04f6171fa920a24afb3a"
     },
     {
       "seq": 2,
       "kind": "event",
-      "offset": 2475,
-      "length": 513,
-      "sha256": "f76a1809633629b4df52e7341a5f7151c7c5298afb153fb474381352ef451b06",
-      "event_id": "evt-run-observation",
-      "event_type": "observation.received"
+      "offset": 2613,
+      "length": 733,
+      "sha256": "e16f29304ddcf59ff9855008298a636555bc959fa132f20a56576e0d0d632635",
+      "event_id": "evt-agent-start",
+      "event_type": "agent.started"
     },
     {
       "seq": 3,
       "kind": "event",
-      "offset": 2989,
-      "length": 669,
-      "sha256": "076b617e1cc6c47a31d93a18b932b4b5001c05d507bf6840be53f1210747388b",
-      "event_id": "evt-test-start-1",
-      "event_type": "tool_call.started"
+      "offset": 3347,
+      "length": 778,
+      "sha256": "f7f1f38f556e1e59580396ac6251cfee8e2adac19920acc3010be1a66267a03a",
+      "event_id": "evt-run-observation",
+      "event_type": "observation.received"
     },
     {
       "seq": 4,
       "kind": "event",
-      "offset": 3659,
-      "length": 797,
-      "sha256": "ddcf561c5bb6bfd2315424b2dc570f2902585e4513b90a6e0d3480eaa9c238d8",
-      "event_id": "evt-test-end-1",
-      "event_type": "tool_call.completed"
+      "offset": 4126,
+      "length": 949,
+      "sha256": "3d6ec40fb79a08fc53652c0579e010ee610d769d98b526ace115acc263fce4aa",
+      "event_id": "evt-test-start-1",
+      "event_type": "tool_call.started"
     },
     {
       "seq": 5,
       "kind": "event",
-      "offset": 4457,
-      "length": 475,
-      "sha256": "1d5a7025eeeb9cb61094d0602ca4cf6669b549661ffe4e06af54eb2f1b6bc094",
-      "event_id": "evt-test-error",
-      "event_type": "error.recorded"
+      "offset": 5076,
+      "length": 1064,
+      "sha256": "35643c4f0a99a09b6eec831437e75645c5070ef47495b2da5136b05819f464d5",
+      "event_id": "evt-test-end-1",
+      "event_type": "tool_call.completed"
     },
     {
       "seq": 6,
       "kind": "event",
-      "offset": 4933,
-      "length": 1743,
-      "sha256": "4a8948efec7c8f02808e24693ed3eeb1881874730b51a0419facb7385a96958f",
-      "event_id": "evt-model-start",
-      "event_type": "model_call.started"
+      "offset": 6141,
+      "length": 740,
+      "sha256": "0a9f048886b2075fa631557d8c1d4dc93d0ea1bced9577a40b6c17f00066be6d",
+      "event_id": "evt-test-error",
+      "event_type": "error.recorded"
     },
     {
       "seq": 7,
       "kind": "event",
-      "offset": 6677,
-      "length": 896,
-      "sha256": "dd0fbd6d918b0be61f5fb94d1b9fd35e6456026b97928343db9b4440ce162fdf",
-      "event_id": "evt-model-end",
-      "event_type": "model_call.completed"
+      "offset": 6882,
+      "length": 2023,
+      "sha256": "c9ee7d52325975cd2b271ccea59e46da539b14f93a58a6709e9602900932f801",
+      "event_id": "evt-model-start",
+      "event_type": "model_call.started"
     },
     {
       "seq": 8,
       "kind": "event",
-      "offset": 7574,
-      "length": 858,
-      "sha256": "efed9b26523fab69671b7768c022b84a263b6a07256c5a5e94ba02f5056058eb",
-      "event_id": "evt-decision",
-      "event_type": "decision.recorded"
+      "offset": 8906,
+      "length": 1181,
+      "sha256": "baf2ac0959cba6d589a60b6658e33af5f0a9ceffdbadd806f467e7278eb63c0e",
+      "event_id": "evt-model-end",
+      "event_type": "model_call.completed"
     },
     {
       "seq": 9,
       "kind": "event",
-      "offset": 8433,
-      "length": 623,
-      "sha256": "c2e88fc99e6fd71c52ae130fe998c1799ca144dc603cd1a0666adaeffdec2cd2",
-      "event_id": "evt-read-start",
-      "event_type": "tool_call.started"
+      "offset": 10088,
+      "length": 1138,
+      "sha256": "8785b833a66f07dc58aebb2f12ba20e9c65d126a7d9b805cb7616e62f0e23c81",
+      "event_id": "evt-decision",
+      "event_type": "decision.recorded"
     },
     {
       "seq": 10,
       "kind": "event",
-      "offset": 9057,
-      "length": 881,
-      "sha256": "36d3d9df6941daac8202f63f52b973182d2d86ac3c3d01e92b4bb979d9a6d381",
-      "event_id": "evt-read-end",
-      "event_type": "tool_call.completed"
+      "offset": 11227,
+      "length": 904,
+      "sha256": "a1278be1f7b7a1c7c71172cd1ff6b2459ac40a78ecba66b039cd2918bdb12caa",
+      "event_id": "evt-read-start",
+      "event_type": "tool_call.started"
     },
     {
       "seq": 11,
       "kind": "event",
-      "offset": 9939,
-      "length": 730,
-      "sha256": "5040b8f01f3ea93801c61eb362a8c0dd933bc702ba2d3c265a642793dc30b540",
-      "event_id": "evt-edit-start",
-      "event_type": "tool_call.started"
+      "offset": 12132,
+      "length": 1149,
+      "sha256": "3e846444926f37c0f51a2a23077647234b12a6a0e381e3ca0d651ef8c72cefed",
+      "event_id": "evt-read-end",
+      "event_type": "tool_call.completed"
     },
     {
       "seq": 12,
       "kind": "event",
-      "offset": 10670,
-      "length": 588,
-      "sha256": "21e98a6800634c6c51d99ed4893c43aa96b9887f013081991451736fa84e3a14",
-      "event_id": "evt-edit-end",
-      "event_type": "tool_call.completed"
+      "offset": 13282,
+      "length": 1011,
+      "sha256": "6ad90f8f162fb069c3cb342d5845a9cf966ec147955a3b3d2fa0536f25bed554",
+      "event_id": "evt-edit-start",
+      "event_type": "tool_call.started"
     },
     {
       "seq": 13,
       "kind": "event",
-      "offset": 11259,
-      "length": 873,
-      "sha256": "3d83520eb5a66e5e2528f39eccab1e8228eb98f564e94351f82f43dedc04b837",
-      "event_id": "evt-file-change",
-      "event_type": "file_change.recorded"
+      "offset": 14294,
+      "length": 856,
+      "sha256": "4b99758bb3c5d71ecbea1c69e405c5f119039d93377e94b560c8badbcbee1044",
+      "event_id": "evt-edit-end",
+      "event_type": "tool_call.completed"
     },
     {
       "seq": 14,
       "kind": "event",
-      "offset": 12133,
-      "length": 512,
-      "sha256": "b92e6e8e1f4067023610f3eee108d194607a49cc89a77956f03e0e0ad3230664",
-      "event_id": "evt-retry",
-      "event_type": "retry.started"
+      "offset": 15151,
+      "length": 1170,
+      "sha256": "fb6377984ef8fa9b16b1d8edf9dab2de940c9006ba7737071dcbaf2b120f7bd6",
+      "event_id": "evt-file-change",
+      "event_type": "file_change.recorded"
     },
     {
       "seq": 15,
       "kind": "event",
-      "offset": 12646,
-      "length": 612,
-      "sha256": "3844f43d6d0e8a912854c32b41cc0939a8956695c0f12ce87fa39fdbe7835fbf",
-      "event_id": "evt-test-start-2",
-      "event_type": "tool_call.started"
+      "offset": 16322,
+      "length": 793,
+      "sha256": "c2260dfa673099849c48c3da1c8c2c265656995d1bc53b3a17697105ec4c8b64",
+      "event_id": "evt-retry",
+      "event_type": "retry.started"
     },
     {
       "seq": 16,
       "kind": "event",
-      "offset": 13259,
-      "length": 602,
-      "sha256": "190f13dbc2a344654971f8f31581ad3f6b7b3ca66944f3adf6c5b0481747e852",
-      "event_id": "evt-test-end-2",
-      "event_type": "tool_call.completed"
+      "offset": 17116,
+      "length": 893,
+      "sha256": "2edb8f47e2e636966778162cea10ca8490d046770413bd8ee4944fa11785781f",
+      "event_id": "evt-test-start-2",
+      "event_type": "tool_call.started"
     },
     {
       "seq": 17,
       "kind": "event",
-      "offset": 13862,
-      "length": 812,
-      "sha256": "de190517c288aa28d789921f883ed49d5315dc988193f8367fa21e758e1918c8",
+      "offset": 18010,
+      "length": 870,
+      "sha256": "936365ad39994b1a563ab2c5bee5b85458c0447ad93fa5b94c6a9fdccbae5741",
+      "event_id": "evt-test-end-2",
+      "event_type": "tool_call.completed"
+    },
+    {
+      "seq": 18,
+      "kind": "event",
+      "offset": 18881,
+      "length": 768,
+      "sha256": "3f204f66045b3edb10bcec836392d95fa8e1bab8db64ba4317aa21fbc02f088a",
+      "event_id": "evt-agent-complete",
+      "event_type": "agent.completed"
+    },
+    {
+      "seq": 19,
+      "kind": "event",
+      "offset": 19650,
+      "length": 1077,
+      "sha256": "d2536b97b2d0180eda344c54391d12dd67effdb19419e7a225e9ebff0d2ce417",
       "event_id": "evt-evaluation",
       "event_type": "evaluation.completed"
     },
     {
-      "seq": 18,
+      "seq": 20,
       "kind": "outcome",
-      "offset": 14675,
-      "length": 1067,
-      "sha256": "a87c46a0d486287ad1df053eaf98a4a8319557350e892da0da3322611b6ccc14"
+      "offset": 20728,
+      "length": 1333,
+      "sha256": "82284c087e1beda30a9c92a8c6b3dcc61e63b7148c540e953cc37e742056d436"
     }
   ]
 }

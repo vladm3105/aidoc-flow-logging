@@ -1,10 +1,10 @@
 # UALF Production Capture and Lifecycle Profile
 
-**Profile:** `ualf-capture/v1`
+**Profile:** `ualf-capture/v1.1`
 
-**Status:** Draft v1.2 — 2026-08-03
+**Status:** Draft v1.3 — 2026-08-03
 
-**Trace profiles:** `ualf-trace/v1` and later compatible revisions
+**Trace profiles:** `ualf-trace/v1.1` and later compatible revisions
 
 This profile specifies how a live agent runtime records enough information to
 determine whether a materialized UALF trace is complete. It does not replace the
@@ -67,9 +67,9 @@ Short-lived processes MUST explicitly flush or durably spool accepted records.
 A successful application exit is not evidence that asynchronous telemetry was
 delivered.
 
-Collector retries MUST be idempotent. The tuple `(run_id, event_id)` is the
-default idempotency key. Collectors MUST reject conflicting content for the same
-key and MAY accept byte-identical duplicates.
+Collector retries MUST be idempotent. The default key is organization, project,
+deployment environment, run ID, and event ID. Collectors MUST reject conflicting
+content for the same key and MAY accept byte-identical duplicates.
 
 Implementations MUST distinguish local acceptance, durable spool commit,
 ingestion acceptance, and canonical archive durability. A receipt MUST identify
@@ -80,12 +80,16 @@ stores.
 
 ## 4. Ordering and clocks
 
-Producers record both UTC wall time and a monotonic offset. The report identifies
-the wall-clock source, synchronization method and maximum detected drift.
+Producers record event time, observation time, producer/process identity, a
+clock-domain identifier, producer-local sequence, and monotonic offset. The
+report identifies the wall-clock source, synchronization method and maximum
+detected drift. Monotonic offsets from different clock domains are never
+directly compared.
 
-Collectors MAY receive records late or out of order. Materialization assigns a
-gapless file sequence without treating that sequence as causality. Causality
-continues to be expressed by spans and `caused_by`.
+Collectors MAY receive records late or out of order. Materialization uses
+observation time, producer-local sequence, and a documented deterministic
+tie-breaker to assign a gapless file sequence without treating that sequence as
+causality. Causality continues to be expressed by spans and `caused_by`.
 
 ## 5. Recovery and closure
 
@@ -106,7 +110,7 @@ capture report incomplete even when the resulting JSONL is structurally valid.
 
 ## 6. Retention and erasure
 
-The separate `ualf-retention/v1` document binds a trace or dataset digest to its
+The separate `ualf-retention/v1.1` document binds a trace or dataset digest to its
 retention class, expiry, legal hold, encryption-key identity, erasure method, and
 reference policy.
 
@@ -119,6 +123,11 @@ Qualified dataset packages MUST either:
 An expired source object MUST NOT silently leave a dangling qualified-dataset
 reference. Deletion and cryptographic erasure are recorded through signed
 statements; immutable historical artifacts are not rewritten in place.
+Capture and retention records used as qualification evidence are scoped to
+organization, project, and environment and are RFC 8785 hashed and Ed25519
+signed. Erasure and revocation actions use `ualf-erasure-statement/v1` and expose
+propagation state across canonical objects, projections, caches, backups, and
+exports.
 
 ## 7. Operational visibility
 

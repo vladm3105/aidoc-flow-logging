@@ -1,10 +1,14 @@
 {
-  "profile": "ualf-retention/v1",
+  "profile": "ualf-retention/v1.1",
+  "organization": "org-ualf-demo",
+  "project": "proj-03",
+  "environment": "test",
   "subject": {
     "kind": "trace",
     "id": "traj-2026-08-02-demo-001",
-    "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0"
+    "sha256": "7f4a640390689408230b251ac5ca838b1b731face9f331dab140a482229dede8"
   },
+  "policy_id": "ualf-demo-retention/v1",
   "retention_class": "commercial-candidate",
   "created_at": "2026-08-03T12:00:00Z",
   "expires_at": "2033-08-03T12:00:00Z",
@@ -25,6 +29,13 @@
   "erasure": {
     "method": "cryptographic_shred",
     "statement_required": true,
-    "statement_schema": "https://iplanic.ai/schemas/ualf-erasure-statement.schema.json?version=1.0.0"
+    "statement_schema": "https://iplanic.ai/schemas/ualf/erasure-statement/v1/schema.json"
+  },
+  "seal": {
+    "key_id": "ualf-retention-demo-1",
+    "algorithm": "ed25519",
+    "public_key": "LlcyHeoF7hNmic4xGQdf9HNBabMhWN4P6BaAVBdnniI=",
+    "document_sha256": "01a93f98538104534880116c32084285672f31d9e28e24839a18b4e3f930c012",
+    "signature": "zrkff8nBwbk7JELaf771H1ajJxnNztgxCF6jc70vJaqawOBEiWqEkHn1cPStQ27YfesLSGRFGSelGKGx4SPjBQ=="
   }
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build deterministic UALF v1.2 profile examples and projections."""
+"""Build deterministic UALF v1.3 profile examples and projections."""
 
 from __future__ import annotations
 
@@ -43,6 +43,28 @@ def digest(path: Path) -> dict[str, Any]:
     return {"path": path.relative_to(ROOT).as_posix(), "sha256": sha256(data).hexdigest(), "bytes": len(data), "media_type": media}
 
 
+def signed_document(value: dict[str, Any], seed: bytes, key_id: str) -> dict[str, Any]:
+    import rfc8785
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+    private = Ed25519PrivateKey.from_private_bytes(sha256(seed).digest())
+    public = private.public_key().public_bytes(
+        serialization.Encoding.Raw, serialization.PublicFormat.Raw
+    )
+    document_sha256 = sha256(rfc8785.dumps(value)).hexdigest()
+    value["seal"] = {
+        "key_id": key_id,
+        "algorithm": "ed25519",
+        "public_key": base64.b64encode(public).decode(),
+        "document_sha256": document_sha256,
+        "signature": base64.b64encode(
+            private.sign(bytes.fromhex(document_sha256))
+        ).decode(),
+    }
+    return value
+
+
 def build_index(trace_path: Path) -> None:
     data = trace_path.read_bytes()
     records = []
@@ -77,10 +99,14 @@ def build_index(trace_path: Path) -> None:
 
 def build_capture_and_retention(trace_path: Path) -> None:
     trace_digest = sha256(trace_path.read_bytes()).hexdigest()
+    record_count = len(trace_path.read_bytes().splitlines())
     write_json(
         ROOT / "example-production-capture.json",
-        {
-            "profile": "ualf-capture/v1",
+        signed_document({
+            "profile": "ualf-capture/v1.1",
+            "organization": "org-ualf-demo",
+            "project": "proj-03",
+            "environment": "test",
             "run_id": "run-2026-08-02-demo-001",
             "trace_id": "trace-2026-08-02-demo-001",
             "trace_sha256": trace_digest,
@@ -92,25 +118,29 @@ def build_capture_and_retention(trace_path: Path) -> None:
                 "images": "not_applicable", "audio": "not_applicable", "embeddings": "not_applicable", "provider_payloads": "not_available",
             },
             "privacy": {"policy": "ualf-demo-redaction/v1", "boundary": "client", "pre_persistence": True, "secrets_scan": "clean"},
-            "delivery": {"mode": "durable_spool", "queue_capacity": 1024, "queue_high_watermark": 8, "accepted_records": 18, "delivered_records": 18, "dropped_records": 0, "retry_count": 0, "terminal_failures": 0, "spool": "durable", "flush_status": "completed", "flush_deadline_ms": 5000},
+            "delivery": {"mode": "durable_spool", "queue_capacity": 1024, "queue_high_watermark": 8, "accepted_records": record_count, "delivered_records": record_count, "dropped_records": 0, "retry_count": 0, "terminal_failures": 0, "spool": "durable", "flush_status": "completed", "flush_deadline_ms": 5000},
             "clock": {"wall_source": "system_utc", "monotonic_source": "steady_clock", "synchronization": "synthetic-fixture", "synchronized": True, "max_drift_ms": 1.0},
             "recovery": {"status": "clean", "accepted_records_lost": 0, "closer": "example-agent"},
             "completeness": "complete",
-        },
+        }, b"ualf-capture-demo-key", "ualf-capture-demo-1"),
     )
     write_json(
         ROOT / "example-retention.json",
-        {
-            "profile": "ualf-retention/v1",
+        signed_document({
+            "profile": "ualf-retention/v1.1",
+            "organization": "org-ualf-demo",
+            "project": "proj-03",
+            "environment": "test",
             "subject": {"kind": "trace", "id": "traj-2026-08-02-demo-001", "sha256": trace_digest},
+            "policy_id": "ualf-demo-retention/v1",
             "retention_class": "commercial-candidate",
             "created_at": NOW,
             "expires_at": "2033-08-03T12:00:00Z",
             "legal_hold": {"active": False},
             "artifact_policy": {"dependency_mode": "self_contained", "availability_commitment_until": "2033-08-03T12:00:00Z", "dangling_reference_behavior": "reject_package"},
             "encryption": {"at_rest": True, "algorithm": "AES-256-GCM", "key_id": "ualf-demo-storage-key", "key_registry": "https://example.invalid/keys"},
-            "erasure": {"method": "cryptographic_shred", "statement_required": True, "statement_schema": "https://iplanic.ai/schemas/ualf-erasure-statement.schema.json?version=1.0.0"},
-        },
+            "erasure": {"method": "cryptographic_shred", "statement_required": True, "statement_schema": "https://iplanic.ai/schemas/ualf/erasure-statement/v1/schema.json"},
+        }, b"ualf-retention-demo-key", "ualf-retention-demo-1"),
     )
 
 
@@ -158,9 +188,9 @@ def build_amendments(trace_path: Path) -> None:
 
 def projection_manifest(profile: str, spec: str, revision: str, source: Path, output: Path, mappings: list[dict[str, Any]], omissions: list[dict[str, Any]], loss: str, privacy: dict[str, str]) -> dict[str, Any]:
     return {
-        "profile": "ualf-projection-manifest/v1", "projection_id": f"projection-{profile.split('/')[0]}-demo", "source_profile": "ualf-trace/v1" if source.suffix == ".jsonl" else "ualf-dataset/v1.1",
+        "profile": "ualf-projection-manifest/v1", "projection_id": f"projection-{profile.split('/')[0]}-demo", "source_profile": "ualf-trace/v1.1" if source.suffix == ".jsonl" else "ualf-dataset/v1.2",
         "target": {"profile": profile, "specification": spec, "revision": revision}, "source": digest(source), "outputs": [digest(output)],
-        "exporter": {"name": "build_profiles.py", "version": "1.0.0", "source_revision": "ualf-v1.2", "deterministic": True},
+        "exporter": {"name": "build_profiles.py", "version": "1.1.0", "source_revision": "ualf-v1.3", "deterministic": True},
         "record_mappings": mappings, "omissions": omissions, "loss_class": loss, "privacy": privacy,
         "validator": {"name": "verify_profiles.py", "version": "1.0.0", "result": "passed", "validated_at": NOW}, "generated_at": NOW,
     }
@@ -179,9 +209,9 @@ def build_projections(trace_path: Path) -> None:
     oi = {"profile": "ualf-openinference/v1", "source_trace_sha256": trace_digest, "spans": [{"name": "agent run", "kind": "AGENT", "attributes": {"openinference.span.kind": "AGENT", "session.id": header["run_id"]}}, {"name": "model call", "kind": "LLM", "attributes": {"openinference.span.kind": "LLM", "llm.model_name": "example-agent-model", "ualf.content.mode": "references"}}]}
     lineage = {"eventType": "COMPLETE", "eventTime": NOW, "producer": "https://github.com/vladm3105/aidoc-flow-logging", "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json", "run": {"runId": "0198a8c0-0000-7000-8000-000000000001", "facets": {"ualf_source": {"_producer": "https://github.com/vladm3105/aidoc-flow-logging", "_schemaURL": "https://iplanic.ai/schemas/ualf-openlineage-facet.json?version=1.0.0", "traceSha256": trace_digest}}}, "job": {"namespace": "ualf", "name": "dataset-qualification"}, "inputs": [{"namespace": "ualf", "name": trace_path.name, "facets": {}}], "outputs": [{"namespace": "ualf", "name": "example-manifest.json", "facets": {}}]}
     croissant = {"@context": {"@language": "en", "sc": "https://schema.org/", "cr": "http://mlcommons.org/croissant/"}, "@type": "sc:Dataset", "name": "UALF synthetic conformance dataset", "description": "Synthetic fixture for UALF validators; not representative training inventory.", "license": "https://www.apache.org/licenses/LICENSE-2.0", "version": "1.2.0", "url": "https://github.com/vladm3105/aidoc-flow-logging", "conformsTo": "http://mlcommons.org/croissant/1.0", "distribution": [{"@type": "cr:FileObject", "@id": "manifest", "name": "example-manifest.json", "contentUrl": "example-manifest.json", "sha256": sha256((ROOT / "example-manifest.json").read_bytes()).hexdigest(), "encodingFormat": "application/json"}]}
-    statement = {"_type": "https://in-toto.io/Statement/v1", "subject": [{"name": "example-manifest.json", "digest": {"sha256": sha256((ROOT / "example-manifest.json").read_bytes()).hexdigest()}}], "predicateType": "https://iplanic.ai/attestations/ualf-qualification/v1", "predicate": {"datasetId": "dataset-ualf-demo-001", "profile": "ualf-dataset/v1.1", "qualityReportSha256": sha256((ROOT / "example-quality-report.json").read_bytes()).hexdigest(), "rightsStatus": "cleared", "intendedUses": ["format validation", "integration testing"], "prohibitedUses": ["representation as production training inventory"], "validator": "verify.py/1.1", "validatedAt": NOW, "signerRole": "dataset-producer"}}
+    statement = {"_type": "https://in-toto.io/Statement/v1", "subject": [{"name": "example-manifest.json", "digest": {"sha256": sha256((ROOT / "example-manifest.json").read_bytes()).hexdigest()}}], "predicateType": "https://iplanic.ai/attestations/ualf-qualification/v1", "predicate": {"datasetId": "dataset-ualf-demo-001", "profile": "ualf-dataset/v1.2", "qualityReportSha256": sha256((ROOT / "example-quality-report.json").read_bytes()).hexdigest(), "rightsStatus": "cleared", "intendedUses": ["format validation", "integration testing"], "prohibitedUses": ["representation as production training inventory"], "validator": "verify.py/1.2", "validatedAt": NOW, "signerRole": "dataset-producer"}}
     values = {
-        "otel-genai": ("ualf-otel-genai/v1", "https://opentelemetry.io/docs/specs/semconv/", "semconv-1.43.0+genai@9af08349db7e70b2528accde90bae81d4ebcfa1e", otel, "semantically_lossy", {"policy": "ualf-otel-default/v1", "raw_content": "excluded", "transformation": "hash"}),
+        "otel-genai": ("ualf-otel-genai/v1", "https://github.com/open-telemetry/semantic-conventions-genai/commit/9af08349db7e70b2528accde90bae81d4ebcfa1e", "core-semconv-1.43.0+genai@9af08349db7e70b2528accde90bae81d4ebcfa1e", otel, "semantically_lossy", {"policy": "ualf-otel-default/v1", "raw_content": "excluded", "transformation": "hash"}),
         "openinference": ("ualf-openinference/v1", "https://arize-ai.github.io/openinference/spec/", "59ea35e3b69c830a26c0560825dde00bd43e292d", oi, "semantically_lossy", {"policy": "ualf-openinference-default/v1", "raw_content": "excluded", "transformation": "hash"}),
         "openlineage": ("ualf-openlineage/v1", "https://openlineage.io/spec/", "1.50.0+8470ab1696ee5941d8d3a1e48c2238073eb1fe34", lineage, "semantically_lossy", {"policy": "ualf-lineage/v1", "raw_content": "excluded", "transformation": "hash"}),
         "croissant": ("ualf-croissant/v1", "https://mlcommons.org/croissant/", "1.0+401f6fff81db26a49c0d1704f02bffc4e4fa8fe2", croissant, "aggregate_only", {"policy": "ualf-dataset-discovery/v1", "raw_content": "excluded", "transformation": "aggregate"}),
@@ -195,7 +225,7 @@ def build_projections(trace_path: Path) -> None:
         omissions = [{"source_semantic": "model-visible content", "reason": "privacy", "effect": "content_loss", "details": "Default public example carries references and hashes only."}]
         manifest = projection_manifest(profile, spec, revision, source, output, mappings, omissions, loss, privacy)
         if name in {"croissant", "in-toto"}:
-            manifest["source_profile"] = "ualf-dataset/v1.1"
+            manifest["source_profile"] = "ualf-dataset/v1.2"
         if name == "in-toto":
             from cryptography.hazmat.primitives import serialization
             from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -213,8 +243,8 @@ def build_projections(trace_path: Path) -> None:
 
 def build_registry() -> None:
     write_json(ROOT / "extension-registry.json", {"profile": "ualf-extension-registry/v1", "updated_at": NOW, "extensions": [
-        {"id": "iplanic.ai/capture/v1", "schema_url": "https://iplanic.ai/schemas/ualf-production-capture.schema.json?version=1.0.0", "owner": "UALF maintainers", "contact": "https://github.com/vladm3105/aidoc-flow-logging/issues", "status": "experimental", "requirement_level": "recommended", "applies_to": ["header", "capture"], "privacy_risk": "low", "unknown_consumer_behavior": "preserve", "first_supported_profile": "ualf-trace/v1", "description": "Binds production sampling, delivery, privacy and recovery evidence."},
-        {"id": "iplanic.ai/otel/semconv-genai/2026-08-03", "schema_url": "https://iplanic.ai/schemas/ualf-projection-manifest.schema.json?version=1.0.0", "owner": "UALF maintainers", "contact": "https://github.com/vladm3105/aidoc-flow-logging/issues", "status": "experimental", "requirement_level": "opt_in", "applies_to": ["projection"], "privacy_risk": "sensitive", "unknown_consumer_behavior": "preserve", "first_supported_profile": "ualf-trace/v1", "description": "Version-pinned OpenTelemetry GenAI projection metadata."}
+        {"id": "iplanic.ai/capture/v1.1", "schema_url": "https://iplanic.ai/schemas/ualf/capture/v1.1/report.schema.json", "owner": "UALF maintainers", "contact": "https://github.com/vladm3105/aidoc-flow-logging/issues", "status": "experimental", "requirement_level": "recommended", "applies_to": ["header", "capture"], "privacy_risk": "low", "unknown_consumer_behavior": "preserve", "first_supported_profile": "ualf-trace/v1.1", "description": "Binds production sampling, delivery, privacy and recovery evidence."},
+        {"id": "iplanic.ai/otel/semconv-genai/2026-08-03", "schema_url": "https://iplanic.ai/schemas/ualf/projection-manifest/v1/schema.json", "owner": "UALF maintainers", "contact": "https://github.com/vladm3105/aidoc-flow-logging/issues", "status": "experimental", "requirement_level": "opt_in", "applies_to": ["projection"], "privacy_risk": "sensitive", "unknown_consumer_behavior": "preserve", "first_supported_profile": "ualf-trace/v1.1", "description": "Version-pinned OpenTelemetry GenAI projection metadata."}
     ]})
 
 
@@ -224,10 +254,10 @@ def build_analytics(trace_path: Path) -> None:
     output_dir = ROOT / "analytics"
     outputs = write_jsonl(output_dir, project(trace_path))
     manifest = {
-        "profile": "ualf-projection-manifest/v1", "projection_id": "projection-ualf-analytics-demo", "source_profile": "ualf-trace/v1",
+        "profile": "ualf-projection-manifest/v1", "projection_id": "projection-ualf-analytics-demo", "source_profile": "ualf-trace/v1.1",
         "target": {"profile": "ualf-analytics/v1", "specification": "https://iplanic.ai/specs/ualf-analytics/v1", "revision": "1.0.0"},
         "source": digest(trace_path), "outputs": [digest(path) for path in outputs],
-        "exporter": {"name": "export_analytics.py", "version": "1.0.0", "source_revision": "ualf-v1.2", "deterministic": True},
+        "exporter": {"name": "export_analytics.py", "version": "1.1.0", "source_revision": "ualf-v1.3", "deterministic": True},
         "record_mappings": [{"source": "header", "targets": ["traces"]}, {"source": "events", "targets": ["events", "model_calls", "tool_calls", "evaluations", "content_refs"]}, {"source": "outcome", "targets": ["outcomes"]}],
         "omissions": [{"source_semantic": "raw referenced content", "reason": "privacy", "effect": "content_loss", "details": "Analytical rows retain content digests and provenance only."}],
         "loss_class": "semantically_lossy", "privacy": {"policy": "ualf-analytics-default/v1", "raw_content": "excluded", "transformation": "hash"},
@@ -288,7 +318,7 @@ def main() -> int:
     build_segments(trace)
     from generate_sdk_types import main as generate_sdk_types
     generate_sdk_types()
-    print("Built UALF v1.2 profile examples")
+    print("Built UALF v1.3 profile examples")
     return 0
 
 

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf/rights-attestation/v1/schema.json",
+  "title": "UALF signed rights attestation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "dataset_id", "scope", "reviewer", "reviewed_at", "status", "basis", "content_classes", "intended_uses", "prohibited_uses", "seal"],
+  "properties": {
+    "profile": { "const": "ualf-rights-attestation/v1" },
+    "dataset_id": { "$ref": "#/$defs/id" },
+    "scope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["organization", "project", "environment"],
+      "properties": {
+        "organization": { "$ref": "#/$defs/id" },
+        "project": { "$ref": "#/$defs/id" },
+        "environment": { "type": "string", "minLength": 1 }
+      }
+    },
+    "reviewer": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "organization", "role", "authority_uri"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "organization": { "type": "string", "minLength": 1 },
+        "role": { "type": "string", "minLength": 1 },
+        "authority_uri": { "type": "string", "format": "uri" }
+      }
+    },
+    "reviewed_at": { "type": "string", "format": "date-time" },
+    "status": { "enum": ["cleared", "restricted", "unresolved"] },
+    "basis": { "type": "string", "minLength": 1 },
+    "content_classes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["prompt", "code", "model_output", "tool_output", "observation", "human_content", "third_party"] } },
+    "intended_uses": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "prohibited_uses": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "evidence": { "type": "array", "items": { "$ref": "#/$defs/artifact" } },
+    "seal": { "$ref": "#/$defs/seal" }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "artifact": { "type": "object", "additionalProperties": false, "required": ["path", "sha256", "bytes"], "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" }, "bytes": { "type": "integer", "minimum": 1 } } },
+    "seal": { "type": "object", "additionalProperties": false, "required": ["key_id", "algorithm", "public_key", "document_sha256", "signature"], "properties": { "key_id": { "$ref": "#/$defs/id" }, "algorithm": { "const": "ed25519" }, "public_key": { "type": "string", "minLength": 44, "maxLength": 44 }, "document_sha256": { "$ref": "#/$defs/sha256" }, "signature": { "type": "string", "minLength": 88, "maxLength": 88 } } }
+  }
+}

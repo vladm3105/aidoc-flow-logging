@@ -1,8 +1,10 @@
 # UALF — Unified Agent Log Format
 
-**Trace profile:** `ualf-trace/v1`  
-**Dataset profile:** `ualf-dataset/v1.1`  
-**Status:** Draft v1.2 — 2026-08-03
+**Trace profile:** `ualf-trace/v1.1`
+
+**Dataset profile:** `ualf-dataset/v1.2`
+
+**Status:** Draft v1.3 — 2026-08-03
 
 UALF is an operations-first event format for AI-agent debugging, testing,
 performance analysis, activity tracing, and replay. A commercial dataset is a
@@ -57,21 +59,36 @@ Every event contains:
 | `kind` | `event` |
 | `seq` | Gapless file sequence |
 | `event_id` | Unique event identifier within the run |
-| `run_id`, `trace_id` | Run and distributed-trace correlation |
+| `organization` | Security and ownership scope |
+| `project` | Project scope |
+| `deployment_environment` | Lifecycle environment |
+| `run_id` | Run correlation |
+| `trace_id` | Distributed-trace correlation |
+| `session_id` | Agent-session correlation |
+| `conversation_id` | Optional conversation correlation |
+| `turn_id` | Optional user-turn correlation |
 | `span_id`, `parent_span_id` | Nested/parallel operation correlation |
 | `caused_by` | Optional prior `event_id` that caused this event |
 | `actor` | Agent, human, system, tool, or evaluator identity |
-| `timestamp` | UTC RFC 3339 timestamp |
-| `monotonic_ms` | Milliseconds from run start |
+| `producer` | Producer, process, clock domain, and producer-local sequence |
+| `timestamp` | Producer event time as a UTC RFC 3339 timestamp |
+| `observed_at` | Collector or materializer observation time |
+| `monotonic_ms` | Producer-local offset in its declared clock domain |
 | `type` | Discriminated event type |
 | `data` | Strict type-specific payload |
 | `prev_sha256` | Exact-byte hash of the preceding physical line |
 
-`seq` expresses serialization order. Causality is expressed by spans and
-`caused_by`; consumers MUST NOT infer causality from sequence alone.
+`seq` expresses deterministic materialization order. Causality is expressed by
+spans and `caused_by`; consumers MUST NOT infer causality from sequence, wall
+time, observation time, or offsets from different clock domains alone. Within a
+producer clock domain, `producer.local_seq` is unique and increasing.
 
 ### 2.2 Core event types
 
+- `agent.started` / `agent.completed`
+- `delegation.started` / `delegation.completed`
+- `agent_message.sent` / `agent_message.received`
+- `guardrail.evaluated`, `retrieval.completed`, and `memory.accessed`
 - `model_call.started` / `model_call.completed`
 - `tool_call.started` / `tool_call.completed`
 - `observation.received`
@@ -81,14 +98,21 @@ Every event contains:
 - `human_feedback.recorded`
 - `evaluation.completed`
 
-Started/completed pairs share a `call_id`. A missing completion is observable as
-an interrupted operation rather than an invented latency or result.
+Model and tool started/completed pairs share a `call_id`; agent and delegation
+pairs share an `activity_id`. Every closed trace contains exactly one terminal
+completion for every start. The completion follows its matching start, uses the
+same span, and preserves the call or agent identity. Terminal
+status is `ok`, `error`,
+`cancelled`, `timed_out`, or `interrupted`. A recovery janitor emits
+`interrupted` and identifies itself; it MUST NOT invent usage, cost, output, or
+latency. An unexplained missing completion is non-conforming capture loss.
 
 ## 3. Header
 
 The header identifies the run and captures immutable configuration:
 
-- project, domain, agent identity, agent version, and prompt version;
+- organization, project, deployment environment, domain, stable agent identity,
+  agent version, and prompt version;
 - task goal, category, acceptance criteria, and work order;
 - environment fingerprint and source revision;
 - the complete tool-definition snapshot or a resolvable reference;
@@ -142,13 +166,19 @@ placeholder that appears complete.
 
 Each completed model call records:
 
-- provider, model, parameters, usage, cost, and latency;
+- provider, model, terminal status, parameters, usage, cost, and latency;
 - a `context` array in exact presentation order;
 - role (`system`, `developer`, `user`, `assistant`, `tool`), content reference,
   and optional name/tool-call identifier for every context item;
 - the exact tool-definition snapshot used for that call;
 - output reference or explicit `no_output: true`;
 - finish reason and request/response identifiers when available.
+
+Unavailable usage or cost is represented by `usage_state` or `cost_state`; zero
+MUST mean a measured zero rather than unknown. Failed terminal calls carry a
+structured error and explicit `no_output: true`. File and state changes use an
+operation of `create`, `modify`, or `delete`; absent pre- or post-state is JSON
+`null` only where that operation makes it inapplicable.
 
 A summary such as "system prompt + task context" is not complete context. If
 policy prevents retention, the call is marked `context_complete: false` with a
@@ -216,7 +246,7 @@ For an immutable trace:
 4. Header and seal key ID and algorithm MUST match.
 5. Public keys and signatures use strict, padded standard Base64.
 
-Hash chaining and signing are mandatory for `ualf-dataset/v1.1` exports and
+Hash chaining and signing are mandatory for `ualf-dataset/v1.2` exports and
 optional for an unmaterialized live trace. HMAC is not an exportable signature.
 
 ## 9. Dataset profile
@@ -229,6 +259,8 @@ quality-report.json
 traces/*.jsonl
 blobs/<sha256>
 datasheet.md
+datasheet.json
+evidence/*.json
 ```
 
 `manifest.json` declares dataset ID, trace schema, creation time, export profile,
@@ -236,7 +268,10 @@ intended uses, prohibited uses, splits, trace IDs, licenses, rights summary,
 deduplication, and quality-report digest. Paths MUST be contained normalized
 relative paths. Tar members MUST reject absolute names, parent traversal, links,
 devices, and unsupported member types. The manifest inventories every referenced
-blob and MUST NOT omit or silently add package blobs.
+blob and MUST NOT omit or silently add package blobs. Each trace entry binds its
+capture evidence or explicit synthetic origin, amendment-stream head and cutoff,
+retention policy, revocation state, signed hygiene evidence, signed replay
+evidence, and declared external dependencies.
 
 The manifest is canonically hashed with RFC 8785 (with `seal` absent) and signed
 with Ed25519. This dataset-level seal binds trace membership, splits, rights and
@@ -244,7 +279,9 @@ quality artifacts, blob inventory, and intended-use metadata. Every manifest
 trace MUST be independently schema- and integrity-verified; verifying one sample
 trace is not dataset verification.
 
-`quality-report.json` contains independently derived dimensions:
+`quality-report.json` contains independently derived dimensions. Rights,
+hygiene, and replay status count as verified only when their signed evidence
+documents pass schema, digest, signature, authority, subject, and policy checks:
 
 - `schema_valid`
 - `integrity_verified`
@@ -255,6 +292,12 @@ trace is not dataset verification.
 - `hygiene_status`
 - `export_eligible`
 - optional derived `commercial_tier`
+
+The package also includes a machine-readable datasheet covering collection,
+composition, transformations, privacy and rights, quality, limitations, and
+revocation maintenance. Qualification records exact and near-duplicate methods,
+benchmark contamination, and semantic split leakage. `not_run` is never treated
+as equivalent to no findings.
 
 The commercial tier is a view over these dimensions, never a value chosen by the
 agent. Under `ualf-default-qualification/v1`, the verifier recomputes every
@@ -318,7 +361,7 @@ The machine-readable extension registry and its lifecycle rules are defined by
 
 A structurally valid closed trace does not prove that the live producer retained
 everything it accepted. Production implementations SHOULD emit a separate
-`ualf-capture/v1` report conforming to
+`ualf-capture/v1.1` report conforming to
 `ualf-production-capture.schema.json`. The report binds the run to:
 
 - root-trace sampling decision, probability, policy, and reason;
@@ -363,7 +406,7 @@ successful run.
 
 ## 15. Retention and erasure
 
-`ualf-retention/v1` binds an immutable subject digest to its retention class,
+`ualf-retention/v1.1` binds an immutable subject digest to its retention class,
 expiry, legal-hold status, artifact dependency mode, encryption-key identity,
 erasure method, and dangling-reference behavior. Qualified packages are
 self-contained or explicitly declare externally pinned dependencies and their
@@ -373,6 +416,9 @@ Deletion or cryptographic erasure is recorded with a signed external statement.
 It does not rewrite a sealed trace. Embedded public keys prove signature
 consistency but not organizational authority; production keys MUST be resolved
 through an independently governed registry with rotation and revocation.
+Capture and retention records are themselves canonically hashed and Ed25519
+sealed. Erasure or revocation actions conform to
+`ualf-erasure-statement/v1` and expose propagation across every declared copy.
 
 ## 16. Interoperability projections
 
@@ -453,3 +499,18 @@ targets. Detailed semantic conventions, SLO definitions, alert rules,
 dashboards, and management audit schemas remain roadmap deliverables. This
 section establishes design requirements without presenting those future
 artifacts as implemented.
+
+## 20. Versioning, conformance, and governance
+
+UALF profile identifiers are immutable contracts. `ualf-trace/v1` and
+`ualf-dataset/v1.1` remain historical profiles; the call-lifecycle, distributed
+clock, tenancy, and evidence changes in this draft use `ualf-trace/v1.1` and
+`ualf-dataset/v1.2`. Producers MUST NOT emit new semantics under an older
+identifier.
+
+Schemas use versioned immutable `$id` paths. Normative precedence is: the named
+profile schema for structural rules, this document for cross-record semantics,
+and `AGENT-LOG-DATASET-REQUIREMENTS.md` for deployment and qualification
+requirements. A conflict is a specification defect and validators MUST fail
+closed until a published erratum resolves it. Conformance classes and release
+rules are defined in `CONFORMANCE.md` and `SPECIFICATION-GOVERNANCE.md`.

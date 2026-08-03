@@ -1,11 +1,12 @@
 # UALF Capture and Dataset Requirements
 
 **Scope:** All AI-agent projects using the shared logging layer.  
-**Status:** Draft v1.2 — 2026-08-03
+**Status:** Draft v1.3 — 2026-08-03
 
 **Normative format:** `UNIFIED-AGENT-LOG-FORMAT.md`
 
-Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
+Requirements use the key words defined by BCP 14, RFC 2119 and RFC 8174 only
+when they appear in all capitals, and use stable `DLOG-NNN` identifiers.
 
 ## 1. Operational capture — P0
 
@@ -16,8 +17,10 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
   sequence alone MUST NOT represent causality.
 - **DLOG-004.** Every run MUST close with one outcome. A janitor MAY close an
   interrupted run as `aborted`; that record remains a conforming operational trace.
-- **DLOG-005.** Every model and tool operation MUST record start and completion
-  events sharing a call ID. Interrupted calls remain visible.
+- **DLOG-005.** Every model and tool operation in a closed trace MUST record a
+  start and exactly one terminal completion sharing a call ID. Terminal status
+  MUST distinguish success, error, cancellation, timeout, and interruption. A
+  recovery closer MUST NOT invent unavailable output, usage, cost, or latency.
 - **DLOG-006.** Errors, retries, abandoned branches, and human interventions MUST
   be retained.
 - **DLOG-007.** The logging boundary MUST redact secrets before persistence and
@@ -41,6 +44,12 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
 - **DLOG-016.** Reference positions MUST enforce their semantic content role,
   and inline captured content MUST retain the same origin classification as a
   blob-backed value.
+- **DLOG-017.** Multi-agent runs MUST represent agent lifecycle, delegation,
+  handoff, agent messages, guardrails, retrieval, and memory access as typed
+  events with parent/child run and trace correlation where applicable.
+- **DLOG-018.** Unknown, unavailable, and not-applicable measurements MUST remain
+  distinct from measured zero. File and state events MUST distinguish create,
+  modify, and delete operations.
 
 ## 3. Testing and performance — P0/P1
 
@@ -72,16 +81,21 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
 - **DLOG-040 (P0).** Live capture MUST tolerate concurrent agents and process
   failure without corrupting earlier events.
 - **DLOG-041 (P0).** Materialization MUST reject blank lines, invalid UTF-8,
-  duplicate IDs, sequence gaps, invalid causal references, and unpaired calls.
+  duplicate IDs, sequence gaps, invalid causal references, and starts without a
+  terminal completion. Recovery MAY add an attributable `interrupted` terminal
+  event but MUST NOT fabricate successful completion data.
 - **DLOG-042 (P1).** Closed traces selected for archival or export MUST be
   exact-byte hash-chained and Ed25519 sealed using RFC 8785 JCS.
 - **DLOG-043 (P1).** Signing keys MUST be managed in a registry; header and seal
   identities MUST match. Private keys MUST never enter traces or blobs.
 - **DLOG-044 (P1).** Content references MUST verify digest and declared byte count.
   Machine-detectable media types and archive usability SHOULD be checked.
-- **DLOG-045 (P0).** Wall timestamps MUST be ordered and reconcile with the run
-  start plus monotonic offsets. Call completion MUST follow its matching start,
-  preserve span identity and causality, and have recomputable latency.
+- **DLOG-045 (P0).** Every event MUST identify producer, process, clock domain,
+  producer-local sequence, event time, and observation time. Local monotonic
+  offsets MUST be ordered only within the same clock domain. Materialization
+  MUST define deterministic tie-breaking and MUST NOT impose a false global
+  clock order. Call completion MUST follow its matching start and preserve span
+  identity and causality.
 
 ## 6. Rights and hygiene — export P0
 
@@ -122,6 +136,13 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
 - **DLOG-068.** A dataset export MUST inventory every referenced blob and bind
   trace membership, splits, artifact digests, rights metadata, and intended uses
   with an RFC 8785 canonical Ed25519 manifest seal.
+- **DLOG-069.** Every dataset trace entry MUST bind capture evidence or explicit
+  synthetic origin, amendment head and cutoff, retention policy, revocation
+  state, signed rights, hygiene, and replay evidence, plus every external
+  dependency and its availability commitment. Qualification MUST also record
+  exact and near-duplicate methods, benchmark contamination, semantic split
+  leakage, and a machine-readable datasheet; `not_run` MUST NOT be interpreted
+  as no findings.
 
 ## 8. External interoperability — P1
 
@@ -169,6 +190,9 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
   late delivery without inferring causality from delivery order.
 - **DLOG-086.** Recovery MUST record the last durable checkpoint and known or
   suspected record loss. A janitor closure MUST NOT invent missing results.
+- **DLOG-087.** Capture reports used for qualification MUST be scoped to
+  organization, project, and environment; bind the source trace digest; and be
+  canonically hashed and signed by an authorized capture identity.
 
 ## 10. Amendments, retention, and trust — P0/P1
 
@@ -187,6 +211,10 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
 - **DLOG-095 (P1).** Signing-key registries SHOULD publish validity, rotation,
   revocation, organization, and signer-role metadata. Embedded public keys alone
   MUST NOT be treated as proof of organizational identity.
+- **DLOG-096 (P0).** Retention records MUST be scoped, policy-versioned,
+  canonically hashed, and signed. Revocation or erasure MUST use a signed
+  statement that exposes propagation across canonical objects, projections,
+  caches, backups, and exports.
 
 ## 11. Ecosystem projections and analytics — P1/P2
 
@@ -231,6 +259,9 @@ Requirements use RFC 2119 keywords and stable `DLOG-NNN` identifiers.
   policy decision, and management action MUST be scoped to an organization or
   storage namespace, project, and environment. Development, staging, and
   production MUST use separate storage boundaries and credentials.
+- **DLOG-121 (P0).** The same organization, project, and environment scope MUST
+  be carried by portable authoritative trace, capture, retention, dataset, and
+  management-audit artifacts rather than existing only in transport metadata.
 - **DLOG-116 (P0).** Content deduplication MUST remain within a declared privacy,
   encryption, rights, retention, and residency boundary. Knowledge of a content
   digest MUST NOT grant or imply access to the content.

@@ -1,0 +1,43 @@
+{
+  "profile": "ualf-hygiene/v1",
+  "subject": {
+    "trajectory_id": "traj-2026-08-02-demo-001",
+    "sha256": "7f4a640390689408230b251ac5ca838b1b731face9f331dab140a482229dede8"
+  },
+  "generated_at": "2026-08-02T18:00:10.850Z",
+  "policy": "ualf-demo-export-hygiene/v1",
+  "scanners": [
+    {
+      "category": "pii",
+      "tool": "example-pii-scan",
+      "version": "1.0",
+      "status": "clean"
+    },
+    {
+      "category": "secrets",
+      "tool": "example-secret-scan",
+      "version": "1.0",
+      "status": "clean"
+    },
+    {
+      "category": "license",
+      "tool": "example-license-scan",
+      "version": "1.0",
+      "status": "clean"
+    },
+    {
+      "category": "malware",
+      "tool": "example-malware-scan",
+      "version": "1.0",
+      "status": "clean"
+    }
+  ],
+  "overall": "clean",
+  "seal": {
+    "key_id": "ualf-demo-16b3559f4e4733ce",
+    "algorithm": "ed25519",
+    "public_key": "TjpfA7cxiC9KrpweBmwgbOJl+/Yo4CatczPWHRG28DA=",
+    "document_sha256": "de6d1227d9a44bf7d817fc408881296c6c35984feae54e215ccb3a46c8d98860",
+    "signature": "0rrjVM8NemhfleyKxfIrgXI9byj6Cw32+fxQNkZSc1PxINwSO4Rvsn2liL4oWQKVdQSEcHBcG2uxPZ2QGI5+CA=="
+  }
+}

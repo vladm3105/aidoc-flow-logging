@@ -22,6 +22,10 @@ BLOBS = BASE / "blobs"
 RUN_ID = "run-2026-08-02-demo-001"
 TRACE_ID = "trace-2026-08-02-demo-001"
 TRAJECTORY_ID = "traj-2026-08-02-demo-001"
+SESSION_ID = "session-2026-08-02-demo-001"
+ORGANIZATION = "org-ualf-demo"
+PROJECT = "proj-03"
+DEPLOYMENT_ENVIRONMENT = "test"
 START = datetime(2026, 8, 2, 18, 0, 0, tzinfo=timezone.utc)
 
 
@@ -260,16 +264,34 @@ def main() -> None:
     )
     key_id = f"ualf-demo-{digest(public_key)[:16]}"
 
+    def signed_artifact(name: str, document: dict[str, Any]) -> dict[str, Any]:
+        document_sha256 = digest(rfc8785.dumps(document))
+        document["seal"] = {
+            "key_id": key_id,
+            "algorithm": "ed25519",
+            "public_key": base64.b64encode(public_key).decode("ascii"),
+            "document_sha256": document_sha256,
+            "signature": base64.b64encode(
+                private_key.sign(bytes.fromhex(document_sha256))
+            ).decode("ascii"),
+        }
+        encoded = json.dumps(document, ensure_ascii=False, indent=2).encode("utf-8") + b"\n"
+        return write_artifact(name, encoded)
+
     header = {
         "kind": "header",
         "seq": 1,
-        "schema": "ualf-trace/v1",
+        "schema": "ualf-trace/v1.1",
+        "organization": ORGANIZATION,
         "run_id": RUN_ID,
         "trace_id": TRACE_ID,
+        "session_id": SESSION_ID,
         "trajectory_id": TRAJECTORY_ID,
-        "project": "proj-03",
+        "project": PROJECT,
+        "deployment_environment": DEPLOYMENT_ENVIRONMENT,
         "domain": "software_dev",
         "agent": {
+            "id": "implementation-agent-1",
             "framework": "aidoc-flow",
             "framework_version": "2.4.1",
             "role": "implementation-agent",
@@ -346,12 +368,23 @@ def main() -> None:
             "kind": "event",
             "seq": len(events) + 2,
             "event_id": event_id,
+            "organization": ORGANIZATION,
+            "project": PROJECT,
+            "deployment_environment": DEPLOYMENT_ENVIRONMENT,
             "run_id": RUN_ID,
             "trace_id": TRACE_ID,
+            "session_id": SESSION_ID,
             "span_id": span,
             "parent_span_id": parent,
             "actor": {"type": actor_type, "id": actor_id},
+            "producer": {
+                "id": actor_id,
+                "process_id": "process-demo-1",
+                "clock_id": "clock-demo-1",
+                "local_seq": len(events) + 1,
+            },
             "timestamp": timestamp(ms),
+            "observed_at": timestamp(ms + 1),
             "monotonic_ms": ms,
             "type": event_type,
             "data": data,
@@ -360,6 +393,16 @@ def main() -> None:
             event["caused_by"] = caused_by
         events.append(event)
 
+    add(
+        "evt-agent-start",
+        "agent.started",
+        0,
+        "span-run",
+        "system",
+        "runtime",
+        {"activity_id": "agent-activity-1", "agent_id": "implementation-agent-1", "status": "started"},
+        parent=None,
+    )
     add(
         "evt-run-observation",
         "observation.received",
@@ -460,6 +503,7 @@ def main() -> None:
             "call_id": "call-model-1",
             "provider": "example-ai",
             "model": "example-agent-model",
+            "status": "ok",
             "usage": {"tokens_in": 410, "tokens_out": 55},
             "cost_usd": 0.0012,
             "latency_ms": 1650,
@@ -566,6 +610,7 @@ def main() -> None:
         "system",
         "workspace-monitor",
         {
+            "operation": "modify",
             "path": "src/ledger/lease.py",
             "pre_sha256": digest(source_before.encode()),
             "post_sha256": digest(source_after.encode()),
@@ -628,6 +673,17 @@ def main() -> None:
         "evidence_ref": evidence_ref,
     }
     add(
+        "evt-agent-complete",
+        "agent.completed",
+        10390,
+        "span-run",
+        "system",
+        "runtime",
+        {"activity_id": "agent-activity-1", "agent_id": "implementation-agent-1", "status": "ok"},
+        parent=None,
+        caused_by="evt-test-end-2",
+    )
+    add(
         "evt-evaluation",
         "evaluation.completed",
         10400,
@@ -648,9 +704,20 @@ def main() -> None:
     outcome = {
         "kind": "outcome",
         "seq": len(records) + 1,
+        "organization": ORGANIZATION,
+        "project": PROJECT,
+        "deployment_environment": DEPLOYMENT_ENVIRONMENT,
         "run_id": RUN_ID,
         "trace_id": TRACE_ID,
+        "session_id": SESSION_ID,
+        "producer": {
+            "id": "runtime",
+            "process_id": "process-demo-1",
+            "clock_id": "clock-demo-1",
+            "local_seq": len(events) + 1,
+        },
         "timestamp": timestamp(10450),
+        "observed_at": timestamp(10451),
         "monotonic_ms": 10450,
         "prev_sha256": digest(lines[-1]),
         "status": "success",
@@ -680,24 +747,62 @@ def main() -> None:
     lines.append(compact(outcome))
     trajectory_path = BASE / "example-trajectory.jsonl"
     trajectory_path.write_bytes(b"\n".join(lines) + b"\n")
+    trace_sha256 = digest(trajectory_path.read_bytes())
+
+    hygiene_artifact = signed_artifact(
+        "example-hygiene-report.json",
+        {
+            "profile": "ualf-hygiene/v1",
+            "subject": {"trajectory_id": TRAJECTORY_ID, "sha256": trace_sha256},
+            "generated_at": timestamp(10850),
+            "policy": "ualf-demo-export-hygiene/v1",
+            "scanners": [
+                {"category": "pii", "tool": "example-pii-scan", "version": "1.0", "status": "clean"},
+                {"category": "secrets", "tool": "example-secret-scan", "version": "1.0", "status": "clean"},
+                {"category": "license", "tool": "example-license-scan", "version": "1.0", "status": "clean"},
+                {"category": "malware", "tool": "example-malware-scan", "version": "1.0", "status": "clean"},
+            ],
+            "overall": "clean",
+        },
+    )
+    replay_report_artifact = signed_artifact(
+        "example-replay-verification.json",
+        {
+            "profile": "ualf-replay-verification/v1",
+            "subject": {"trajectory_id": TRAJECTORY_ID, "sha256": trace_sha256},
+            "runner": {"name": "ualf-replay", "version": "1.0", "source_revision": "ualf-v1.3"},
+            "executed_at": timestamp(10480),
+            "declared_level": "stubbed",
+            "verified_level": "stubbed",
+            "result_match": True,
+            "comparison_policy": "exact-recorded-responses/v1",
+            "calls": {"model": 1, "tool": 4, "matched": 5},
+        },
+    )
 
     quality = {
-        "schema": "ualf-quality/v1.1",
+        "schema": "ualf-quality/v1.2",
         "dataset_id": "ualf-example-dataset-001",
         "generated_at": timestamp(11000),
         "generator": "ualf-example-builder/v1",
-        "qualification_policy": "ualf-default-qualification/v1",
+        "qualification_policy": "ualf-default-qualification/v1.1",
         "traces": [
             {
                 "trajectory_id": TRAJECTORY_ID,
-                "trace_sha256": digest(trajectory_path.read_bytes()),
+                "trace_sha256": trace_sha256,
                 "schema_valid": True,
                 "integrity_verified": True,
+                "capture_completeness": "synthetic",
                 "context_completeness": "complete",
                 "evidence_quality": "artifact",
                 "replay_quality": "stubbed",
                 "rights_status": "cleared",
                 "hygiene_status": "clean",
+                "rights_evidence_verified": True,
+                "hygiene_evidence_verified": True,
+                "replay_evidence_verified": True,
+                "revocation_status": "active",
+                "amendment_cutoff": timestamp(11000),
                 "export_eligible": True,
                 "commercial_tier": "B",
                 "findings": [
@@ -727,22 +832,42 @@ def main() -> None:
     )
     datasheet_artifact = write_artifact("datasheet.md", datasheet_bytes)
 
-    rights_bytes = (
+    rights_artifact = signed_artifact(
+        "rights-attestation.json",
+        {
+            "profile": "ualf-rights-attestation/v1",
+            "dataset_id": "ualf-example-dataset-001",
+            "scope": {"organization": ORGANIZATION, "project": PROJECT, "environment": DEPLOYMENT_ENVIRONMENT},
+            "reviewer": {"id": "example-human-reviewer", "organization": "UALF demo", "role": "data-rights-reviewer", "authority_uri": "https://example.invalid/authorities/data-rights-reviewer"},
+            "reviewed_at": timestamp(10900),
+            "status": "cleared",
+            "basis": "All fixture content is synthetic and generated by the example author.",
+            "content_classes": ["prompt", "code", "model_output", "tool_output", "observation"],
+            "intended_uses": ["format evaluation", "tool-use pipeline integration testing"],
+            "prohibited_uses": [],
+            "evidence": [],
+        },
+    )
+
+    machine_datasheet_artifact = write_artifact(
+        "example-datasheet.json",
         json.dumps(
             {
-                "schema": "ualf-rights-attestation/v1",
+                "profile": "ualf-datasheet/v1",
                 "dataset_id": "ualf-example-dataset-001",
-                "reviewed_by": "example-human-reviewer",
-                "reviewed_at": timestamp(10900),
-                "status": "cleared",
-                "basis": "All fixture content is synthetic and generated by the example author.",
+                "generated_at": timestamp(11000),
+                "collection": {"method": "deterministic synthetic fixture", "period": "2026-08-02"},
+                "composition": {"traces": 1, "domains": ["software_dev"], "model_generated": True},
+                "transformations": ["none"],
+                "rights_and_privacy": {"rights": "cleared", "pii": "none", "consent": "not_applicable_synthetic"},
+                "quality": {"near_duplicate_method": "minhash-jaccard/v1", "benchmark_contamination": "none_detected", "split_leakage": "none_detected"},
+                "limitations": ["Single synthetic trace; not representative training inventory."],
+                "maintenance": {"contact": "https://github.com/vladm3105/aidoc-flow-logging/issues", "revocation_process": "Publish a signed revocation statement and exclude the trace from future snapshots."},
             },
             ensure_ascii=False,
             indent=2,
-        ).encode("utf-8")
-        + b"\n"
+        ).encode("utf-8") + b"\n",
     )
-    rights_artifact = write_artifact("rights-attestation.json", rights_bytes)
 
     dedup_bytes = (
         json.dumps(
@@ -752,6 +877,10 @@ def main() -> None:
                 "trace_count": 1,
                 "unique_trace_count": 1,
                 "exact_duplicates_remaining": 0,
+                "near_duplicate_method": "minhash-jaccard/v1",
+                "near_duplicates_reviewed": 0,
+                "benchmark_contamination": "none_detected",
+                "split_leakage": "none_detected",
             },
             indent=2,
         ).encode("utf-8")
@@ -770,10 +899,10 @@ def main() -> None:
     ]
 
     manifest = {
-        "schema": "ualf-dataset/v1.1",
+        "schema": "ualf-dataset/v1.2",
         "dataset_id": "ualf-example-dataset-001",
         "created_at": timestamp(11000),
-        "trace_schema": "ualf-trace/v1",
+        "trace_schema": "ualf-trace/v1.1",
         "export_profile": "full",
         "intended_uses": ["format evaluation", "tool-use pipeline integration testing"],
         "prohibited_uses": [],
@@ -781,8 +910,15 @@ def main() -> None:
             {
                 "trajectory_id": TRAJECTORY_ID,
                 "path": "example-trajectory.jsonl",
-                "sha256": digest(trajectory_path.read_bytes()),
+                "sha256": trace_sha256,
                 "bytes": trajectory_path.stat().st_size,
+                "capture": {"mode": "synthetic", "generator": "build_example.py", "reason": "Deterministic conformance fixture; no live producer loss boundary exists."},
+                "amendments": {"state": "none", "as_of": timestamp(11000), "count": 0},
+                "retention": {"mode": "package", "retention_class": "synthetic-fixture", "expires_at": None, "erasure_method": "retain"},
+                "revocation": {"status": "active", "checked_at": timestamp(11000), "authority": "UALF demo maintainer"},
+                "hygiene_evidence": hygiene_artifact,
+                "replay_evidence": replay_report_artifact,
+                "external_dependencies": [],
             }
         ],
         "blobs": blob_entries,
@@ -798,10 +934,15 @@ def main() -> None:
         "deduplication": {
             "method": "exact-sha256/v1",
             "exact_duplicates_remaining": 0,
+            "near_duplicate_method": "minhash-jaccard/v1",
+            "near_duplicates_reviewed": 0,
+            "benchmark_contamination": "none_detected",
+            "split_leakage": "none_detected",
             "report": dedup_artifact,
         },
         "quality_report": quality_artifact,
         "datasheet": datasheet_artifact,
+        "machine_datasheet": machine_datasheet_artifact,
         "provenance": {
             "signing": {
                 "key_id": key_id,

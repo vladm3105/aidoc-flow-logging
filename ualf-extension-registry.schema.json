@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://iplanic.ai/schemas/ualf-extension-registry.schema.json",
+  "$id": "https://iplanic.ai/schemas/ualf/extension-registry/v1/schema.json",
   "title": "UALF extension registry",
   "type": "object",
   "additionalProperties": false,
@@ -15,7 +15,7 @@
         "required": ["id", "schema_url", "owner", "contact", "status", "requirement_level", "applies_to", "privacy_risk", "unknown_consumer_behavior", "first_supported_profile"],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9.-]+/.+$" },
-          "schema_url": { "type": "string", "format": "uri", "pattern": "(/tags/|/releases/|/[a-f0-9]{7,64}/|[?&]version=)" },
+          "schema_url": { "type": "string", "format": "uri", "pattern": "(/tags/|/releases/|/v[0-9]+(?:\\.[0-9]+)*/|/[a-f0-9]{7,64}/|[?&]version=)" },
           "owner": { "type": "string", "minLength": 1 },
           "contact": { "type": "string", "format": "uri" },
           "status": { "enum": ["experimental", "stable", "deprecated", "retired"] },

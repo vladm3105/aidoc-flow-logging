@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf/hygiene/v1/report.schema.json",
+  "title": "UALF signed hygiene report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "subject", "generated_at", "policy", "scanners", "overall", "seal"],
+  "properties": {
+    "profile": { "const": "ualf-hygiene/v1" },
+    "subject": { "type": "object", "additionalProperties": false, "required": ["trajectory_id", "sha256"], "properties": { "trajectory_id": { "type": "string", "minLength": 3 }, "sha256": { "$ref": "#/$defs/sha256" } } },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "policy": { "type": "string", "minLength": 1 },
+    "scanners": { "type": "array", "minItems": 4, "items": { "type": "object", "additionalProperties": false, "required": ["category", "tool", "version", "status"], "properties": { "category": { "enum": ["pii", "secrets", "license", "malware", "policy"] }, "tool": { "type": "string", "minLength": 1 }, "version": { "type": "string", "minLength": 1 }, "status": { "enum": ["clean", "findings_resolved", "findings", "not_run"] }, "evidence_ref": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" } } } },
+    "overall": { "enum": ["clean", "findings", "not_run"] },
+    "seal": { "$ref": "#/$defs/seal" }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "seal": { "type": "object", "additionalProperties": false, "required": ["key_id", "algorithm", "public_key", "document_sha256", "signature"], "properties": { "key_id": { "$ref": "#/$defs/id" }, "algorithm": { "const": "ed25519" }, "public_key": { "type": "string", "minLength": 44, "maxLength": 44 }, "document_sha256": { "$ref": "#/$defs/sha256" }, "signature": { "type": "string", "minLength": 88, "maxLength": 88 } } }
+  }
+}

@@ -5,8 +5,8 @@
   "transformed_at": "2026-08-02T18:00:10.470Z",
   "source": {
     "path": "example-trajectory.jsonl",
-    "sha256": "13d9fd97f094cdbe7ac12761ddc881144f2f95106ae0de99fee9e58b886cc1c0",
-    "bytes": 15743
+    "sha256": "7f4a640390689408230b251ac5ca838b1b731face9f331dab140a482229dede8",
+    "bytes": 22062
   },
   "source_context": {
     "path": "example-aat-source.json",
@@ -15,7 +15,7 @@
   },
   "export": {
     "path": "example-aat.jsonl",
-    "sha256": "665f982676484e2d7dcf9e82a6c40df21f190fe6f22c51d939dbf3dfa1fa0d41",
+    "sha256": "91f804fbd738e19a011f67c6d1338a034ab40eccc86ae88c0434ae945cb189db",
     "bytes": 1158,
     "record_count": 2,
     "session_ids": [
@@ -56,11 +56,15 @@
       "record_id": "eeb190b7-72ce-46a5-9d89-af97c131dc39",
       "session_id": "44caeacd-3416-4e4f-a226-f47ff21f605d",
       "source_records": [
-        "seq:18"
+        "seq:20"
       ]
     }
   ],
   "omissions": [
+    {
+      "source_record": "evt-agent-start",
+      "reason": "No lossless AAT draft-00 action record in the minimal lifecycle projection."
+    },
     {
       "source_record": "evt-run-observation",
       "reason": "No lossless AAT draft-00 action record in the minimal lifecycle projection."
@@ -122,21 +126,25 @@
       "reason": "No lossless AAT draft-00 action record in the minimal lifecycle projection."
     },
     {
+      "source_record": "evt-agent-complete",
+      "reason": "No lossless AAT draft-00 action record in the minimal lifecycle projection."
+    },
+    {
       "source_record": "evt-evaluation",
       "reason": "No lossless AAT draft-00 action record in the minimal lifecycle projection."
     }
   ],
   "integrity": {
-    "ualf_chain_sha256": "a14802c34481e3955260ab74bafd59979a1f4ee0a6b3b85ba787f9291a4ba295",
+    "ualf_chain_sha256": "fee69343d62cb00d4ce9f362deb95c1e0845c35009ab0ac8496a7d8ed4e426b2",
     "aat_session_hashes": {
-      "44caeacd-3416-4e4f-a226-f47ff21f605d": "e9626aa7ab5ac10a215c64a8169b353a01b1d4d5fd15c97e3d4b7af4eb2fe6db"
+      "44caeacd-3416-4e4f-a226-f47ff21f605d": "1e2b48d9a046b90bf0708cfc0f9523f3b22a0c322556b3072b8a8fb78e07a1f1"
     }
   },
   "seal": {
-    "manifest_sha256": "8cae58dbec9e068d424f4bf4dec63e95bc63ab043a7bb9f5690d142da3291c35",
+    "manifest_sha256": "9c22a2dca34782bad90b70d70f521b0f393768f8b47592bd03156b3f53bf351f",
     "key_id": "ualf-aat-example-604147dd15884720",
     "algorithm": "ed25519",
     "public_key": "J6ZwAen_rhRzc3o-X1Yz_YTFr-Gxs4_bBGQr2DIf8EA",
-    "signature": "2MVdnqZMZBIaycsso7Tmdp2gzs1R9lozMzT5kic1ylftOtwvJnvwdCkAsgi8R1RsiRpBaMrhCxPM77uNSNL-BQ"
+    "signature": "Q1PtvQolCPZZLt9NExeZ0a1vigI6OkG2ra9XnWSuYRxpP-0swlOZbIMdZxsOLsCuEMhhRt9W7DAmxpbrZNIgCA"
   }
 }

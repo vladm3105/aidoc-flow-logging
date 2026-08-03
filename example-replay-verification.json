@@ -1,0 +1,29 @@
+{
+  "profile": "ualf-replay-verification/v1",
+  "subject": {
+    "trajectory_id": "traj-2026-08-02-demo-001",
+    "sha256": "7f4a640390689408230b251ac5ca838b1b731face9f331dab140a482229dede8"
+  },
+  "runner": {
+    "name": "ualf-replay",
+    "version": "1.0",
+    "source_revision": "ualf-v1.3"
+  },
+  "executed_at": "2026-08-02T18:00:10.480Z",
+  "declared_level": "stubbed",
+  "verified_level": "stubbed",
+  "result_match": true,
+  "comparison_policy": "exact-recorded-responses/v1",
+  "calls": {
+    "model": 1,
+    "tool": 4,
+    "matched": 5
+  },
+  "seal": {
+    "key_id": "ualf-demo-16b3559f4e4733ce",
+    "algorithm": "ed25519",
+    "public_key": "TjpfA7cxiC9KrpweBmwgbOJl+/Yo4CatczPWHRG28DA=",
+    "document_sha256": "34719e02bfa2702dda2e422ee52c34596afeffac4505b54f0c9c7565c6d52949",
+    "signature": "EYRpnvX7AYgdl0xKQAc+Uf3LE7FanW9FPaGP7aDYSVyRMqWRlr1R/xgcE9AAXY7Io00neCTykJoJVeG5/CHHAQ=="
+  }
+}

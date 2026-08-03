@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf/replay-verification/v1/report.schema.json",
+  "title": "UALF signed replay verification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "subject", "runner", "executed_at", "declared_level", "verified_level", "result_match", "comparison_policy", "calls", "seal"],
+  "properties": {
+    "profile": { "const": "ualf-replay-verification/v1" },
+    "subject": { "type": "object", "additionalProperties": false, "required": ["trajectory_id", "sha256"], "properties": { "trajectory_id": { "type": "string", "minLength": 3 }, "sha256": { "$ref": "#/$defs/sha256" } } },
+    "runner": { "type": "object", "additionalProperties": false, "required": ["name", "version", "source_revision"], "properties": { "name": { "type": "string", "minLength": 1 }, "version": { "type": "string", "minLength": 1 }, "source_revision": { "type": "string", "minLength": 1 } } },
+    "executed_at": { "type": "string", "format": "date-time" },
+    "declared_level": { "$ref": "#/$defs/level" },
+    "verified_level": { "$ref": "#/$defs/level" },
+    "result_match": { "type": "boolean" },
+    "comparison_policy": { "type": "string", "minLength": 1 },
+    "calls": { "type": "object", "additionalProperties": false, "required": ["model", "tool", "matched"], "properties": { "model": { "type": "integer", "minimum": 0 }, "tool": { "type": "integer", "minimum": 0 }, "matched": { "type": "integer", "minimum": 0 } } },
+    "seal": { "$ref": "#/$defs/seal" }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{2,127}$" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "level": { "enum": ["none", "trace", "stubbed", "tool_reexecution", "full_reexecution", "outcome_reproduced"] },
+    "seal": { "type": "object", "additionalProperties": false, "required": ["key_id", "algorithm", "public_key", "document_sha256", "signature"], "properties": { "key_id": { "$ref": "#/$defs/id" }, "algorithm": { "const": "ed25519" }, "public_key": { "type": "string", "minLength": 44, "maxLength": 44 }, "document_sha256": { "$ref": "#/$defs/sha256" }, "signature": { "type": "string", "minLength": 88, "maxLength": 88 } } }
+  }
+}

@@ -2,7 +2,7 @@
 
 **Manifest profile:** `ualf-projection-manifest/v1`
 
-**Status:** Draft v1.2 — 2026-08-03
+**Status:** Draft v1.3 — 2026-08-03
 
 UALF is the authoritative evidence record. Every interoperability artifact is a
 derived, version-pinned projection with a manifest that binds source and output
@@ -14,8 +14,11 @@ external project.
 
 **Profile identifier:** `ualf-otel-genai/v1`
 
-**Target:** OpenTelemetry Semantic Conventions `1.43.0` plus the exact GenAI
-semantic-conventions revision recorded by the projection manifest.
+**Target:** OpenTelemetry core Semantic Conventions `1.43.0` plus the exact
+revision from the separate
+[`semantic-conventions-genai`](https://github.com/open-telemetry/semantic-conventions-genai)
+repository recorded by immutable commit URL in the projection manifest. A core
+semantic-conventions URL alone is not a complete GenAI target.
 
 The exporter uses W3C-compatible 16-byte trace IDs and 8-byte span IDs. When a
 UALF identifier does not already satisfy those constraints, it derives an ID as
@@ -26,7 +29,7 @@ source-to-output mapping in the manifest. A collision aborts export.
 
 | UALF | OpenTelemetry |
 | --- | --- |
-| `project` | `service.namespace` |
+| organization/project/environment | governed scope attributes |
 | `agent.framework` | `gen_ai.agent.framework` extension attribute |
 | `agent.agent_version` | `service.version` |
 | `environment.source_revision` | `vcs.ref.head.revision` where supported |

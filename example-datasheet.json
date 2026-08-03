@@ -1,0 +1,36 @@
+{
+  "profile": "ualf-datasheet/v1",
+  "dataset_id": "ualf-example-dataset-001",
+  "generated_at": "2026-08-02T18:00:11.000Z",
+  "collection": {
+    "method": "deterministic synthetic fixture",
+    "period": "2026-08-02"
+  },
+  "composition": {
+    "traces": 1,
+    "domains": [
+      "software_dev"
+    ],
+    "model_generated": true
+  },
+  "transformations": [
+    "none"
+  ],
+  "rights_and_privacy": {
+    "rights": "cleared",
+    "pii": "none",
+    "consent": "not_applicable_synthetic"
+  },
+  "quality": {
+    "near_duplicate_method": "minhash-jaccard/v1",
+    "benchmark_contamination": "none_detected",
+    "split_leakage": "none_detected"
+  },
+  "limitations": [
+    "Single synthetic trace; not representative training inventory."
+  ],
+  "maintenance": {
+    "contact": "https://github.com/vladm3105/aidoc-flow-logging/issues",
+    "revocation_process": "Publish a signed revocation statement and exclude the trace from future snapshots."
+  }
+}
