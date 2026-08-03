@@ -16,6 +16,9 @@ qualification profile for commercial trajectory datasets.
   observations, decisions, changes, errors, feedback, evaluations, and outcomes.
 - **`ualf-dataset/v1.1`** packages selected traces with rights, hygiene, evidence,
   replay, deduplication, splits, quality dimensions, and an Ed25519 seal.
+- **`aat-aligned/draft-00`** documents a one-way, privacy-minimized audit
+  projection to `draft-sharif-agent-audit-trail-00` without replacing UALF's
+  richer operational source record.
 
 UALF JSONL is the immutable source/interchange representation. Buyers may use
 derived Parquet, SFT conversation, preference-pair, RL episode, or benchmark-task
@@ -27,6 +30,7 @@ exports.
 | --- | --- |
 | `UNIFIED-AGENT-LOG-FORMAT.md` | Normative trace and dataset specification |
 | `AGENT-LOG-DATASET-REQUIREMENTS.md` | Capture and export requirements |
+| `AAT-COMPATIBILITY.md` | Version-pinned AAT draft-00 mapping and claim rules |
 | `ualf-trajectory.schema.json` | Header, event, and outcome schema |
 | `ualf-tool-definitions.schema.json` | Captured action-space schema |
 | `ualf-dataset-manifest.schema.json` | Dataset package manifest schema |
@@ -98,11 +102,16 @@ seal, and recomputed qualification fields.
 4. Add stubbed replay, then stronger replay only where it creates operational value.
 5. Materialize and sign closed traces selected for archival or export.
 6. Run dataset qualification and generate buyer-specific formats.
+7. Generate privacy-minimized audit projections only from closed, verified
+   traces, and pin every external compatibility claim to an exact specification
+   version.
 
 ## Status
 
 Draft v1.1 reference implementation (2026-08-02). `aidoc-traj/v1` was
 experimental and is superseded by the operations-first `ualf-trace/v1` design.
+The AAT compatibility document is informative and targets an individual IETF
+Internet-Draft; it is not an IETF endorsement or a regulatory certification.
 
 ## License
 
