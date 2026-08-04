@@ -17,6 +17,7 @@
     {"profile": "ualf-projection-manifest/v1", "id": "https://iplanic.ai/schemas/ualf/projection-manifest/v1/schema.json", "path": "ualf-projection-manifest.schema.json"},
     {"profile": "ualf-index/v1", "id": "https://iplanic.ai/schemas/ualf/index/v1/schema.json", "path": "ualf-index.schema.json"},
     {"profile": "ualf-segments/v1", "id": "https://iplanic.ai/schemas/ualf/segments/v1/manifest.schema.json", "path": "ualf-segment-manifest.schema.json"},
-    {"profile": "ualf-tools/v1", "id": "https://iplanic.ai/schemas/ualf/tools/v1/schema.json", "path": "ualf-tool-definitions.schema.json"}
+    {"profile": "ualf-tools/v1", "id": "https://iplanic.ai/schemas/ualf/tools/v1/schema.json", "path": "ualf-tool-definitions.schema.json"},
+    {"profile": "ualf-projection-target-catalog/v1", "id": "https://iplanic.ai/schemas/ualf/projection-target-catalog/v1/schema.json", "path": "ualf-projection-target-catalog.schema.json"}
   ]
 }

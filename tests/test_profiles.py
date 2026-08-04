@@ -65,6 +65,19 @@ class ProfileGoldenVectors(unittest.TestCase):
             schema = json.loads((BASE / entry["path"]).read_text(encoding="utf-8"))
             self.assertEqual(entry["id"], schema["$id"], entry["path"])
 
+    def test_projection_target_catalog_is_valid(self) -> None:
+        catalog = json.loads(
+            (BASE / "projection-target-catalog.json").read_text(encoding="utf-8")
+        )
+        self.assertFalse(
+            validate(catalog, "ualf-projection-target-catalog.schema.json")
+        )
+        target = catalog["targets"][0]
+        self.assertEqual(target["lifecycle"], "frozen")
+        self.assertTrue(target["optional"])
+        for artifact in target["artifacts"]:
+            self.assertTrue((BASE / artifact).is_file(), artifact)
+
     def test_complete_capture_rejects_dropped_records(self) -> None:
         capture = json.loads((BASE / "example-production-capture.json").read_text(encoding="utf-8"))
         capture["delivery"]["dropped_records"] = 1

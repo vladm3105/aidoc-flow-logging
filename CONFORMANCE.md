@@ -25,6 +25,10 @@ they appear in all capitals.
 6. **Projection conformance** validates source/output digests, immutable target
    revision, mappings, omissions, privacy transformation, and loss class.
 
+Projection conformance is target-specific and does not make an optional
+projection part of base UALF conformance. In particular, the frozen AAT
+draft-00 projection may be omitted by a conforming UALF implementation.
+
 Claims MUST NOT promote a lower class to a higher one. In particular,
 `schema-valid`, `package-valid`, and `commercially qualified` are different
 claims. Missing required evidence fails closed; `not_run` is not equivalent to a

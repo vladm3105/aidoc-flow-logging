@@ -1,6 +1,7 @@
-# UALF Compatibility with the Agent Audit Trail Internet-Draft
+# Frozen UALF Projection to the Agent Audit Trail Internet-Draft
 
-**Status:** Informative compatibility profile  
+**Status:** Frozen, optional, informative projection
+
 **Target:** `draft-sharif-agent-audit-trail-00`  
 **Target date:** 2026-03-29  
 **UALF source profile:** `ualf-trace/v1.1`
@@ -10,8 +11,9 @@
 The Agent Audit Trail (AAT) document is an individual IETF Internet-Draft. It is
 work in progress, is not endorsed by the IETF, and has no formal standing in the
 IETF standards process. This profile therefore pins every compatibility claim to
-`draft-sharif-agent-audit-trail-00`. A later AAT draft is a different target and
-MUST be reviewed before a producer updates its claim.
+`draft-sharif-agent-audit-trail-00`. This repository does not track later AAT
+revisions and makes no commitment to implement them. A later draft is a
+different target and MUST NOT silently change this frozen profile.
 
 UALF is the authoritative, operations-first source record. An AAT document is a
 privacy-minimized audit projection derived from a closed UALF trace:
@@ -20,12 +22,27 @@ privacy-minimized audit projection derived from a closed UALF trace:
 UALF trace
     -> debugging, testing, evaluation, replay, and dataset qualification
     -> version-pinned AAT audit projection
-       -> regulatory review and conventional audit-log integrations
+       -> customer-requested historical audit integrations (non-certifying)
 ```
 
 This profile does not make AAT the UALF wire format. It does not claim that AAT
 publication, UALF conformance, or this mapping proves compliance with any law,
 certification program, or management-system standard.
+
+The profile is retained for reproducible historical exports and for buyers or
+integrators that explicitly request this exact draft target. It is not part of
+UALF base-profile conformance, and an implementation MAY omit it entirely.
+`projection-target-catalog.json` is the machine-readable authority for this
+target's source profile, lifecycle, optionality, claims, and maintenance scope.
+
+### 1.1 Concepts incorporated into UALF
+
+UALF has independently incorporated the useful general design ideas evaluated
+through the AAT review: explicit agent and session identity, lifecycle and
+action classification, outcome tracking, tamper-evident chains, signed export
+evidence, privacy-minimized audit projections, retention and erasure records,
+and exact-version compatibility claims. Their UALF definitions are authoritative
+and do not depend on continued AAT compatibility.
 
 ## 2. Compatibility claims
 
@@ -189,21 +206,38 @@ records the action. An AAT tombstone projection MAY be produced
 only when the implementation documents and validates the draft-00 chain-break
 exception; it does not retroactively modify the UALF source artifact.
 
-## 9. Versioning and evolution
+## 9. Frozen support and re-evaluation
 
 The draft-00 mapping is isolated from the base UALF schema. Implementations SHOULD
 place optional source metadata under a namespaced UALF extension such as
 `iplanic.ai/aat/draft-sharif-agent-audit-trail-00` until fields demonstrate stable,
 general operational value.
 
-When AAT changes, maintainers MUST:
+Maintenance of this profile is limited to security fixes, verifier correctness,
+and preservation of deterministic behavior for `ualf-trace/v1.1` against the
+pinned draft-00 text. Later AAT or UALF revisions do not create implementation
+work for this projection, and future UALF profiles are not required to export to
+AAT.
 
-1. add a new compatibility profile instead of silently changing draft-00;
-2. publish a mapping and behavior-change report;
-3. add positive and negative conformance vectors;
-4. preserve the old exporter for reproducible historical audits; and
-5. reconsider promotion of stable, broadly useful fields into a future UALF
-   base-profile version.
+A behavior-preserving implementation fix MUST increment the affected component
+version and record the change. A fix that changes schemas, mapping semantics, or
+the accepted artifact set MUST use a new projection identifier or withdraw the
+affected claim; it MUST NOT silently redefine this frozen target.
+
+Maintainers MAY propose a new, separately versioned target only after an explicit
+governance decision triggered by at least one of these conditions:
+
+1. adoption by an IETF working group or publication as an RFC;
+2. material customer, buyer, or ecosystem demand;
+3. a demonstrated interoperability requirement not met by UALF or another
+   maintained projection; or
+4. a security or regulatory development that makes a new target materially
+   useful.
+
+Approval of a new target requires a new profile identifier, mapping and
+behavior-change report, positive and negative conformance vectors, and an
+explicit maintenance owner. The frozen draft-00 exporter remains available for
+reproducible historical audits unless a security issue requires withdrawal.
 
 The supplied `aat-draft-00.schema.json` and `verify_aat.py` additionally enforce
 UUIDv4 syntax, required action fields, monotonic timestamps, the 256 KB hard

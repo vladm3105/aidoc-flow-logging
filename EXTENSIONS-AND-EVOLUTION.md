@@ -48,6 +48,10 @@ An extension may be promoted into a future base profile only after:
 4. a migration mapping; and
 5. a compatibility review against existing projections.
 
+A compatibility review records impact; it does not require a new base profile
+to preserve a frozen external projection. The frozen AAT draft-00 projection is
+bound to `ualf-trace/v1.1` and does not constrain later UALF profiles.
+
 Deprecation MUST name a replacement or explain why none exists. Validators MUST
 continue to recognize historical identifiers needed to reproduce old artifacts.
 Retirement does not invalidate already sealed traces.

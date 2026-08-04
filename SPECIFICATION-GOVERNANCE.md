@@ -31,6 +31,12 @@ maintainer approval. Security, privacy, wire compatibility, and commercial-data
 effects must be explicit in the pull request. Releases are tagged and their
 schemas are published at versioned paths.
 
+Frozen external projections are not automatically updated when their upstream
+specification changes. A new target requires an explicit governance decision,
+a versioned profile, conformance vectors, and a named maintenance owner. Target
+lifecycle and maintenance scope are published in
+`projection-target-catalog.json` and enforced by CI.
+
 Contributions are licensed under Apache-2.0. Contributors must have the right to
 submit their material and certify that right using the Developer Certificate of
 Origin sign-off described in `CONTRIBUTING.md`.

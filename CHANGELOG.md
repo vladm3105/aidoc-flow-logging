@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Froze the optional AAT projection at
+  `draft-sharif-agent-audit-trail-00`. UALF no longer commits to tracking later
+  AAT revisions; future targets require a separate governance decision and
+  maintenance owner.
+
 ## Draft v1.3 — 2026-08-03
 
 - Added `ualf-trace/v1.1` with portable tenant scope, agent/session identity,

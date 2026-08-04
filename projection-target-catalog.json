@@ -1,0 +1,29 @@
+{
+  "catalog": "ualf-projection-target-catalog/v1",
+  "targets": [
+    {
+      "projection_id": "ualf-aat-export/draft-00-v1",
+      "source_profile": "ualf-trace/v1.1",
+      "target": "draft-sharif-agent-audit-trail-00",
+      "lifecycle": "frozen",
+      "optional": true,
+      "maintenance_scope": [
+        "security",
+        "verifier-correctness",
+        "historical-reproducibility"
+      ],
+      "claims": [
+        "aat-exported/draft-sharif-agent-audit-trail-00",
+        "aat-validated/draft-sharif-agent-audit-trail-00"
+      ],
+      "artifacts": [
+        "AAT-COMPATIBILITY.md",
+        "aat-draft-00.schema.json",
+        "ualf-aat-source.schema.json",
+        "ualf-aat-export-manifest.schema.json",
+        "build_aat_example.py",
+        "verify_aat.py"
+      ]
+    }
+  ]
+}
