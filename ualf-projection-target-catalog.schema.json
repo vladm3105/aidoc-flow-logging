@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iplanic.ai/schemas/ualf/projection-target-catalog/v1/schema.json",
+  "title": "UALF external projection target catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["catalog", "targets"],
+  "properties": {
+    "catalog": { "const": "ualf-projection-target-catalog/v1" },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["projection_id", "source_profile", "target", "lifecycle", "optional", "maintenance_scope", "claims", "artifacts"],
+        "properties": {
+          "projection_id": { "type": "string", "minLength": 1 },
+          "source_profile": { "type": "string", "minLength": 1 },
+          "target": { "type": "string", "minLength": 1 },
+          "lifecycle": { "enum": ["active", "frozen", "retired"] },
+          "optional": { "type": "boolean" },
+          "maintenance_scope": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "enum": ["security", "verifier-correctness", "historical-reproducibility"] }
+          },
+          "claims": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "artifacts": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^[A-Za-z0-9._/-]+$" }
+          }
+        }
+      }
+    }
+  }
+}

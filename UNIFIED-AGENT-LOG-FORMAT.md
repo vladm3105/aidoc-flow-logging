@@ -325,7 +325,7 @@ that does not weaken its operational semantics. Compatibility is expressed as a
 versioned projection from a closed UALF trace, not by relabeling UALF fields or
 discarding its source artifacts.
 
-The informative `AAT-COMPATIBILITY.md` profile targets
+The frozen, optional, informative `AAT-COMPATIBILITY.md` projection targets only
 `draft-sharif-agent-audit-trail-00`. It defines a one-way audit projection,
 controlled compatibility claims, privacy transformation, integrity separation,
 and mappings for lifecycle, tool, decision, delegation, escalation, error, and
@@ -343,6 +343,12 @@ draft as an IETF standard, IETF endorsement, or proof of regulatory compliance.
 The UALF trace remains authoritative for debugging, replay, evaluation, and
 dataset qualification because the AAT projection intentionally removes content
 and UALF-only semantics.
+
+UALF does not track later AAT revisions. Maintenance is limited to security and
+correctness fixes for the pinned draft-00 projection. A future AAT target requires
+a separate governance decision, profile identifier, mapping review, conformance
+vectors, and maintenance owner; publication of a new draft alone is not a
+trigger for implementation.
 
 ## 12. Extensions and compatibility
 

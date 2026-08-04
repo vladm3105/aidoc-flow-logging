@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the synthetic AAT draft-00 projection and signed transformation manifest."""
+"""Build the frozen, optional AAT draft-00 projection fixture."""
 
 from __future__ import annotations
 

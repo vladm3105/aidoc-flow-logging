@@ -32,6 +32,14 @@ def load_verifier():
     return module
 
 
+def load_aat_verifier():
+    spec = importlib.util.spec_from_file_location("ualf_aat_verify", AAT_VERIFY)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
 def example_records() -> list[dict]:
     return [
         json.loads(line) for line in EXAMPLE.read_text(encoding="utf-8").splitlines()
@@ -331,7 +339,48 @@ class VerifierGoldenVectors(unittest.TestCase):
     def test_aat_positive_example(self) -> None:
         result = run_aat_verifier(AAT_EXAMPLE)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("CONFORMING", result.stdout)
+        self.assertIn(
+            "CONFORMING (ualf-aat-validator/0.1.0, "
+            "draft-sharif-agent-audit-trail-00)",
+            result.stdout,
+        )
+
+    def test_aat_projection_target_is_frozen(self) -> None:
+        target_catalog = json.loads(
+            (BASE / "projection-target-catalog.json").read_text(encoding="utf-8")
+        )
+        target = target_catalog["targets"][0]
+        manifest = json.loads(AAT_MANIFEST.read_text(encoding="utf-8"))
+        source_context = json.loads(AAT_CONTEXT.read_text(encoding="utf-8"))
+        trace_schema = json.loads(
+            (BASE / "ualf-trajectory.schema.json").read_text(encoding="utf-8")
+        )
+        manifest_schema = json.loads(
+            (BASE / "ualf-aat-export-manifest.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        aat_verifier = load_aat_verifier()
+
+        self.assertEqual(target["source_profile"], "ualf-trace/v1.1")
+        self.assertEqual(target["target"], "draft-sharif-agent-audit-trail-00")
+        self.assertEqual(target["lifecycle"], "frozen")
+        self.assertTrue(target["optional"])
+        self.assertEqual(
+            trace_schema["$defs"]["header"]["properties"]["schema"]["const"],
+            target["source_profile"],
+        )
+        self.assertEqual(manifest["profile"], target["target"])
+        self.assertEqual(
+            manifest_schema["properties"]["profile"]["const"], target["target"]
+        )
+        self.assertEqual(aat_verifier.PROFILE, target["target"])
+        self.assertEqual(aat_verifier.VERSION, "ualf-aat-validator/0.1.0")
+        self.assertEqual(
+            source_context["schema"],
+            "ualf-aat-source/draft-sharif-agent-audit-trail-00",
+        )
+        self.assertIn(manifest["claim"], target["claims"])
 
     def test_aat_modified_chain_is_rejected(self) -> None:
         records = [

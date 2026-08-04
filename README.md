@@ -32,9 +32,9 @@ until their designs and conformance contracts are completed.
 - **`ualf-dataset/v1.2`** packages selected traces with signed rights, hygiene,
   replay, capture, amendment-cutoff, retention, revocation, evidence,
   replay, deduplication, splits, quality dimensions, and an Ed25519 seal.
-- **AAT draft-00 compatibility** documents a one-way, privacy-minimized audit
-  projection to `draft-sharif-agent-audit-trail-00` without replacing UALF's
-  richer operational source record.
+- **Frozen AAT draft-00 projection** preserves an optional, one-way,
+  privacy-minimized export to `draft-sharif-agent-audit-trail-00`. UALF does not
+  track later AAT revisions or depend on AAT for its base semantics.
 - **`ualf-capture/v1.1`** records production sampling, content states, privacy
   boundary, delivery loss, clocks, recovery, and closure evidence.
 - **`ualf-amendments/v1`** preserves signed post-run evaluation and annotation
@@ -54,7 +54,7 @@ exports.
 | --- | --- |
 | `UNIFIED-AGENT-LOG-FORMAT.md` | Normative trace and dataset specification |
 | `AGENT-LOG-DATASET-REQUIREMENTS.md` | Capture and export requirements |
-| `AAT-COMPATIBILITY.md` | Version-pinned AAT draft-00 mapping and claim rules |
+| `AAT-COMPATIBILITY.md` | Frozen AAT draft-00 projection and claim rules |
 | `PRODUCTION-CAPTURE-AND-LIFECYCLE.md` | Sampling, buffering, privacy, recovery, retention, and erasure |
 | `INTEROPERABILITY-PROFILES.md` | OTel, OpenInference, lineage, Croissant, attestation, and buyer projections |
 | `EXTENSIONS-AND-EVOLUTION.md` | Namespaced extensions, registry, promotion, and deprecation |
@@ -83,6 +83,8 @@ exports.
 | `ualf-datasheet.schema.json` | Machine-readable dataset disclosure schema |
 | `ualf-erasure-statement.schema.json` | Signed revocation and erasure propagation evidence |
 | `schema-catalog.json` | Profile, immutable schema identifier, and draft file resolution map |
+| `projection-target-catalog.json` | Machine-readable lifecycle of external projection targets |
+| `ualf-projection-target-catalog.schema.json` | External projection lifecycle catalog schema |
 | `example-trajectory.jsonl` | Complete signed example trace |
 | `example-manifest.json` | Example dataset manifest |
 | `example-quality-report.json` | Example derived quality report |
@@ -154,7 +156,8 @@ Verify the complete dataset package, including every listed trace:
 python verify.py example-trajectory.jsonl --manifest example-manifest.json
 ```
 
-Verify the pinned AAT projection and signed transformation manifest:
+Optionally verify the frozen AAT draft-00 fixture and signed transformation
+manifest:
 
 ```bash
 python verify_aat.py example-aat.jsonl \
@@ -237,8 +240,9 @@ scoped distributed clocks, terminal call states, multi-agent events, signed
 qualification evidence, lifecycle-bound packages, and machine-readable dataset
 disclosures. `aidoc-traj/v1` was
 experimental and is superseded by the operations-first `ualf-trace/v1.1` design.
-The AAT compatibility document is informative and targets an individual IETF
-Internet-Draft; it is not an IETF endorsement or a regulatory certification.
+The frozen AAT projection is optional and targets one individual IETF
+Internet-Draft revision. It is not an IETF endorsement, regulatory
+certification, or commitment to support later AAT revisions.
 
 ## License
 

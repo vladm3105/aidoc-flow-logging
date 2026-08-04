@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify an AAT draft-00 JSONL projection and its UALF transformation manifest."""
+"""Verify the frozen AAT draft-00 projection and transformation manifest."""
 
 from __future__ import annotations
 

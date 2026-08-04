@@ -163,8 +163,12 @@ when they appear in all capitals, and use stable `DLOG-NNN` identifiers.
   signatures or vice versa.
 - **DLOG-075.** Parallel UALF spans MUST be deterministically serialized or mapped
   to linked AAT sessions. The export MUST retain source span and causal mappings.
-- **DLOG-076.** Compatibility with a draft revision MUST be immutable. A new AAT
-  revision requires a new profile, mapping report, and conformance vectors.
+- **DLOG-076.** The AAT draft-00 projection MUST remain frozen and optional.
+  UALF maintainers have no obligation to track later AAT revisions. A future
+  target requires explicit governance approval, a new profile, a mapping and
+  behavior-change report, conformance vectors, and a named maintenance owner.
+  Frozen status and scope MUST be published in the machine-readable projection
+  target catalog and regression-tested.
 - **DLOG-077.** AAT content hashes MUST use RFC 8785 JCS bytes for JSON, exact
   UTF-8 bytes without normalization for text, and decoded octets for binary.
 - **DLOG-078.** Sensitive or personal content MUST NOT be stored inline in an
