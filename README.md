@@ -1,25 +1,31 @@
 # UALF — Unified Agent Logging and Dataset Format
 
-UALF provides one operations-first trace format for AI projects and a separate
-qualification profile for commercial trajectory datasets.
+UALF serves a **Dual Mandate** across the multi-agent ecosystem:
 
-## Project maturity and scope
+1. **Universal Operational Execution Floor (Internal Across All Projects):**  
+   Every autonomous agent across every project (`aidoc-flow-engramory`, `aidoc-flow-interlog`, `aidoc-observability-monitoring`, and coding agents in isolated worktrees like `b-local-privy`) produces step-by-step execution traces. UALF records these traces with gapless exact-byte SHA-256 hash chaining, content-addressed tool output grounding (`blobs/sha256:`), and local in-flight spooling (`.ualf/spool/`) for debugging, regression testing, and supervisory auditing.
 
-UALF is currently a design-stage logging standard and reference-artifact
-package. The schemas, examples, generators, exporters, and verifiers in this
-repository demonstrate format behavior and conformance; they are not a
-production logging platform.
+2. **Qualified Commercial Dataset Refinery & Compliance Vault (Downstream):**  
+   A rigorous qualification and cryptographic sealing pipeline (`ualf-dataset/v1.2`) that transforms selected operational runs into tamper-evident commercial AI training assets (SFT JSONL, DPO preference pairs, Parquet) and regulated AI audit archives under EU AI Act mandates.
 
-`INFRASTRUCTURE-AND-OPERATIONS-ROADMAP.md` records the approved direction for
-storage, ingestion, isolation, observability, replay, and operations. The
-repository does not yet provide or claim a production ingestion gateway,
-managed archive, SQL or ClickHouse deployment, monitoring stack, runtime SDK,
-dashboard package, or operational runbook. Those deliverables remain planned
-until their designs and conformance contracts are completed.
+## Spoke Integration & Ecosystem Overview
+
+For developers and coding agents integrating trajectory recording into spoke repositories, see the practical onboarding guide:
+
+- **[docs/SPOKE-INTEGRATION.md](file:///mnt/e/dev/flow-trajectory-logging/docs/SPOKE-INTEGRATION.md)** — Step-by-step developer guide, canonical project slug mapping (`^proj-[a-z0-9-]{2,}$`), Python `TrajectoryRecorder` usage, and Interlog/Engramory cross-linking conventions.
+
+## Project Maturity and Architecture
+
+UALF provides normative schemas, reference verifiers, and a Python SDK package (`ualf`). The live architecture operates as an ecosystem triad:
+
+- **Intra-Agent Execution:** Logged via `ualf.recorder.TrajectoryRecorder` to local `.ualf/spool/`.
+- **Inter-Agent Coordination:** Governed by `aidoc-flow-interlog` (outbox / exchange).
+- **Episodic & Semantic Memory:** Closed UALF trajectories serve as the gold source for `aidoc-flow-engramory` L2/L3 memory distillation.
+- **Fleet Analytics & Archiving:** Supported by `aidoc-observability-monitoring` via ClickHouse `ualf_analytics` (7 tables) and MinIO `ualf-archives/`.
 
 ## Goals
 
-1. Debug, test, measure, and trace AI agents consistently across projects.
+1. Debug, test, measure, and trace AI agents consistently across all projects.
 2. Support useful replay levels, beginning with recorded-response replay.
 3. Preserve enough provenance and context to create valuable training datasets.
 4. Export only rights-cleared, complete, independently qualified traces.
@@ -52,6 +58,8 @@ exports.
 
 | File | Purpose |
 | --- | --- |
+| `docs/SPOKE-INTEGRATION.md` | Practical spoke developer and agent onboarding guide |
+| `sdk/python/` | Python package (`ualf`) with `TrajectoryRecorder` and types |
 | `UNIFIED-AGENT-LOG-FORMAT.md` | Normative trace and dataset specification |
 | `AGENT-LOG-DATASET-REQUIREMENTS.md` | Capture and export requirements |
 | `AAT-COMPATIBILITY.md` | Frozen AAT draft-00 projection and claim rules |

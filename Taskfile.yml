@@ -1,0 +1,65 @@
+# Taskfile.yml — flow-trajectory-logging Automation & Verification
+version: '3'
+
+vars:
+  VENV_PYTHON: .venv/bin/python
+  VENV_UV: uv
+
+tasks:
+  venv:
+    desc: Set up Python virtual environment and install dependencies using uv
+    cmds:
+      - uv venv
+      - uv pip install -r requirements.txt
+    status:
+      - test -f {{.VENV_PYTHON}}
+
+  venv:analytics:
+    desc: Install full analytics dependencies (including pyarrow for Parquet)
+    cmds:
+      - task: venv
+      - uv pip install -r requirements-analytics.txt
+
+  verify:
+    desc: Run cryptographic and schema verification on example trajectory
+    deps: [venv]
+    cmds:
+      - "{{.VENV_PYTHON}} verify.py example-trajectory.jsonl"
+
+  verify:dataset:
+    desc: Run verification across complete dataset manifest package
+    deps: [venv]
+    cmds:
+      - "{{.VENV_PYTHON}} verify.py example-trajectory.jsonl --manifest example-manifest.json"
+
+  verify:profiles:
+    desc: Run complete v1.3 profile, tamper-resistance, and interoperability verification
+    deps: [venv]
+    cmds:
+      - "{{.VENV_PYTHON}} verify_profiles.py"
+
+  test:
+    desc: Run automated test suite
+    deps: [venv]
+    cmds:
+      - "{{.VENV_PYTHON}} -m unittest discover -s tests -v"
+
+  build:profiles:
+    desc: Deterministically regenerate v1.3 profile examples
+    deps: [venv]
+    cmds:
+      - "{{.VENV_PYTHON}} build_profiles.py"
+
+  export:analytics:
+    desc: Export analytical JSONL tables (and Parquet if pyarrow installed)
+    deps: [venv]
+    cmds:
+      - "{{.VENV_PYTHON}} export_analytics.py example-trajectory.jsonl"
+
+  check:all:
+    desc: Run complete verification, test suite, and profile checks
+    cmds:
+      - task: verify
+      - task: verify:dataset
+      - task: verify:profiles
+      - task: test

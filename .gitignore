@@ -12,6 +12,7 @@
 # Transient
 tmp/
 scratch/
+.ualf/
 
 # Env / secrets
 .env
