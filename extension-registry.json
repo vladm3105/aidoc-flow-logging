@@ -32,6 +32,36 @@
       "unknown_consumer_behavior": "preserve",
       "first_supported_profile": "ualf-trace/v1.1",
       "description": "Version-pinned OpenTelemetry GenAI projection metadata."
+    },
+    {
+      "id": "aidoc.io/interlog/v1",
+      "schema_url": "https://aidoc.io/schemas/v1/interlog.schema.json",
+      "owner": "aidoc-ecosystem",
+      "contact": "https://github.com/vladm3105/aidoc-flow-interlog/issues",
+      "status": "experimental",
+      "requirement_level": "recommended",
+      "applies_to": [
+        "event"
+      ],
+      "privacy_risk": "low",
+      "unknown_consumer_behavior": "preserve",
+      "first_supported_profile": "ualf-trace/v1.1",
+      "description": "Binds inter-agent coordination event ID, outbox state, and exchange delivery to UALF events."
+    },
+    {
+      "id": "aidoc.io/engramory/v1",
+      "schema_url": "https://aidoc.io/schemas/v1/engramory.schema.json",
+      "owner": "aidoc-ecosystem",
+      "contact": "https://github.com/vladm3105/aidoc-flow-engramory/issues",
+      "status": "experimental",
+      "requirement_level": "recommended",
+      "applies_to": [
+        "event"
+      ],
+      "privacy_risk": "low",
+      "unknown_consumer_behavior": "preserve",
+      "first_supported_profile": "ualf-trace/v1.1",
+      "description": "Binds Engramory memory ID, layer (L1/L2/L3), similarity score, and knowledge graph entities to UALF events."
     }
   ]
 }

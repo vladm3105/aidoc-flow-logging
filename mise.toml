@@ -1,0 +1,7 @@
+# mise.toml — Single Source of Truth for Toolchain Versions
+[tools]
+task = "3.44.1"
+uv = "0.7.1"
+python = "3.12.11"
+jq = "1.8.1"
+gh = "2.98.0"
