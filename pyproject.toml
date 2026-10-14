@@ -7,7 +7,7 @@ name = "ualf"
 version = "1.3.0"
 description = "Unified Agent Log Format (UALF) reference SDK, schemas, and verifier"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = { text = "Apache-2.0" }
 dependencies = [
     "cryptography>=45,<47",
@@ -25,3 +25,7 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["sdk/python"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
