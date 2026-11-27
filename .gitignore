@@ -41,3 +41,19 @@ node_modules/
 .idea/
 Thumbs.db
 uv.lock
+
+# >>> aidoc-local-flow-ci >>>
+.ci-out/
+.task/
+.env
+test-results/
+coverage.xml
+.coverage
+coverage.out
+lcov.info
+coverage/
+.lycheecache
+# Canon files whose names match common secret patterns (e.g. *secret*): never ignored.
+!.ci/bin/secrets
+!scripts/secret_scan.py
+# <<< aidoc-local-flow-ci <<<

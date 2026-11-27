@@ -1,0 +1,2 @@
+# False positive: elliptic curve constant check in verify_aat.py (line 146)
+b89abc157119cfcd6bd5a3520c3130dc64a76d14:verify_aat.py:generic-api-key:146

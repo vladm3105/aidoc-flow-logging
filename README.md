@@ -12,7 +12,7 @@ UALF serves a **Dual Mandate** across the multi-agent ecosystem:
 
 For developers and coding agents integrating trajectory recording into spoke repositories, see the practical onboarding guide:
 
-- **[docs/SPOKE-INTEGRATION.md](file:///mnt/e/dev/flow-trajectory-logging/docs/SPOKE-INTEGRATION.md)** — Step-by-step developer guide, canonical project slug mapping (`^proj-[a-z0-9-]{2,}$`), Python `TrajectoryRecorder` usage, and Interlog/Engramory cross-linking conventions.
+- **[docs/SPOKE-INTEGRATION.md](docs/SPOKE-INTEGRATION.md)** — Step-by-step developer guide, canonical project slug mapping (`^proj-[a-z0-9-]{2,}$`), Python `TrajectoryRecorder` usage, and Interlog/Engramory cross-linking conventions.
 
 ## Project Maturity and Architecture
 

@@ -1,2 +1,5 @@
 * text=auto eol=lf
 blobs/** -text
+# unified-test-suite: vendored canon is byte-exact (lock hashes); never convert line endings
+.unified-test-suite/** -text
+unified-test-suite.lock.json -text
